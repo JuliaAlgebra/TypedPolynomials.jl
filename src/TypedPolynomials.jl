@@ -42,6 +42,7 @@ immutable Monomial{N, V} <: MonomialLike
     exponents::NTuple{N, Int64}
 end
 Monomial{N, V}() where {N, V} = Monomial{N, V}(ntuple(_ -> 0, Val{N}))
+Monomial(v::Variable) = Monomial{1, (v,)}((1,))
 
 exponents(m::Monomial) = m.exponents
 variables(::Type{Monomial{N, V}}) where {N, V} = V
@@ -56,16 +57,13 @@ degree(m::Monomial) = sum(exponents(m))
     :(0)
 end
 
-# @generated function varnames(m::Monomial{N, V}) where {N, V}
-#     Expr(:tuple, [:($(name(v))) for v in V]...)
-# end
-
 immutable Term{T, MonomialType <: Monomial} <: TermLike
     coefficient::T
     monomial::MonomialType
 end
-Term(m::TermLike) = convert(Term, m)
-Term(x::T) where {T} = Term{T, Monomial{0, tuple()}}(x, Monomial{0, tuple()}())
+Term(m::Monomial) = Term(1, m)
+Term(v::Variable) = Term(Monomial(v))
+Term(x) = Term{T, Monomial{0, tuple()}}(x, Monomial{0, tuple()}())
 
 variables(::Type{Term{T, M}}) where {T, M} = variables(M)
 variables(t::Term) = variables(typeof(t))
@@ -77,57 +75,39 @@ immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: PolynomialLike
     terms::V
 end
 Polynomial(terms::V) where {T <: Term, V <: AbstractVector{T}} = Polynomial{T, V}(terms)
+Polynomial(term::Term) = Polynomial(SVector(term))
+Polynomial(x) = Polynomial(Term(x))
 
 variables(::Type{<:Polynomial{T}}) where {T} = variables(T)
 variables(p::Polynomial) = variables(typeof(p))
 terms(p::Polynomial) = p.terms
 
-
-convert(::Type{<:Monomial}, v::V) where {V <: Variable} = Monomial{1, (V(),)}((1,))
-convert(T::Type{<:Term}, m::Monomial) = T(1, m)
-convert(T::Type{<:Term}, v::Variable) = convert(T, Monomial(v))
+convert(::Type{Monomial{N, Vars}}, v::Variable) where {N, Vars} = convert(Monomial{N, Vars}, Monomial(v))
 convert(T::Type{Term{T1, M1}}, x) where {T1, M1} = T(convert(T1, x), M1())
-convert(T::Type{<:Polynomial}, t::Term) = T(SVector(t))
-convert(T::Type{<:Polynomial}, x::TermLike) = convert(T, Term(x))
-convert(T::Type{Polynomial{T1, V1}}, x) where {T1, V1} = convert(T, Term(x))
 convert(T::Type{Polynomial{T1, V1}}, p::Polynomial) where {T1, V1} = T(convert(V1, p.terms))
 
 @generated function convert(::Type{Monomial{N1, V1}}, m::Monomial{N2, V2}) where {N1, V1, N2, V2}
     args = Any[0 for v in V1]
-    for (j, var) in enumerate(V2)
-        I = find(v -> v == var, V1)
-        if isempty(I)
-            throw(InexactError())
-        elseif length(I) > 1
-            error("Duplicate variables in destination $Mono1")
+    i1 = 1
+    i2 = 1
+    while i1 <= N1 && i2 <= N2
+        if V1[i1] == V2[i2]
+            args[i1] = :(m.exponents[$i2])
+            i2 += 1
+        else
+            i1 += 1
         end
-        args[I[1]] = :(m.exponents[$j])
     end
-    quote
-        Monomial{$(N1), $(V1)}($(Expr(:tuple, args...)))
+    if i2 < N2
+        :(throw(InexactError()))
+    else
+        :(Monomial{N1, V1}($(Expr(:tuple, args...))))
     end
 end
 
 function convert(::Type{Term{T1, M1}}, t::Term{T2, M2}) where {T1, M1, T2, M2}
     Term{T1, M1}(convert(T1, t.coefficient), convert(M1, t.monomial))
 end
-#
-# @generated function convert(::Type{Term{T1, Mono1}}, t::Term{T2, Mono2}) where {T1, Mono1, T2, Mono2}
-#     args = Any[0 for v in variables(Mono1)]
-#     for (j, var) in enumerate(variables(Mono2))
-#         I = find(v -> v == var, variables(Mono1))
-#         if isempty(I)
-#             throw(InexactError())
-#         elseif length(I) > 1
-#             error("Duplicate variables in destination $Mono1")
-#         end
-#         args[I[1]] = :(t.monomial.exponents[$j])
-#     end
-#     quote
-#         Term{$T1, $Mono1}(convert(T1, t.coefficient),
-#             Monomial{$(length(args)), $(variables(Mono1))}($(Expr(:tuple, args...))))
-#     end
-# end
 
 
 one(::Type{Monomial{N, V}}) where {N, V} = Monomial{N, V}()
@@ -161,16 +141,6 @@ function isless(m1::M, m2::M) where {M <: Monomial}
     end
     false
 end
-
-# @generated function isless(m1::Monomial{N1, V1}, m2::Monomial{N2, V2}) where {N1, V1, N2, V2}
-#     if V1 < V2
-#         :(true)
-#     elseif V1 > V2
-#         :(false)
-#     else
-#         :(exponents(m1) < exponents(m2))
-#     end
-# end
 
 isless(t1::Term, t2::Term) = t1.monomial < t2.monomial
 
@@ -212,43 +182,67 @@ function show(io::IO, p::Polynomial)
     end
 end
 
-@generated function promote_rule(::Type{M1}, ::Type{M2}) where {M1 <: Monomial, M2 <: Monomial}
-    vars = Tuple(sort(union(variables(M1), variables(M2))))
-    quote
-        Monomial{$(length(vars)), $(vars)}
+function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
+    promote_rule(Monomial{1, (V1(),)}, Monomial{1, (V2(),)})
+end
+
+# @generated function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
+#     if V1() < V2()
+#         :(Monomial{2, (V1(), V2())})
+#     else
+#         :(Monomial{2, (V2(), V1())})
+#     end
+# end
+
+function promote_rule(::Type{V}, ::Type{M}) where {V <: Variable, M <: Monomial}
+    promote_rule(Monomial{1, (V(),)}, M)
+end
+
+@generated function promote_rule(::Type{V}, ::Type{Monomial{N, Vars}}) where {V <: Variable, N, Vars}
+    if V in Vars
+        :(Monomial{N, Vars})
+    else
+        :(Monomial{$(N + 1), $(Tuple(sort(vcat(collect(Vars), [V]))))})
     end
 end
 
-function promote_rule(::Type{<:MonomialLike}, ::Type{<:MonomialLike})
-    Monomial
-end
+# @generated function promote_rule(::Type{M1}, ::Type{M2}) where {M1 <: Monomial, M2 <: Monomial}
+#     vars = Tuple(sort(union(variables(M1), variables(M2))))
+#     quote
+#         Monomial{$(length(vars)), $(vars)}
+#     end
+# end
 
-function promote_rule(::Type{Term{T1, M}}, ::Type{Term{T2, M}}) where {T1, T2, M}
-    Term{promote_type(T1, T2), M}
-end
+# function promote_rule(::Type{<:MonomialLike}, ::Type{<:MonomialLike})
+#     Monomial
+# end
 
-function promote_rule(::Type{<:TermLike}, ::Type{<:TermLike})
-    Term
-end
+# function promote_rule(::Type{Term{T1, M}}, ::Type{Term{T2, M}}) where {T1, T2, M}
+#     Term{promote_type(T1, T2), M}
+# end
 
-@generated function promote_rule(::Type{Term{T, Mono1}}, ::Type{Term{T, Mono2}}) where {T, Mono1, Mono2}
-    vars = Tuple(sort(collect(union(Set(variables(Mono1)),
-                                    Set(variables(Mono2))))))
-    quote
-        Term{T, Monomial{$(length(vars)), $(vars)}}
-    end
-end
+# function promote_rule(::Type{<:TermLike}, ::Type{<:TermLike})
+#     Term
+# end
 
-function promote_rule(::Type{<:PolynomialLike}, ::Type{<:PolynomialLike})
-    Polynomial
-end
+# @generated function promote_rule(::Type{Term{T, Mono1}}, ::Type{Term{T, Mono2}}) where {T, Mono1, Mono2}
+#     vars = Tuple(sort(collect(union(Set(variables(Mono1)),
+#                                     Set(variables(Mono2))))))
+#     quote
+#         Term{T, Monomial{$(length(vars)), $(vars)}}
+#     end
+# end
 
-@generated function promote_rule(::Type{Polynomial{T1, V1}}, ::Type{Polynomial{T2, V2}}) where {T1, T2, V1, V2}
-    termtype = promote_type(T1, T2)
-    quote
-        Polynomial{$termtype, Vector{$termtype}}
-    end
-end
+# function promote_rule(::Type{<:PolynomialLike}, ::Type{<:PolynomialLike})
+#     Polynomial
+# end
+
+# @generated function promote_rule(::Type{Polynomial{T1, V1}}, ::Type{Polynomial{T2, V2}}) where {T1, T2, V1, V2}
+#     termtype = promote_type(T1, T2)
+#     quote
+#         Polynomial{$termtype, Vector{$termtype}}
+#     end
+# end
 
 function jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
     T = promote_type(eltype(terms1), eltype(terms2))
