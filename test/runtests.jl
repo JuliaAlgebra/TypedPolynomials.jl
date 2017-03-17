@@ -1,6 +1,5 @@
 using TypedPolynomials
 using Base.Test
-using BenchmarkTools
 
 @polyvar x y z
 
@@ -26,7 +25,10 @@ using BenchmarkTools
     @test exponents(m) == (2, 4)
 
     @test x * y < x^2
-    @test (@benchmark $(x * y) < $(x^2)).allocs == 0
+
+    f(x, y) = @allocated ((x * y) < x^2)
+    f(x, y)
+    @test f(x, y) == 0
 end
 
 @testset "terms" begin
@@ -82,7 +84,6 @@ end
 @testset "monomial vector" begin
     ms = @inferred testmonomials(x, 3)
     @test eltype(ms) == Monomial{1, (x,)}
-    @test (@benchmark testmonomials($x, 3)).allocs == 1
 end
 
 include("substitution.jl")

@@ -4,7 +4,10 @@
     p = x^2 * y + y^2 + x
     @test p(x=>1, y=>2) == 7
     @inferred p(x=>1, y=>2)
-    @test (@benchmark $p($x=>1, $y=>2)).allocs == 0
+
+    subs1(p, x, y) = @allocated p(x=>1, y=>2)
+    subs1(p, x, y)
+    @test subs1(p, x, y) == 0
 
     @test (@inferred x(x=>5)) == 5
     @test (@inferred x(y=>2)) == x
