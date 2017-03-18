@@ -198,13 +198,42 @@ function promote_rule(::Type{V}, ::Type{M}) where {V <: Variable, M <: Monomial}
     promote_rule(Monomial{1, (V(),)}, M)
 end
 
-@generated function promote_rule(::Type{V}, ::Type{Monomial{N, Vars}}) where {V <: Variable, N, Vars}
-    if V in Vars
-        :(Monomial{N, Vars})
-    else
-        :(Monomial{$(N + 1), $(Tuple(sort(vcat(collect(Vars), [V]))))})
-    end
-end
+
+# x y x
+#   y x
+
+# x y x
+#   y x y
+
+#   x y x
+# z x
+
+# x y x x x
+#   y x     z x
+
+function var_union(V1::Tuple, V2::Tuple)
+    @assert length(V1) <= length(V2)
+    i1 = 1
+    i2 = 1
+    result = Variable[]
+    while
+
+
+@generated function promote_rule(::Type{Monomial{N1, V1}}, ::Type{Monomial{N2, V2}}) where {N1, V1, N2, V2}
+    vars = Any[]
+    i2_start = 1
+    for i1 in 1:N1
+        for i2 in i2_start
+
+
+
+# @generated function promote_rule(::Type{V}, ::Type{Monomial{N, Vars}}) where {V <: Variable, N, Vars}
+#     if V in Vars
+#         :(Monomial{N, Vars})
+#     else
+#         :(Monomial{$(N + 1), $(Tuple(sort(vcat(collect(Vars), [V]))))})
+#     end
+# end
 
 # @generated function promote_rule(::Type{M1}, ::Type{M2}) where {M1 <: Monomial, M2 <: Monomial}
 #     vars = Tuple(sort(union(variables(M1), variables(M2))))
