@@ -284,53 +284,6 @@ function promote_rule(::Type{<:Polynomial{T}}, ::Type{S}) where {S, T <: TermLik
     Polynomial{R, Vector{R}}
 end
 
-
-# @generated function promote_rule(::Type{V}, ::Type{Monomial{N, Vars}}) where {V <: Variable, N, Vars}
-#     if V in Vars
-#         :(Monomial{N, Vars})
-#     else
-#         :(Monomial{$(N + 1), $(Tuple(sort(vcat(collect(Vars), [V]))))})
-#     end
-# end
-
-# @generated function promote_rule(::Type{M1}, ::Type{M2}) where {M1 <: Monomial, M2 <: Monomial}
-#     vars = Tuple(sort(union(variables(M1), variables(M2))))
-#     quote
-#         Monomial{$(length(vars)), $(vars)}
-#     end
-# end
-
-# function promote_rule(::Type{<:MonomialLike}, ::Type{<:MonomialLike})
-#     Monomial
-# end
-
-# function promote_rule(::Type{Term{T1, M}}, ::Type{Term{T2, M}}) where {T1, T2, M}
-#     Term{promote_type(T1, T2), M}
-# end
-
-# function promote_rule(::Type{<:TermLike}, ::Type{<:TermLike})
-#     Term
-# end
-
-# @generated function promote_rule(::Type{Term{T, Mono1}}, ::Type{Term{T, Mono2}}) where {T, Mono1, Mono2}
-#     vars = Tuple(sort(collect(union(Set(variables(Mono1)),
-#                                     Set(variables(Mono2))))))
-#     quote
-#         Term{T, Monomial{$(length(vars)), $(vars)}}
-#     end
-# end
-
-# function promote_rule(::Type{<:PolynomialLike}, ::Type{<:PolynomialLike})
-#     Polynomial
-# end
-
-# @generated function promote_rule(::Type{Polynomial{T1, V1}}, ::Type{Polynomial{T2, V2}}) where {T1, T2, V1, V2}
-#     termtype = promote_type(T1, T2)
-#     quote
-#         Polynomial{$termtype, Vector{$termtype}}
-#     end
-# end
-
 function jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
     T = promote_type(eltype(terms1), eltype(terms2))
     terms = Vector{T}(length(terms1) + length(terms2))
@@ -367,6 +320,9 @@ function jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
     resize!(terms, length(terms) - deletions)
 end
 
+(+)(v1::Variable, v2::Variable) = Term(v1) + Term(v2)
+(+)(m1::Monomial, m2::Monomial) = Term(m1) + Term(m2)
+
 function (+)(term1::T1, term2::T2) where {T1 <: Term, T2 <: Term}
     T = promote_type(T1, T2)
     t1, t2 = promote(term1, term2)
@@ -380,10 +336,16 @@ function (+)(term1::T1, term2::T2) where {T1 <: Term, T2 <: Term}
 end
 
 (+)(p1::Polynomial, p2::Polynomial) = Polynomial(jointerms(p1.terms, p2.terms))
-(+)(t1::TermLike, t2::TermLike) = Term(t1) + Term(t2)
-(+)(t1::PolynomialLike, t2::PolynomialLike) = +(promote(t1, t2)...)
-(+)(p::PolynomialLike, x::Any) = p + Polynomial(Term(x))
-(+)(x::Any, p::PolynomialLike) = Polynomial(Term(x)) + p
+
+(*)(v1::V, v2::V) where {V <: Variable} = Monomial{1, (V(),)}((2,))
+
+@generated function (*)(v1::V1, v2::V2) where {V1 <: Variable, V2 <: Variable}
+    if V1() < V2()
+        :(Monomial{2, (V1(), V2())}((1, 1)))
+    else
+        :(Monomial{2, (V2(), V1())}((1, 1)))
+    end
+end
 
 @generated function (*)(m1::Monomial{N1, V1}, m2::Monomial{N2, V2}) where {N1, V1, N2, V2}
     vars = Tuple(sort(collect(union(Set(V1), Set(V2)))))
@@ -403,24 +365,15 @@ end
     Expr(:call, :(Monomial{$(length(args)), $vars}), Expr(:tuple, args...))
 end
 
-(*)(t1::TermLike, t2::TermLike) = *(promote(t1, t2)...)
 (*)(t1::Term, t2::Term) = Term(t1.coefficient * t2.coefficient, t1.monomial * t2.monomial)
-(*)(t1::Term, m2::MonomialLike) = Term(t1.coefficient, t1.monomial * Monomial(m2))
-(*)(m1::MonomialLike, t2::Term) = Term(t2.coefficient, Monomial(m1) * t2.monomial)
-(*)(x::Any, t::Term) = Term(x * t.coefficient, t.monomial)
-(*)(t::Term, x::Any) = Term(t.coefficient * x, t.monomial)
-(*)(t::TermLike, x::Any) = Term(t) * x
-(*)(x::Any, t::TermLike) = x * Term(t)
-(*)(t::TermLike) = t
 
-@generated function (*)(v1::V1, v2::V2) where {V1 <: Variable, V2 <: Variable}
-    if V1() < V2()
-        :(Monomial{2, (V1(), V2())}((1, 1)))
-    else
-        :(Monomial{2, (V2(), V1())}((1, 1)))
-    end
+for op in [:+, :*]
+    @eval $op(p1::PolynomialLike, p2::PolynomialLike) = $op(promote(p1, p2)...)
+    @eval $op(p::PolynomialLike, x) = $op(promote(p, x)...)
+    @eval $op(x, p::PolynomialLike) = $op(promote(x, p)...)
 end
-(*)(v1::V, v2::V) where {V <: Variable} = Monomial{1, (V(),)}((2,))
+
+(*)(t::PolynomialLike) = t
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{1, (V(),)}((x,))
 

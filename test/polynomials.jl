@@ -33,13 +33,13 @@ end
     @test isa(t, Term)
     @test variables(t) == (x,)
     @test coefficient(t) == 3
-    @test monomial(t) == convert(Monomial, x)
+    @test monomial(t) == Monomial(x)
 
     t = @inferred x * 3
     @test isa(t, Term)
     @test variables(t) == (x,)
     @test coefficient(t) == 3
-    @test monomial(t) == convert(Monomial, x)
+    @test monomial(t) == Monomial(x)
 
     t = @inferred (2x) * y * x
     @test isa(t, Term)
