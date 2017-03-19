@@ -1,17 +1,45 @@
 using TypedPolynomials
 using Base.Test
+using StaticArrays: SVector
 
 @testset "promotion" begin
     @polyvar x y z
 
-    # @show promote(Monomial(x), Monomial(x))
-    @show TypedPolynomials.promote_rule(typeof(Monomial(x)), typeof(Monomial(y)))
-    # @show promote(Monomial(x), Monomial(y))
-    # m1, m2 = promote(x, y)
-    # m1 = Monomial{1, (x,)}((1,))
-    # m2 = Monomial{1, (y,)}((1,))
-    # @show TypedPolynomials._promote_monomial(typeof(m1), typeof(m2))
-    # @show m1 m2
+    @test typeof(promote(1, y)) == NTuple{2, Term{Int, Monomial{1, (y,)}}}
+    @test typeof(promote(1, y^2)) == NTuple{2, Term{Int, Monomial{1, (y,)}}}
+    @test typeof(promote(1, 2y)) == NTuple{2, Term{Int, Monomial{1, (y,)}}}
+    @test typeof(promote(1, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{1, (y,)}}, Vector{Term{Int, Monomial{1, (y,)}}}}}
+    @test typeof(promote(1, Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{1, (y,)}}, Vector{Term{Int, Monomial{1, (y,)}}}}}
+
+    @test typeof(promote(x, 1)) == NTuple{2, Term{Int, Monomial{1, (x,)}}}
+    @test typeof(promote(x, y)) == NTuple{2, Monomial{2, (x, y)}}
+    @test typeof(promote(y, x)) == NTuple{2, Monomial{2, (x, y)}}
+    @test typeof(promote(x, y^2)) == NTuple{2, Monomial{2, (x, y)}}
+    @test typeof(promote(x, 2y)) == NTuple{2, Term{Int, Monomial{2, (x, y)}}}
+    @test typeof(promote(x, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, SVector{1, Term{Int, Monomial{2, (x, y)}}}}}
+    @test typeof(promote(x, Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, Vector{Term{Int, Monomial{2, (x, y)}}}}}
+
+    @test typeof(promote(x^2, 1)) == NTuple{2, Term{Int, Monomial{1, (x,)}}}
+    @test typeof(promote(x^2, y)) == NTuple{2, Monomial{2, (x, y)}}
+    @test typeof(promote(y, x^2)) == NTuple{2, Monomial{2, (x, y)}}
+    @test typeof(promote(x^2, y^2)) == NTuple{2, Monomial{2, (x, y)}}
+    @test typeof(promote(x^2, 2y)) == NTuple{2, Term{Int, Monomial{2, (x, y)}}}
+    @test typeof(promote(x^2, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, SVector{1, Term{Int, Monomial{2, (x, y)}}}}}
+    @test typeof(promote(x^2, Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, Vector{Term{Int, Monomial{2, (x, y)}}}}}
+
+    @test typeof(promote(2x, 1)) == NTuple{2, Term{Int, Monomial{1, (x,)}}}
+    @test typeof(promote(2x, y)) == NTuple{2, Term{Int, Monomial{2, (x, y)}}}
+    @test typeof(promote(2x, y^2)) == NTuple{2, Term{Int, Monomial{2, (x, y)}}}
+    @test typeof(promote(2x, 2y)) == NTuple{2, Term{Int, Monomial{2, (x, y)}}}
+    @test typeof(promote(2x, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, SVector{1, Term{Int, Monomial{2, (x, y)}}}}}
+    @test typeof(promote(2x, Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, Vector{Term{Int, Monomial{2, (x, y)}}}}}
+
+    @test typeof(promote(Polynomial(2x), 1)) == NTuple{2, Polynomial{Term{Int, Monomial{1, (x,)}}, Vector{Term{Int, Monomial{1, (x,)}}}}}
+    @test typeof(promote(Polynomial(2x), y)) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, SVector{1, Term{Int, Monomial{2, (x, y)}}}}}
+    @test typeof(promote(Polynomial(2x), y^2)) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, SVector{1, Term{Int, Monomial{2, (x, y)}}}}}
+    @test typeof(promote(Polynomial(2x), 2y)) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, SVector{1, Term{Int, Monomial{2, (x, y)}}}}}
+    @test typeof(promote(Polynomial(2x), Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, SVector{1, Term{Int, Monomial{2, (x, y)}}}}}
+    @test typeof(promote(Polynomial(2x), Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{2, (x, y)}}, Vector{Term{Int, Monomial{2, (x, y)}}}}}
 end
 
 # include("polynomials.jl")
