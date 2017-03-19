@@ -17,6 +17,9 @@ export @polyvar,
        terms,
        degree
 
+include("sequences.jl")
+import .Sequences: shortest_common_supersequence
+
 abstract type PolynomialLike end
 abstract type TermLike <: PolynomialLike end
 abstract type MonomialLike <: TermLike end
@@ -84,7 +87,10 @@ terms(p::Polynomial) = p.terms
 
 convert(::Type{Monomial{N, Vars}}, v::Variable) where {N, Vars} = convert(Monomial{N, Vars}, Monomial(v))
 convert(T::Type{Term{T1, M1}}, x) where {T1, M1} = T(convert(T1, x), M1())
+convert(::Type{Term{T, M1}}, m::Monomial) where {T, M1} = Term{T, M1}(one(T), convert(M1, m))
+convert(::Type{Term{T, M}}, v::Variable) where {T, M} = Term{T, M}(one(T), convert(M, v))
 convert(T::Type{Polynomial{T1, V1}}, p::Polynomial) where {T1, V1} = T(convert(V1, p.terms))
+convert(::Type{<:Polynomial{T1}}, t::TermLike) where {T1} = Polynomial(convert(T1, t))
 
 @generated function convert(::Type{Monomial{N1, V1}}, m::Monomial{N2, V2}) where {N1, V1, N2, V2}
     args = Any[0 for v in V1]
@@ -114,10 +120,8 @@ one(::Type{Monomial{N, V}}) where {N, V} = Monomial{N, V}()
 zero(::Type{Term{T, M}}) where {T, M} = Term{T, M}(0, M())
 zero(t::TermLike) = zero(typeof(t))
 
-
-@generated function isless(::Variable{N1}, ::Variable{N2}) where {N1, N2}
-    N1 < N2
-end
+isless(::Type{Variable{N1}}, ::Type{Variable{N2}}) where {N1, N2} = N1 < N2
+isless(v1::Variable, v2::Variable) = typeof(v1) < typeof(v2)
 
 # Graded Lexicographic order
 # First compare total degree, then lexicographic order
@@ -182,50 +186,83 @@ function show(io::IO, p::Polynomial)
     end
 end
 
-function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
-    promote_rule(Monomial{1, (V1(),)}, Monomial{1, (V2(),)})
+@generated function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
+    if V1 < V2
+        :(Monomial{2, (V1(), V2())})
+    else
+        :(Monomial{2, (V2(), V1())})
+    end
 end
-
-# @generated function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
-#     if V1() < V2()
-#         :(Monomial{2, (V1(), V2())})
-#     else
-#         :(Monomial{2, (V2(), V1())})
-#     end
-# end
 
 function promote_rule(::Type{V}, ::Type{M}) where {V <: Variable, M <: Monomial}
     promote_rule(Monomial{1, (V(),)}, M)
 end
 
+function promote_rule(::Type{V}, ::Type{Term{T, M}}) where {V <: Variable, T, M <: Monomial}
+    Term{T, promote_type(V, M)}
+end
 
-# x y x
-#   y x
+function _promote_monomial(::Type{Monomial{N1, V1}}, ::Type{Monomial{N2, V2}}) where {N1, V1, N2, V2}
+    if V1 > V2
+        _promote_monomial(Monomial{N2, V2}, Monomial{N1, V1})
+    else
+        varnames = shortest_common_supersequence(name.(V1), name.(V2))
+        vars = Expr(:tuple, [Expr(:call, Expr(:curly, :Variable, Expr(:quote, n))) for n in varnames]...)
+        quote
+            Monomial{$(length(varnames)), $vars}
+        end
+    end
+end
 
-# x y x
-#   y x y
+@generated function promote_rule(t1::Type{M1}, t2::Type{M2}) where {M1 <: Monomial, M2 <: Monomial}
+    _promote_monomial(M1, M2)
+end
 
-#   x y x
-# z x
+function promote_rule(::Type{M1}, ::Type{Term{T, M2}}) where {M1 <: Monomial, T, M2 <: Monomial}
+    Term{T, promote_type(M1, M2)}
+end
 
-# x y x x x
-#   y x     z x
+function promote_rule(::Type{Term{T1, M1}}, ::Type{Term{T2, M2}}) where {T1, M1, T2, M2}
+    Term{promote_type(T1, T2), promote_type(M1, M2)}
+end
 
-function var_union(V1::Tuple, V2::Tuple)
-    @assert length(V1) <= length(V2)
-    i1 = 1
-    i2 = 1
-    result = Variable[]
-    while
+function promote_rule(::Type{T1}, ::Type{<:Polynomial{T2}}) where {T1 <: TermLike, T2 <: Term}
+    T = promote_type(T1, T2)
+    Polynomial{T, Vector{T}}
+end
 
+function promote_rule(::Type{T1}, ::Type{Polynomial{T2, SVector{N, T2}}}) where {T1 <: TermLike, T2 <: Term, N}
+    T = promote_type(T1, T2)
+    Polynomial{T, SVector{N, T}}
+end
 
-@generated function promote_rule(::Type{Monomial{N1, V1}}, ::Type{Monomial{N2, V2}}) where {N1, V1, N2, V2}
-    vars = Any[]
-    i2_start = 1
-    for i1 in 1:N1
-        for i2 in i2_start
+function promote_rule(::Type{<:Polynomial{T1}}, ::Type{<:Polynomial{T2}}) where {T1 <: TermLike, T2 <: TermLike}
+    T = promote_type(T1, T2)
+    Polynomial{T, Vector{T}}
+end
 
+@generated function promote_rule(::Type{Polynomial{T1, SVector{N1, T1}}}, ::Type{Polynomial{T2, SVector{N2, T2}}}) where {T1, N1, T2, N2}
+    T = promote_type(T1, T2)
+    :(Polynomial{T, SVector{max(N1, N2), T}})
+end
 
+function promote_rule(::Type{S}, ::Type{Term{T, M}}) where {S, T, M <: Monomial}
+    Term{promote_type(S, T), M}
+end
+
+function promote_rule(::Type{S}, ::Type{<:Polynomial{T}}) where {S, T <: Term}
+    R = promote_type(S, T)
+    Polynomial{R, Vector{R}}
+end
+
+function promote_rule(::Type{S}, ::Type{Polynomial{T, SVector{N, T}}}) where {S, T <: Term, N}
+    R = promote_type(S, T)
+    Polynomial{R, SVector{N, R}}
+end
+
+# function promote_rule(::)
+
+# promote_rule(::Type{M}, ::Type{M}) where {M <: Monomial} = M
 
 # @generated function promote_rule(::Type{V}, ::Type{Monomial{N, Vars}}) where {V <: Variable, N, Vars}
 #     if V in Vars
