@@ -323,9 +323,7 @@ end
 (+)(v1::Variable, v2::Variable) = Term(v1) + Term(v2)
 (+)(m1::Monomial, m2::Monomial) = Term(m1) + Term(m2)
 
-function (+)(term1::T1, term2::T2) where {T1 <: Term, T2 <: Term}
-    T = promote_type(T1, T2)
-    t1, t2 = promote(term1, term2)
+function (+)(t1::T, t2::T) where {T <: Term}
     if t1.monomial < t2.monomial
         Polynomial([t1, t2])
     elseif t1.monomial > t2.monomial
@@ -347,22 +345,9 @@ end
     end
 end
 
-@generated function (*)(m1::Monomial{N1, V1}, m2::Monomial{N2, V2}) where {N1, V1, N2, V2}
-    vars = Tuple(sort(collect(union(Set(V1), Set(V2)))))
-    args = []
-    for (i, v) in enumerate(vars)
-        i1 = findfirst(V1, v)
-        i2 = findfirst(V2, v)
-        if i1 != 0 && i2 != 0
-            push!(args, :(m1.exponents[$i1] + m2.exponents[$i2]))
-        elseif i1 != 0
-            push!(args, :(m1.exponents[$i1]))
-        else
-            @assert i2 != 0
-            push!(args, :(m2.exponents[$i2]))
-        end
-    end
-    Expr(:call, :(Monomial{$(length(args)), $vars}), Expr(:tuple, args...))
+@generated function (*)(m1::M, m2::M) where {M <: Monomial}
+    vars = variables(M)
+    :(Monomial{$(length(vars)), $vars}($(Expr(:tuple, [:(m1.exponents[$i] + m2.exponents[$i]) for i in 1:length(vars)]...))))
 end
 
 (*)(t1::Term, t2::Term) = Term(t1.coefficient * t2.coefficient, t1.monomial * t2.monomial)
