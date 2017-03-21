@@ -1,22 +1,22 @@
-abstract type PolynomialLike end
-abstract type TermLike <: PolynomialLike end
-abstract type MonomialLike <: TermLike end
-abstract type VariableLike <: MonomialLike end
+abstract type AbstractPolynomial end
+abstract type AbstractTerm end
+abstract type AbstractMonomial end
+abstract type AbstractVariable end
 
-function name(::VariableLike) end
-degree(::VariableLike) = 1
+function name(::AbstractVariable) end
+degree(::AbstractVariable) = 1
 
-degree(m::MonomialLike) = sum(exponents(m))
-function variables(::MonomialLike) end
-function exponents(::MonomialLike) end
-function exponent(::MonomialLike, ::VariableLike) end
+degree(m::AbstractMonomial) = sum(exponents(m))
+function variables(::AbstractMonomial) end
+function exponents(::AbstractMonomial) end
+function exponent(::AbstractMonomial, ::AbstractVariable) end
 
-degree(t::TermLike) = degree(monomial(t))
-variables(t::TermLike) = variables(monomial(t))
-exponents(t::TermLike) = exponents(monomial(t))
-exponent(t::TermLike, v::VariableLike) = exponent(monomial(t), v)
-function coefficient(::TermLike) end
-function monomial(::TermLike) end
+degree(t::AbstractTerm) = degree(monomial(t))
+variables(t::AbstractTerm) = variables(monomial(t))
+exponents(t::AbstractTerm) = exponents(monomial(t))
+exponent(t::AbstractTerm, v::AbstractVariable) = exponent(monomial(t), v)
+function coefficient(::AbstractTerm) end
+function monomial(::AbstractTerm) end
 
-function terms(::PolynomialLike) end
-function variables(::PolynomialLike) end
+function terms(::AbstractPolynomial) end
+function variables(::AbstractPolynomial) end

@@ -1,4 +1,4 @@
-struct Variable{Name} <: VariableLike
+struct Variable{Name} <: AbstractVariable
 end
 
 macro polyvar(names...)
@@ -14,7 +14,7 @@ end
 name(::Type{Variable{Name}}) where {Name} = Name
 name(v::Variable) = name(typeof(v))
 
-struct Monomial{N, V} <: MonomialLike
+struct Monomial{N, V} <: AbstractMonomial
     exponents::NTuple{N, Int}
 end
 Monomial{N, V}() where {N, V} = Monomial{N, V}(ntuple(_ -> 0, Val{N}))
@@ -32,7 +32,7 @@ exponents(m::Monomial) = m.exponents
     :(0)
 end
 
-struct Term{T, MonomialType <: Monomial} <: TermLike
+struct Term{T, MonomialType <: Monomial} <: AbstractTerm
     coefficient::T
     monomial::MonomialType
 end
@@ -44,7 +44,7 @@ coefficient(t::Term) = t.coefficient
 monomial(t::Term) = t.monomial
 variables(::Type{Term{T, M}}) where {T, M} = variables(M)
 
-immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: PolynomialLike
+immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: AbstractPolynomial
     terms::V
 end
 Polynomial(terms::V) where {T <: Term, V <: AbstractVector{T}} = Polynomial{T, V}(terms)
@@ -54,3 +54,7 @@ Polynomial(x) = Polynomial(Term(x))
 variables(::Type{<:Polynomial{T}}) where {T} = variables(T)
 variables(p::Polynomial) = variables(typeof(p))
 terms(p::Polynomial) = p.terms
+
+const MonomialLike = Union{<:Variable, <:Monomial}
+const TermLike = Union{<:MonomialLike, <:Term}
+const PolynomialLike = Union{<:TermLike, <:Polynomial}

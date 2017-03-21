@@ -1,6 +1,6 @@
-show(io::IO, v::VariableLike) = print(io, name(v))
+show(io::IO, v::AbstractVariable) = print(io, name(v))
 
-function show(io::IO, t::TermLike)
+function show(io::IO, t::AbstractTerm)
     c = coefficient(t)
     if c == 0
         print(io, "0")
@@ -15,25 +15,27 @@ function show(io::IO, t::TermLike)
 end
 
 format_exponent(e) = e == 1 ? "" : "^$e"
-function show(io::IO, m::Monomial)
-    if all(m.exponents .== 0)
+function show(io::IO, m::AbstractMonomial)
+    exps = exponents(m)
+    if all(exps .== 0)
         print(io, "1")
     else
         for (i, v) in enumerate(variables(m))
-            if m.exponents[i] != 0
-                print(io, v, format_exponent(m.exponents[i]))
+            if exps[i] != 0
+                print(io, v, format_exponent(exps[i]))
             end
         end
     end
 end
 
-function show(io::IO, p::Polynomial)
-    if isempty(p.terms)
+function show(io::IO, p::AbstractPolynomial)
+    ts = terms(p)
+    if isempty(ts)
         print(io, "0")
     else
-        print(io, p.terms[1])
-        for i in 2:length(p.terms)
-            print(io, " + ", p.terms[i])
+        print(io, ts[1])
+        for i in 2:length(ts)
+            print(io, " + ", ts[i])
         end
     end
 end
