@@ -1,5 +1,15 @@
 @polyvar x y z
 
+@testset "variables" begin
+    @test x * x == x^2
+    @test x^1 == x
+    @test x^0 == 1
+    @test (@wrappedallocs x * x) == 0
+    @test (@wrappedallocs x^2) == 0
+    @test (@wrappedallocs x^1) == 0
+    @test (@wrappedallocs x^0) == 0
+end
+
 @testset "orderings" begin
     @test Monomial(y) < Monomial(x)
     @test Monomial(x) > Monomial(y)

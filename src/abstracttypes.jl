@@ -1,22 +1,21 @@
-abstract type AbstractPolynomial end
-abstract type AbstractTerm end
-abstract type AbstractMonomial end
 abstract type AbstractVariable end
-
-function name(::AbstractVariable) end
+function name end
 degree(::AbstractVariable) = 1
 
+abstract type AbstractMonomial end
 degree(m::AbstractMonomial) = sum(exponents(m))
-function variables(::AbstractMonomial) end
-function exponents(::AbstractMonomial) end
-function exponent(::AbstractMonomial, ::AbstractVariable) end
+function variables end
+function exponents end
+function exponent end
 
+abstract type AbstractTerm end
 degree(t::AbstractTerm) = degree(monomial(t))
 variables(t::AbstractTerm) = variables(monomial(t))
 exponents(t::AbstractTerm) = exponents(monomial(t))
 exponent(t::AbstractTerm, v::AbstractVariable) = exponent(monomial(t), v)
-function coefficient(::AbstractTerm) end
-function monomial(::AbstractTerm) end
+function coefficient end
+function monomial end
 
-function terms(::AbstractPolynomial) end
-function variables(::AbstractPolynomial) end
+abstract type AbstractPolynomial end
+function terms end
+function variables end

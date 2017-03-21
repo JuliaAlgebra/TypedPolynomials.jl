@@ -4,9 +4,7 @@ zero(t::TermLike) = zero(typeof(t))
 
 # We reverse the order of comparisons here so that the result
 # of x < y is equal to the result of Monomial(x) < Monomial(y)
-isless(::Type{Variable{N1}}, ::Type{Variable{N2}}) where {N1, N2} = N1 > N2
-
-isless(v1::Variable, v2::Variable) = typeof(v1) < typeof(v2)
+isless(v1::AbstractVariable, v2::AbstractVariable) = name(v1) > name(v2)
 
 isless(m1::MonomialLike, m2::MonomialLike) = isless(promote(m1, m2)...)
 
