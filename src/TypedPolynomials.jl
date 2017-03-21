@@ -1,7 +1,7 @@
 module TypedPolynomials
 
 using StaticArrays: SVector
-import Base: *, +, -, /, ^,
+import Base: *, +, -, /, ^, ==,
     promote_rule, convert, show, isless, size, getindex,
     one, zero, transpose
 export @polyvar,
@@ -284,7 +284,7 @@ function jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
     resize!(terms, length(terms) - deletions)
 end
 
-for op in [:+, :*, :-]
+for op in [:+, :*, :-, :(==)]
     @eval $op(p1::PolynomialLike, p2::PolynomialLike) = $op(promote(p1, p2)...)
     @eval $op(p::PolynomialLike, x) = $op(promote(p, x)...)
     @eval $op(x, p::PolynomialLike) = $op(promote(x, p)...)
@@ -318,6 +318,10 @@ end
 (*)(p1::Polynomial, p2::Polynomial) = sum(p1.terms .* p2.terms.')
 
 (*)(t::PolynomialLike) = t
+
+(==)(v1::Variable, v2::Variable) = name(v1) == name(v2)
+(==)(m1::M, m2::M) where {M <: Monomial} = variables(m1) == variables(m2) && exponents(m1) == exponents(m2)
+(==)(t1::T, t2::T) where {T <: Term} = coefficient(t1) == coefficient(t2) && monomial(t1) == monomial(t2)
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{1, (V(),)}((x,))
 
