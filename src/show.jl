@@ -1,13 +1,15 @@
-show(io::IO, v::Variable{Name}) where Name = print(io, Name)
-function show(io::IO, t::Term)
-    if t.coefficient == 0
+show(io::IO, v::VariableLike) = print(io, name(v))
+
+function show(io::IO, t::TermLike)
+    c = coefficient(t)
+    if c == 0
         print(io, "0")
-    elseif t.coefficient == 1
-        print(io, t.monomial)
+    elseif c == 1
+        print(io, monomial(t))
     else
-        print(io, t.coefficient)
-        if !all(t.monomial.exponents .== 0)
-            print(io, t.monomial)
+        print(io, c)
+        if !all(exponents(monomial(t)) .== 0)
+            print(io, monomial(t))
         end
     end
 end
