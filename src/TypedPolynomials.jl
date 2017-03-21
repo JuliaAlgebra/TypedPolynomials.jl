@@ -29,4 +29,6 @@ include("promotion.jl")
 include("show.jl")
 include("substitution.jl")
 
+include("StaticPolynomials/StaticPolynomials.jl")
+
 end # module
