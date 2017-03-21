@@ -20,10 +20,9 @@ end
 Monomial{N, V}() where {N, V} = Monomial{N, V}(ntuple(_ -> 0, Val{N}))
 Monomial(v::Variable) = Monomial{1, (v,)}((1,))
 
-exponents(m::Monomial) = m.exponents
 variables(::Type{Monomial{N, V}}) where {N, V} = V
 variables(m::Monomial) = variables(typeof(m))
-degree(m::Monomial) = sum(exponents(m))
+exponents(m::Monomial) = m.exponents
 @generated function exponent(m::Monomial{N, Vs}, v::V) where {N, Vs, V <: Variable}
     for (i, var) in enumerate(Vs)
         if typeof(var) == V
@@ -41,11 +40,9 @@ Term(m::Monomial) = Term(1, m)
 Term(v::Variable) = Term(Monomial(v))
 Term(x) = Term{T, Monomial{0, tuple()}}(x, Monomial{0, tuple()}())
 
-variables(::Type{Term{T, M}}) where {T, M} = variables(M)
-variables(t::Term) = variables(typeof(t))
 coefficient(t::Term) = t.coefficient
 monomial(t::Term) = t.monomial
-exponents(t::Term) = exponents(monomial(t))
+variables(::Type{Term{T, M}}) where {T, M} = variables(M)
 
 immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: PolynomialLike
     terms::V
