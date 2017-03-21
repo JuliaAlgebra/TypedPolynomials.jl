@@ -2,13 +2,16 @@ one(::Type{Monomial{N, V}}) where {N, V} = Monomial{N, V}()
 zero(::Type{Term{T, M}}) where {T, M} = Term{T, M}(0, M())
 zero(t::TermLike) = zero(typeof(t))
 
-isless(::Type{Variable{N1}}, ::Type{Variable{N2}}) where {N1, N2} = N1 < N2
+# We reverse the order of comparisons here so that the result
+# of x < y is equal to the result of Monomial(x) < Monomial(y)
+isless(::Type{Variable{N1}}, ::Type{Variable{N2}}) where {N1, N2} = N1 > N2
+
 isless(v1::Variable, v2::Variable) = typeof(v1) < typeof(v2)
+
+isless(m1::MonomialLike, m2::MonomialLike) = isless(promote(m1, m2)...)
 
 # Graded Lexicographic order
 # First compare total degree, then lexicographic order
-isless(m1::Monomial, m2::Monomial) = isless(promote(m1, m2)...)
-
 function isless(m1::M, m2::M) where {M <: Monomial}
     d1 = degree(m1)
     d2 = degree(m2)
@@ -81,14 +84,6 @@ end
 
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{1, (V(),)}((2,))
 
-@generated function (*)(v1::V1, v2::V2) where {V1 <: Variable, V2 <: Variable}
-    if V1() < V2()
-        :(Monomial{2, (V1(), V2())}((1, 1)))
-    else
-        :(Monomial{2, (V2(), V1())}((1, 1)))
-    end
-end
-
 @generated function (*)(m1::M, m2::M) where {M <: Monomial}
     vars = variables(M)
     :(Monomial{$(length(vars)), $vars}($(Expr(:tuple, [:(m1.exponents[$i] + m2.exponents[$i]) for i in 1:length(vars)]...))))
@@ -104,6 +99,8 @@ end
 (==)(v1::Variable, v2::Variable) = name(v1) == name(v2)
 (==)(m1::M, m2::M) where {M <: Monomial} = variables(m1) == variables(m2) && exponents(m1) == exponents(m2)
 (==)(t1::T, t2::T) where {T <: Term} = coefficient(t1) == coefficient(t2) && monomial(t1) == monomial(t2)
+(==)(::TermLike, ::Void) = false
+(==)(::Void, ::TermLike) = false
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{1, (V(),)}((x,))
 

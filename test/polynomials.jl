@@ -1,5 +1,25 @@
 @polyvar x y z
 
+@testset "orderings" begin
+    @test Monomial(y) < Monomial(x)
+    @test Monomial(x) > Monomial(y)
+    @test Monomial(y) < x
+    @test y < Monomial(x)
+    @test y < x
+    @test x > y
+    @test x > Monomial(y)
+    @test Monomial(x) > y
+
+    @test x == x
+    @test x == Monomial(x)
+    @test x == 1x
+    @test x != y
+    @test x != Monomial(y)
+    @test x != 1y
+    @test x != nothing
+    @test x != 0
+end
+
 @testset "monomials" begin
     m = x^2
     @test isa(m, Monomial)

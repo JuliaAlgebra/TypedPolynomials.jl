@@ -1,7 +1,7 @@
 # promote_rule(::Type{S}, t::Type{<:PolynomialLike}) where {S} = promote_rule(t, S)
 
 @generated function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
-    if V1 < V2
+    if name(V1) < name(V2)
         :(Monomial{2, (V1(), V2())})
     else
         :(Monomial{2, (V2(), V1())})
