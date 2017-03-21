@@ -31,40 +31,47 @@ end
 
 isless(t1::Term, t2::Term) = t1.monomial < t2.monomial
 
-function jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
-    T = promote_type(eltype(terms1), eltype(terms2))
-    terms = Vector{T}(length(terms1) + length(terms2))
+function mergesorted(v1::AbstractArray, v2::AbstractArray, isless=Base.isless, combine=Base.(+))
+    T = promote_type(eltype(v1), eltype(v2))
+    result = Vector{T}(length(v1) + length(v2))
     i = 1
     i1 = 1
     i2 = 1
-    deletions = 0
-    while i1 <= length(terms1) && i2 <= length(terms2)
-        t1 = convert(T, terms1[i1])
-        t2 = convert(T, terms2[i2])
-        if t1.monomial < t2.monomial
-            terms[i] = t1
+    while i1 <= length(v1) && i2 <= length(v2)
+        x1 = v1[i1]
+        x2 = v2[i2]
+        if isless(x1, x2)
+            result[i] = x1
             i1 += 1
-        elseif t1.monomial > t2.monomial
-            terms[i] = t2
+        elseif isless(x2, x1)
+            result[i] = x2
             i2 += 1
         else
-            terms[i] = Term(t1.coefficient + t2.coefficient,
-                            t1.monomial)
+            result[i] = combine(x1, x2)
             i1 += 1
             i2 += 1
-            deletions += 1
         end
         i += 1
     end
-    for j in i1:length(terms1)
-        terms[i] = terms1[j]
+    for j in i1:length(v1)
+        result[i] = v1[j]
         i += 1
     end
-    for j in i2:length(terms2)
-        terms[i] = terms2[j]
+    for j in i2:length(v2)
+        result[i] = v2[j]
         i += 1
     end
-    resize!(terms, length(terms) - deletions)
+    resize!(result, i - 1)
+    result
+end
+
+combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
+function combine(t1::T, t2::T) where {T <: Term}
+    Term(t1.coefficient + t2.coefficient, t1.monomial)
+end
+
+function jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
+    mergesorted(terms1, terms2, <, combine)
 end
 
 for op in [:+, :*, :-, :(==)]
