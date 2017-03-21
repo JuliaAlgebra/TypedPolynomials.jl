@@ -1,9 +1,9 @@
 module TypedPolynomials
 
 using StaticArrays: SVector
-import Base: *, +, ^,
+import Base: *, +, -, /, ^,
     promote_rule, convert, show, isless, size, getindex,
-    one, zero
+    one, zero, transpose
 export @polyvar,
        Variable,
        Monomial,
@@ -15,7 +15,8 @@ export @polyvar,
        coefficient,
        monomial,
        terms,
-       degree
+       degree,
+       subs
 
 include("sequences.jl")
 import .Sequences: shortest_common_supersequence
@@ -148,43 +149,6 @@ end
 
 isless(t1::Term, t2::Term) = t1.monomial < t2.monomial
 
-show(io::IO, v::Variable{Name}) where Name = print(io, Name)
-function show(io::IO, t::Term)
-    if t.coefficient == 0
-        print(io, "0")
-    elseif t.coefficient == 1
-        print(io, t.monomial)
-    else
-        print(io, t.coefficient)
-        if !all(t.monomial.exponents .== 0)
-            print(io, t.monomial)
-        end
-    end
-end
-
-format_exponent(e) = e == 1 ? "" : "^$e"
-function show(io::IO, m::Monomial)
-    if all(m.exponents .== 0)
-        print(io, "1")
-    else
-        for (i, v) in enumerate(variables(m))
-            if m.exponents[i] != 0
-                print(io, v, format_exponent(m.exponents[i]))
-            end
-        end
-    end
-end
-
-function show(io::IO, p::Polynomial)
-    if isempty(p.terms)
-        print(io, "0")
-    else
-        print(io, p.terms[1])
-        for i in 2:length(p.terms)
-            print(io, " + ", p.terms[i])
-        end
-    end
-end
 
 # promote_rule(::Type{S}, t::Type{<:PolynomialLike}) where {S} = promote_rule(t, S)
 
@@ -320,20 +284,18 @@ function jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
     resize!(terms, length(terms) - deletions)
 end
 
-(+)(v1::Variable, v2::Variable) = Term(v1) + Term(v2)
-(+)(m1::Monomial, m2::Monomial) = Term(m1) + Term(m2)
-
-function (+)(t1::T, t2::T) where {T <: Term}
-    if t1.monomial < t2.monomial
-        Polynomial([t1, t2])
-    elseif t1.monomial > t2.monomial
-        Polynomial([t2, t1])
-    else
-        Polynomial([T(t1.coefficient + t2.coefficient, t1.monomial)])
-    end
+for op in [:+, :*, :-]
+    @eval $op(p1::PolynomialLike, p2::PolynomialLike) = $op(promote(p1, p2)...)
+    @eval $op(p::PolynomialLike, x) = $op(promote(p, x)...)
+    @eval $op(x, p::PolynomialLike) = $op(promote(x, p)...)
 end
 
+(+)(p1::TermLike, p2::TermLike) = Polynomial(p1) + Polynomial(p2)
 (+)(p1::Polynomial, p2::Polynomial) = Polynomial(jointerms(p1.terms, p2.terms))
+
+(-)(t::TermLike) = -1 * t
+(-)(p1::TermLike, p2::TermLike) = Polynomial(p1) - Polynomial(p2)
+(-)(p1::Polynomial, p2::Polynomial) = Polynomial(jointerms(p1.terms, (-).(p2.terms)))
 
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{1, (V(),)}((2,))
 
@@ -352,16 +314,18 @@ end
 
 (*)(t1::Term, t2::Term) = Term(t1.coefficient * t2.coefficient, t1.monomial * t2.monomial)
 
-for op in [:+, :*]
-    @eval $op(p1::PolynomialLike, p2::PolynomialLike) = $op(promote(p1, p2)...)
-    @eval $op(p::PolynomialLike, x) = $op(promote(p, x)...)
-    @eval $op(x, p::PolynomialLike) = $op(promote(x, p)...)
-end
+# TODO: this is inefficient
+(*)(p1::Polynomial, p2::Polynomial) = sum(p1.terms .* p2.terms.')
 
 (*)(t::PolynomialLike) = t
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{1, (V(),)}((x,))
 
+transpose(v::Variable) = v
+transpose(m::Monomial) = m
+transpose(t::Term) = Term(t.coefficient', t.monomial)
+
+include("show.jl")
 include("substitution.jl")
 
 end # module
