@@ -27,12 +27,10 @@ export @polyvar,
        degree,
        subs
 
-struct Variable{Name} <: AbstractVariable
+struct Variable{Name} <: AbstractVariable{Name}
 end
 
 copy(v::Variable) = v
-
-name(v::Variable{Name}) where {Name} = Name
 
 macro polyvar(names...)
     exprs = [
@@ -44,36 +42,50 @@ macro polyvar(names...)
     Expr(:block, exprs...)
 end
 
-struct Power{Var, Exponent}
-    function Power{V, E}() where {V, E}
-        new{typeassert(V, Variable), typeassert(E, Int)}()
+struct Power{V}
+    exponent::Int
+
+    function Power{V}(e::Int) where {V}
+        new{typeassert(V, Variable)}(e)
     end
 end
 
+# struct Power{Var, Exponent}
+#     function Power{V, E}() where {V, E}
+#         new{typeassert(V, Variable), typeassert(E, Int)}()
+#     end
+# end
+#
 variable(p::Power{V}) where {V} = V
-exponent(p::Power{V, E}) where {V, E} = E
+exponent(p::Power) = p.exponent
 
-struct Monomial{Powers} <: AbstractMonomial
-    function Monomial{P}() where {P}
-        new{typeassert(P, Tuple{Vararg{Power}})}()
+struct Monomial{Vars, Exponents} <: AbstractMonomial{Vars}
+    function Monomial{V, E}() where {V, E}
+        @assert length(V) == length(E)
+        new{typeassert(V, Tuple{Vararg{Variable}}),
+            typeassert(E, Tuple{Vararg{Int}})}()
     end
 end
 
-variables(m::Monomial{Powers}) where {Powers} = variable.(Powers)
-exponents(m::Monomial{Powers}) where {Powers} = exponent.(Powers)
-powers(::Type{Monomial{Powers}}) where {Powers} = Powers
-powers(m::Monomial) = powers(typeof(m))
+exponents(m::Monomial{V, E}) where {V, E} = E
 
-struct Term{M <: Monomial, T} <: AbstractTerm
+@generated function powers(::Type{Monomial{V, E}}) where {V, E}
+    Expr(:tuple, [:($(Power{v}(e))) for (v, e) in zip(V, E)]...)
+end
+
+# powers(::Type{Monomial{Powers}}) where {Powers} = Powers
+# powers(m::Monomial) = powers(typeof(m))
+
+struct Term{T, M <: Monomial} <: AbstractTerm{T, M}
     coefficient::T
 end
 
-struct Polynomial{Terms <: Tuple{Vararg{Term}}}
+struct Polynomial{Terms <: Tuple{Vararg{Term}}} <: AbstractPolynomial
     terms::Terms
 end
 
 function literal_pow(^, v::V, ::Type{Val{x}}) where {V <: Variable, x}
-    Monomial{(Power{v, x}(),)}()
+    Monomial{(v,), (x,)}()
 end
 
 const MonomialLike = Union{<:Variable, <:Monomial}
@@ -83,30 +95,23 @@ const PolynomialLike = Union{<:TermLike, <:Polynomial}
 promote_rule(::Type{<:Variable}, ::Type{<:Variable}) = Monomial
 promote_rule(::Type{<:Variable}, ::Type{<:Monomial}) = Monomial
 
-convert(::Type{Monomial}, v::Variable) = Monomial{(Power{v, 1}(),)}()
+convert(::Type{Monomial}, v::Variable) = Monomial{(v,), (1,)}()
 
 
-(*)(v1::V, v2::V) where {V <: Variable} = Monomial{(Power{v1, 2}(),)}()
-@generated function (*)(::Power{V, E1}, ::Power{V, E2}) where {V, E1, E2}
-    :(Power{V, $(E1 + E2)}())
-end
+(*)(v1::V, v2::V) where {V <: Variable} = Monomial{(v1,), (2,)}()
+# @generated function (*)(::Power{V, E1}, ::Power{V, E2}) where {V, E1, E2}
+#     :(Power{V, $(E1 + E2)}())
+# end
+
 @generated function (*)(m1::Monomial, m2::Monomial)
     newpowers = mergesorted(
         collect(powers(m1)),
         collect(powers(m2)),
         (p1, p2) -> name(variable(p1)) < name(variable(p2)),
         *)
-    :(Monomial{$(Tuple(newpowers))}())
+    :(Monomial{$(Tuple(variable.(newpowers))), $(Tuple(exponent.(newpowers)))}())
 end
 
-for op in [:+, :*, :-, :(==)]
-    @eval $op(p1::PolynomialLike, p2::PolynomialLike) = $op(promote(p1, p2)...)
-    @eval $op(p::PolynomialLike, x) = $op(promote(p, x)...)
-    @eval $op(x, p::PolynomialLike) = $op(promote(x, p)...)
-end
-
-(==)(v1::V, v2::V) where {V <: Variable} = true
-(==)(v1::Variable, v2::Variable) = false
 function (==)(m1::Monomial, m2::Monomial)
     v1 = variables(m1)
     e1 = exponents(m1)

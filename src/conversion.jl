@@ -27,3 +27,7 @@ end
 function convert(::Type{Term{T1, M1}}, t::Term{T2, M2}) where {T1, M1, T2, M2}
     Term{T1, M1}(convert(T1, t.coefficient), convert(M1, t.monomial))
 end
+
+convert(::Type{AbstractTerm}, coeff, mono::Monomial) = Term(coeff, mono)
+convert(::Type{AbstractPolynomial}, t::TermLike) = Polynomial(t)
+convert(::Type{AbstractPolynomial}, v::AbstractVector{<:Term}) = Polynomial(v)

@@ -80,4 +80,38 @@ function shortest_common_supersequence(a::AbstractString, b::AbstractString)
     join(scs)
 end
 
+function mergesorted(v1::AbstractArray, v2::AbstractArray, isless=Base.isless, combine=Base.(+))
+    T = promote_type(eltype(v1), eltype(v2))
+    result = Vector{T}(length(v1) + length(v2))
+    i = 1
+    i1 = 1
+    i2 = 1
+    while i1 <= length(v1) && i2 <= length(v2)
+        x1 = v1[i1]
+        x2 = v2[i2]
+        if isless(x1, x2)
+            result[i] = x1
+            i1 += 1
+        elseif isless(x2, x1)
+            result[i] = x2
+            i2 += 1
+        else
+            result[i] = combine(x1, x2)
+            i1 += 1
+            i2 += 1
+        end
+        i += 1
+    end
+    for j in i1:length(v1)
+        result[i] = v1[j]
+        i += 1
+    end
+    for j in i2:length(v2)
+        result[i] = v2[j]
+        i += 1
+    end
+    resize!(result, i - 1)
+    result
+end
+
 end

@@ -2,7 +2,6 @@ module sptests
 
 using Base.Test
 using TypedPolynomials: StaticPolynomials
-using TypedPolynomials.StaticPolynomials: Power
 
 macro wrappedallocs(expr)
     @assert expr.head == :call
@@ -46,10 +45,10 @@ end
 @testset "monomials" begin
     @polyvar x y z
 
-    @test typeof(@inferred x * x) == Monomial{(Power{x, 2}(),)}
-    @test typeof(@inferred x * y) == Monomial{(Power{x, 1}(), Power{y, 1}())}
-    @test typeof(@inferred y * x) == Monomial{(Power{x, 1}(), Power{y, 1}())}
-    @test typeof(@inferred x * z * y) == Monomial{(Power{x, 1}(), Power{y, 1}(), Power{z, 1}())}
+    @test typeof(@inferred x * x) == Monomial{(x,), (2,)}
+    @test typeof(@inferred x * y) == Monomial{(x, y), (1, 1)}
+    @test typeof(@inferred y * x) == Monomial{(x, y), (1, 1)}
+    @test typeof(@inferred x * z * y) == Monomial{(x, y, z), (1, 1, 1)}
 end
 
 end
