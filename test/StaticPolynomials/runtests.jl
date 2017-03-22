@@ -51,4 +51,6 @@ end
     @test typeof(@inferred x * z * y) == Monomial{(x, y, z), (1, 1, 1)}
 end
 
+# include("substitution.jl")
+
 end

@@ -1,11 +1,11 @@
-@inline subs(v::Variable{Name}, s::Pair{Variable{Name}}) where {Name} = s.second
-@inline subs(v::Variable{N1}, s::Pair{Variable{N2}}) where {N1, N2} = v
+@inline subs(v::AbstractVariable{Name}, s::Pair{<:AbstractVariable{Name}}) where {Name} = s.second
+@inline subs(v::AbstractVariable{N1}, s::Pair{<:AbstractVariable{N2}}) where {N1, N2} = v
 
-@generated function subs(v::V, s::NTuple{N, Pair{<:Variable}}) where {V <: Variable, N}
+@generated function subs(v::V, s::NTuple{N, Pair{<:AbstractVariable}}) where {V <: AbstractVariable, N}
     expr = :(v)
     for (i, p) in enumerate(s.parameters)
         vartype = p.parameters[1]
-        if vartype == V
+        if name(vartype) == name(V)
             expr = :(s[$i].second)
         end
     end

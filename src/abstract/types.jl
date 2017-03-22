@@ -14,8 +14,8 @@ abstract type AbstractTerm{CoeffType, MonomialType} end
 monomialtype(::Type{<:AbstractTerm{C, M}}) where {C, M} = M
 monomialtype(t::AbstractTerm) = monomialtype(typeof(t))
 degree(t::AbstractTerm) = degree(monomial(t))
-variables(t::AbstractTerm) = variables(monomialtype(t))
 variables(T::Type{<:AbstractTerm}) = variables(monomialtype(T))
+variables(t::AbstractTerm) = variables(monomialtype(t))
 exponents(t::AbstractTerm) = exponents(monomial(t))
 exponent(t::AbstractTerm, v::AbstractVariable) = exponent(monomial(t), v)
 function coefficient end
