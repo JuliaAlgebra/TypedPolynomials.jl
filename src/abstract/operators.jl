@@ -35,6 +35,8 @@ for op in [:+, :*, :-, :(==)]
 end
 
 (+)(p1::AbstractTermLike, p2::AbstractTermLike) = convert(AbstractPolynomial, p1) + convert(AbstractPolynomial, p2)
+(+)(p1::AbstractPolynomial, p2::AbstractTermLike) = p1 + convert(AbstractPolynomial, p2)
+(+)(p1::AbstractTermLike, p2::AbstractPolynomial) = convert(AbstractPolynomial, p1) + p2
 (+)(p1::AbstractPolynomial, p2::AbstractPolynomial) = convert(AbstractPolynomial, jointerms(terms(p1), terms(p2)))
 
 (-)(t::AbstractTermLike) = -1 * t
