@@ -76,6 +76,12 @@ end
     @test variables(t) == (x, y)
     @test coefficient(t) == 2
     @test exponents(t) == (2, 1)
+
+    m1 = x * y * z^3 * x^2 * y
+    m2 = x^3 * y^3 * z^2
+    t1 = 2m1
+    t2 = 2m2
+    @test (@wrappedallocs t1 < t2) == 0
 end
 
 @testset "polynomials" begin
@@ -102,6 +108,9 @@ end
     @test length(terms(p)) == 4
     @test coefficient.(terms(p)) == [1, 3, 2, 1]
     @test exponents.(terms(p)) == [(0, 1), (1, 1), (2, 0), (1, 2)]
+
+    @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 640
+    @test (@wrappedallocs x^2 + 1) <= 128
 end
 
 function testmonomials(var, degree)

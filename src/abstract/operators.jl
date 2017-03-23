@@ -28,19 +28,21 @@ function isless(t1::AbstractTerm, t2::AbstractTerm)
     end
 end
 
-for op in [:+, :*, :-, :(==)]
+for op in [:+, :-, :*, :(==)]
     @eval $op(p1::AbstractPolynomialLike, p2::AbstractPolynomialLike) = $op(promote(p1, p2)...)
     @eval $op(p::AbstractPolynomialLike, x) = $op(promote(p, x)...)
     @eval $op(x, p::AbstractPolynomialLike) = $op(promote(x, p)...)
 end
 
-(+)(p1::AbstractTermLike, p2::AbstractTermLike) = convert(AbstractPolynomial, p1) + convert(AbstractPolynomial, p2)
-(+)(p1::AbstractPolynomial, p2::AbstractTermLike) = p1 + convert(AbstractPolynomial, p2)
-(+)(p1::AbstractTermLike, p2::AbstractPolynomial) = convert(AbstractPolynomial, p1) + p2
+for op in [:+, :-]
+    @eval $op(p1::AbstractTermLike, p2::AbstractTermLike) = $op(convert(AbstractPolynomial, p1), convert(AbstractPolynomial, p2))
+    @eval $op(p1::AbstractPolynomial, p2::AbstractTermLike) = $op(p1, convert(AbstractPolynomial, p2))
+    @eval $op(p1::AbstractTermLike, p2::AbstractPolynomial) = $op(convert(AbstractPolynomial, p1), p2)
+end
+
 (+)(p1::AbstractPolynomial, p2::AbstractPolynomial) = convert(AbstractPolynomial, jointerms(terms(p1), terms(p2)))
 
 (-)(t::AbstractTermLike) = -1 * t
-(-)(p1::AbstractTermLike, p2::AbstractTermLike) = convert(AbstractPolynomial, p1) - convert(AbstractPolynomial, p2)
 (-)(p1::AbstractPolynomial, p2::AbstractPolynomial) = convert(AbstractPolynomial, jointerms(terms(p1), (-).(terms(p2))))
 
 (*)(t1::AbstractTerm, t2::AbstractTerm) = convert(AbstractTerm, coefficient(t1) * coefficient(t2), monomial(t1) * monomial(t2))
