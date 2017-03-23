@@ -2,8 +2,6 @@ one(::Type{Monomial{N, V}}) where {N, V} = Monomial{N, V}()
 zero(::Type{Term{T, M}}) where {T, M} = Term{T, M}(0, M())
 zero(t::TermLike) = zero(typeof(t))
 
-isless(t1::Term, t2::Term) = t1.monomial < t2.monomial
-
 combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
 function combine(t1::T, t2::T) where {T <: Term}
     Term(t1.coefficient + t2.coefficient, t1.monomial)

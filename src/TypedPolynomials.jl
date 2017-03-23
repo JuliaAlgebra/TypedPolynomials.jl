@@ -24,6 +24,7 @@ import .Sequences: shortest_common_supersequence, mergesorted
 include("abstract/types.jl")
 include("abstract/operators.jl")
 include("abstract/show.jl")
+include("abstract/substitution.jl")
 include("types.jl")
 include("operators.jl")
 include("conversion.jl")

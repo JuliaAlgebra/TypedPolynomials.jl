@@ -18,6 +18,7 @@ Monomial{N, V}() where {N, V} = Monomial{N, V}(ntuple(_ -> 0, Val{N}))
 Monomial(v::Variable) = Monomial{1, (v,)}((1,))
 
 exponents(m::Monomial) = m.exponents
+exponent(m::Monomial, i::Integer) = m.exponents[i]
 @generated function exponent(m::Monomial{N, Vs}, v::V) where {N, Vs, V <: Variable}
     for (i, var) in enumerate(Vs)
         if typeof(var) == V
