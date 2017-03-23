@@ -18,7 +18,6 @@ function subs_partial(p::Polynomial, s::Substitions)
     Polynomial(newterms)
 end
 
-
 @generated function subs(p::Polynomial, s::Substitions)
     v = remaining_variables(p, s)
     if isempty(v)
@@ -31,9 +30,6 @@ end
         end
     end
 end
-
-subs(v::PolynomialLike, s::Vararg{Pair{<:Variable}}) = subs(v, s)
-subs(x, s::Vararg{Pair{<:Variable}}) = x
 
 (p::Polynomial)(s::Vararg{Pair{<:Variable}}) = subs(p, s)
 (p::Term)(s::Vararg{Pair{<:Variable}}) = subs(p, s)

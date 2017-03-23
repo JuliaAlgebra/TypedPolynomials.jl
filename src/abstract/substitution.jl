@@ -25,3 +25,6 @@ end
 end
 
 subs(t::AbstractTerm, s::Substitions) = coefficient(t) * subs(monomial(t), s)
+
+subs(v::AbstractPolynomialLike, s::Vararg{Pair{<:AbstractVariable}}) = subs(v, s)
+# subs(x, s::Vararg{Pair{<:AbstractVariable}}) = x

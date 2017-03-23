@@ -3,8 +3,8 @@
     @polyvar x y z
 
     p = x^2 * y + y^2 + x
-    @test p(x=>1, y=>2) == 7
-    @inferred p(x=>1, y=>2)
+    @test (@inferred p(x=>1, y=>2)) == 7
+    @test (@inferred p(x=>5)(y=>3)) == p(x=>5, y=>3)
 
     subs1(p, x, y) = @allocated p(x=>1, y=>2)
     subs1(p, x, y)
@@ -13,6 +13,7 @@
     @test (@inferred x(x=>5)) == 5
     @test (@inferred x(y=>2)) == x
     @test (@inferred x(x=>y)) == y
+
 end
 
 @testset "partial substitution" begin
