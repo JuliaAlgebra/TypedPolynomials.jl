@@ -2,7 +2,6 @@
 # of x < y is equal to the result of Monomial(x) < Monomial(y)
 isless(v1::AbstractVariable, v2::AbstractVariable) = name(v1) > name(v2)
 isless(m1::AbstractMonomialLike, m2::AbstractMonomialLike) = isless(promote(m1, m2)...)
-isless(t1::AbstractTerm, t2::AbstractTerm) = (monomial(t1), coefficient(t1)) < (monomial(t2), coefficient(t2))
 
 # Graded Lexicographic order
 # First compare total degree, then lexicographic order
@@ -17,6 +16,16 @@ function isless(m1::AbstractMonomial{V}, m2::AbstractMonomial{V}) where {V}
         return exponents(m1) < exponents(m2)
     end
     false
+end
+
+function isless(t1::AbstractTerm, t2::AbstractTerm)
+    if monomial(t1) < monomial(t2)
+        true
+    elseif monomial(t1) == monomial(t2)
+        coefficient(t1) < coefficient(t2)
+    else
+        false
+    end
 end
 
 for op in [:+, :*, :-, :(==)]
