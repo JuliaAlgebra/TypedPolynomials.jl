@@ -11,7 +11,7 @@ convert(T::Type{Polynomial{T1, V1}}, x) where {T1, V1} = convert(T, Polynomial(c
     i2 = 1
     while i1 <= N1 && i2 <= N2
         if V1[i1] == V2[i2]
-            args[i1] = :(m.exponents[$i2])
+            args[i1] = (args[i1] == 0) ? :(exponent(m, $i2)) : :($(args[i1]) + exponent(m, $i2))
             i2 += 1
         else
             i1 += 1
@@ -22,6 +22,11 @@ convert(T::Type{Polynomial{T1, V1}}, x) where {T1, V1} = convert(T, Polynomial(c
     else
         :(Monomial{N1, V1}($(Expr(:tuple, args...))))
     end
+end
+
+function constructor(::Type{<:Monomial}, vars, exponents)
+    @assert length(vars) == length(exponents)
+    :(Monomial{$(length(vars)), $(vars)}($exponents))
 end
 
 function convert(::Type{Term{T1, M1}}, t::Term{T2, M2}) where {T1, M1, T2, M2}
