@@ -57,7 +57,7 @@ end
     f(x, y)
     @test f(x, y) == 0
 
-    m = convert(Monomial{3, (x, y, x)}, Monomial{4, (x, x, y, x)}((1, 1, 1, 1)))
+    m = convert(Monomial{(x, y, x)}, Monomial{(x, x, y, x)}((1, 1, 1, 1)))
     @test exponents(m) == (2, 1, 1)
 end
 
@@ -122,5 +122,5 @@ end
 
 @testset "monomial vector" begin
     ms = @inferred testmonomials(x, 3)
-    @test eltype(ms) == Monomial{1, (x,)}
+    @test eltype(ms) == Monomial{(x,), 1}
 end

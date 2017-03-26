@@ -21,13 +21,9 @@ end
 @generated function subs(p::Polynomial, s::Substitions)
     v = remaining_variables(p, s)
     if isempty(v)
-        quote
-            subs_complete(p, s)
-        end
+        :(subs_complete(p, s))
     else
-        quote
-            subs_partial(p, s)
-        end
+        :(subs_partial(p, s))
     end
 end
 

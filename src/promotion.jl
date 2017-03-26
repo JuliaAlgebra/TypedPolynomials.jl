@@ -2,14 +2,14 @@
 
 @generated function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
     if name(V1) < name(V2)
-        :(Monomial{2, (V1(), V2())})
+        :(Monomial{(V1(), V2()), 2})
     else
-        :(Monomial{2, (V2(), V1())})
+        :(Monomial{(V2(), V1()), 2})
     end
 end
 
 function promote_rule(::Type{M}, ::Type{V}) where {V <: Variable, M <: Monomial}
-    promote_rule(Monomial{1, (V(),)}, M)
+    promote_rule(Monomial{(V(),), 1}, M)
 end
 promote_rule(V::Type{<:Variable}, M::Type{<:Monomial}) = promote_rule(M, V)
 
@@ -18,25 +18,23 @@ function promote_rule(::Type{Term{T, M}}, ::Type{V}) where {V <: Variable, T, M 
 end
 promote_rule(V::Type{<:Variable}, T::Type{<:Term}) = promote_rule(T, V)
 
-function _promote_monomial_noncommutative(::Type{Monomial{N1, V1}}, ::Type{Monomial{N2, V2}}) where {N1, V1, N2, V2}
+function _promote_monomial_noncommutative(::Type{Monomial{V1, N1}}, ::Type{Monomial{V2, N2}}) where {N1, V1, N2, V2}
     if V1 > V2
-        _promote_monomial(Monomial{N2, V2}, Monomial{N1, V1})
+        _promote_monomial(Monomial{V2, N2}, Monomial{V1, N1})
     else
         varnames = shortest_common_supersequence(name.(V1), name.(V2))
         vars = Expr(:tuple, [Expr(:call, Expr(:curly, :Variable, Expr(:quote, n))) for n in varnames]...)
         quote
-            Monomial{$(length(varnames)), $vars}
+            Monomial{$vars, $(length(varnames))}
         end
     end
 end
 
-function _promote_monomial(::Type{Monomial{N1, V1}}, ::Type{Monomial{N2, V2}}) where {N1, V1, N2, V2}
+function _promote_monomial(::Type{<:Monomial{V1}}, ::Type{<:Monomial{V2}}) where {V1, V2}
     varnames = union(name.(V1), name.(V2))
     sort!(varnames)
     vars = Expr(:tuple, [Expr(:call, Expr(:curly, :Variable, Expr(:quote, n))) for n in varnames]...)
-    quote
-        Monomial{$(length(varnames)), $vars}
-    end
+    :(Monomial{$vars, $(length(varnames))})
 end
 
 @generated function promote_rule(::Type{M1}, ::Type{M2}) where {M1 <: Monomial, M2 <: Monomial}
@@ -78,7 +76,7 @@ end
 end
 
 function promote_rule(::Type{V}, ::Type{S}) where {S, V <: Variable}
-    Term{S, Monomial{1, (V(),)}}
+    Term{S, Monomial{(V(),), 1}}
 end
 
 function promote_rule(::Type{M}, ::Type{S}) where {S, M <: Monomial}

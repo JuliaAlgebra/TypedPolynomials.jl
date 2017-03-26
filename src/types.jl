@@ -11,15 +11,17 @@ macro polyvar(names...)
     Expr(:block, exprs...)
 end
 
-struct Monomial{N, V} <: AbstractMonomial{V}
+struct Monomial{V, N} <: AbstractMonomial{V}
     exponents::NTuple{N, Int}
 end
-Monomial{N, V}() where {N, V} = Monomial{N, V}(ntuple(_ -> 0, Val{N}))
-Monomial(v::Variable) = Monomial{1, (v,)}((1,))
+Monomial{V, N}() where {N, V} = Monomial{V, N}(ntuple(_ -> 0, Val{N}))
+Monomial{V}() where {V} = Monomial{V, 0}()
+Monomial{V}(exponents::T) where {V, N, T <: Tuple{Vararg{Any, N}}} = Monomial{V, N}(exponents)
+Monomial(v::Variable) = Monomial{(v,), 1}((1,))
 
 exponents(m::Monomial) = m.exponents
 exponent(m::Monomial, i::Integer) = m.exponents[i]
-@generated function exponent(m::Monomial{N, Vs}, v::V) where {N, Vs, V <: Variable}
+@generated function exponent(m::Monomial{Vs}, v::V) where {Vs, V <: Variable}
     for (i, var) in enumerate(Vs)
         if typeof(var) == V
             return :(m.exponents[$i])
@@ -34,7 +36,7 @@ struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
 end
 Term(m::Monomial) = Term(1, m)
 Term(v::Variable) = Term(Monomial(v))
-Term(x) = Term{T, Monomial{0, tuple()}}(x, Monomial{0, tuple()}())
+Term(x) = Term{T, Monomial{tuple(), 0}}(x, Monomial{tuple(), 0}())
 
 coefficient(t::Term) = t.coefficient
 monomial(t::Term) = t.monomial
