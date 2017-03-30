@@ -57,6 +57,37 @@ end
 (==)(::AbstractTermLike, ::Void) = false
 (==)(::Void, ::AbstractTermLike) = false
 
+function compare_terms(p1::AbstractPolynomial, p2::AbstractPolynomial, op)
+    i1 = 1
+    i2 = 1
+    t1 = terms(p1)
+    t2 = terms(p2)
+    while true
+        while i1 <= length(t1) && coefficient(t1[i1]) == 0
+            i1 += 1
+        end
+        while i2 <= length(t2) && coefficient(t2[i2]) == 0
+            i2 += 1
+        end
+        if i1 > length(t1) && i2 > length(t2)
+            return true
+        end
+        if i1 > length(t1) || i2 > length(t2)
+            return false
+        end
+        if !op(t1[i1], t2[i2])
+            return false
+        end
+        i1 += 1
+        i2 += 1
+    end
+end
+
+(==)(p1::AbstractPolynomial, p2::AbstractPolynomial) = compare_terms(p1, p2, (==))
+
+isapprox(t1::AbstractTerm, t2::AbstractTerm; kwargs...) = isapprox(coefficient(t1), coefficient(t2); kwargs...) && monomial(t1) == monomial(t2)
+isapprox(p1::AbstractPolynomial, p2::AbstractPolynomial; kwargs...) = compare_terms(p1, p2, (x, y) -> isapprox(x, y; kwargs...))
+
 transpose(v::AbstractVariable) = v
 transpose(m::AbstractMonomial) = m
 transpose(t::T) where {T <: AbstractTerm} = T(coefficient(t)', monomial(t))

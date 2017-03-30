@@ -4,8 +4,9 @@ zero(t::TermLike) = zero(typeof(t))
 
 combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
 combine(t1::T, t2::T) where {T <: Term} = Term(t1.coefficient + t2.coefficient, t1.monomial)
+compare(t1::Term, t2::Term) = monomial(t1) < monomial(t2)
 
-jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = mergesorted(terms1, terms2, <, combine)
+jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = mergesorted(terms1, terms2, compare, combine)
 
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{(V(),), 1}((2,))
 

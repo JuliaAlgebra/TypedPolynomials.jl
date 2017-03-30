@@ -37,6 +37,5 @@ end
     @test @inferred(subs(x^2 * y, y=>1.0, x=>2)) == 4
     @test @inferred(subs(1x, x=>2)) == 2
     @test @inferred(subs(x + 1, x=>1)) == 2
-    @inferred(subs(x + 2y + z, y=>2.0, z=>π))
-    @test_broken @inferred(subs(x + 2y + z, y=>2.0, z=>π)) == π + 4.0 + x
+    @test @inferred(subs(x + 2y + z, y=>2.0, z=>π)) ≈ π + 4.0 + x
 end

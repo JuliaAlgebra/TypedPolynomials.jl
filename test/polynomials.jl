@@ -116,6 +116,20 @@ end
     @test (@wrappedallocs x^2 + 1) <= 128
 end
 
+@testset "equality" begin
+    @test 1 + x == 1 + x
+    @test 1 + x == x + 1
+    @test 1 + (1 + 1e-16) * x ≈ 1 + x
+    @test 2 + 3 + x != 3 + x
+    @test 2 + 3 + x == 5 + x
+    @test x * y + 2 != y
+    @test x * y + 2 == x * y + 2 * x^0
+    @test x != nothing
+    @test x^2 != nothing
+    @test 3x != nothing
+    @test x + 1 != nothing
+end
+
 function testmonomials(var, degree)
     [var^i for i in 0:degree]
 end
