@@ -21,7 +21,7 @@ end
             i1 += 1
         end
     end
-    if i2 < length(V2)
+    if i2 <= length(V2)
         :(throw(InexactError()))
     else
         :(Monomial{V1, $(length(V1))}($(Expr(:tuple, args...))))
