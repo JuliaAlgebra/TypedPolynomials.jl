@@ -29,7 +29,7 @@ include("types.jl")
 include("operators.jl")
 include("conversion.jl")
 include("promotion.jl")
-include("substitution.jl")
+include("call.jl")
 
 include("StaticPolynomials/StaticPolynomials.jl")
 
