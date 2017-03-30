@@ -21,14 +21,6 @@ Monomial(v::Variable) = Monomial{(v,), 1}((1,))
 
 exponents(m::Monomial) = m.exponents
 exponent(m::Monomial, i::Integer) = m.exponents[i]
-@generated function exponent(m::Monomial{Vs}, v::V) where {Vs, V <: Variable}
-    for (i, var) in enumerate(Vs)
-        if typeof(var) == V
-            return :(m.exponents[$i])
-        end
-    end
-    :(0)
-end
 
 struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
     coefficient::CoeffType
@@ -36,7 +28,6 @@ struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
 end
 Term(m::Monomial) = Term(1, m)
 Term(v::Variable) = Term(Monomial(v))
-Term(x) = Term{T, Monomial{tuple(), 0}}(x, Monomial{tuple(), 0}())
 
 coefficient(t::Term) = t.coefficient
 monomial(t::Term) = t.monomial
