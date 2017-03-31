@@ -1,10 +1,12 @@
-# promote_rule(::Type{S}, t::Type{<:PolynomialLike}) where {S} = promote_rule(t, S)
+@pure function isless(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
+    name(V1) < name(V2)
+end
 
-@generated function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
-    if name(V1) < name(V2)
-        :(Monomial{(V1(), V2()), 2})
+function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
+    if V1 < V2
+        Monomial{(V1(), V2()), 2}
     else
-        :(Monomial{(V2(), V1()), 2})
+        Monomial{(V2(), V1()), 2}
     end
 end
 
@@ -70,9 +72,9 @@ function promote_rule(::Type{<:Polynomial{T1}}, ::Type{<:Polynomial{T2}}) where 
     Polynomial{T, Vector{T}}
 end
 
-@generated function promote_rule(::Type{Polynomial{T1, SVector{N1, T1}}}, ::Type{Polynomial{T2, SVector{N2, T2}}}) where {T1, N1, T2, N2}
+function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
     T = promote_type(T1, T2)
-    :(Polynomial{$T, SVector{$(max(N1, N2)), $T}})
+    Polynomial{T, SVector{1, T}}
 end
 
 function promote_rule(::Type{V}, ::Type{S}) where {S, V <: Variable}
