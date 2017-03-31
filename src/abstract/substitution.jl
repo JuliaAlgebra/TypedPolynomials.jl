@@ -1,9 +1,6 @@
 const Substitution{Name} = Pair{<:AbstractVariable{Name}}
 const Substitutions = Tuple{Vararg{Substitution}}
 
-variables(S::Type{<:Substitutions}) = [variable(p) for p in S.parameters]
-variable(::Type{<:Pair{V}}) where {V <: AbstractVariable} = V
-
 ## Variables
 subs(v::AbstractVariable{Name}, s::Substitution{Name}) where {Name} = s.second
 subs(v::AbstractVariable{N1}, s::Substitution{N2}) where {N1, N2} = v
