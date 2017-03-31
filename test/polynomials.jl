@@ -82,6 +82,8 @@ end
     t1 = 2m1
     t2 = 2m2
     @test (@wrappedallocs t1 < t2) == 0
+
+    @test -(2x^2 * y ) == -1 * (2y * x^2)
 end
 
 @testset "polynomials" begin
@@ -111,6 +113,10 @@ end
 
     @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 688
     @test (@wrappedallocs x^2 + 1) <= 128
+
+    @test (1 + x) * (x + 3) == 3 + 4x + x^2
+    @test (2.0 + x) * (y + 1) == 2 + 2y + x + x * y
+    @test (x + 1) - 1 == x
 end
 
 @testset "equality" begin
