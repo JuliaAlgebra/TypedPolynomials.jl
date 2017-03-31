@@ -3,7 +3,7 @@ module TypedPolynomials
 using StaticArrays: SVector
 import Base: *, +, -, /, ^, ==,
     promote_rule, convert, show, isless, size, getindex,
-    one, zero, transpose, isapprox, @pure
+    one, zero, transpose, isapprox, @pure, dot
 export @polyvar,
        Variable,
        Monomial,

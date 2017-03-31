@@ -51,7 +51,6 @@ end
 
 @pure (==)(v1::AbstractVariable, v2::AbstractVariable) = name(v1) == name(v2)
 (==)(m1::AbstractMonomial{V}, m2::AbstractMonomial{V}) where {V} = exponents(m1) == exponents(m2)
-(==)(m1::AbstractMonomial, m2::AbstractMonomial) = variables(m1) == variables(m2) && exponents(m1) == exponents(m2)
 (==)(t1::AbstractTerm, t2::AbstractTerm) = coefficient(t1) == coefficient(t2) && monomial(t1) == monomial(t2)
 (==)(::AbstractTermLike, ::Void) = false
 (==)(::Void, ::AbstractTermLike) = false
@@ -90,3 +89,12 @@ isapprox(p1::AbstractPolynomial, p2::AbstractPolynomial; kwargs...) = compare_te
 transpose(v::AbstractVariable) = v
 transpose(m::AbstractMonomial) = m
 transpose(t::T) where {T <: AbstractTerm} = T(coefficient(t)', monomial(t))
+transpose(p::AbstractPolynomial) = convert(AbstractPolynomial, [transpose(t) for t in terms(p)])
+
+dot(m::AbstractMonomialLike, x) = m * x
+dot(x, m::AbstractMonomialLike) = x * m
+dot(m1::AbstractMonomialLike, m2::AbstractMonomialLike) = m1 * m2
+
+dot(t::AbstractTermLike, x) = dot(coefficient(t), x) * monomial(t)
+dot(x, t::AbstractTermLike) = dot(x, coefficient(t)) * monomial(t)
+dot(t1::AbstractTermLike, t2::AbstractTermLike) = dot(coefficient(t1), coefficient(t2)) * (monomial(t1) * monomial(t2))
