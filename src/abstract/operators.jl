@@ -1,7 +1,7 @@
 # We reverse the order of comparisons here so that the result
 # of x < y is equal to the result of Monomial(x) < Monomial(y)
 @pure isless(v1::AbstractVariable, v2::AbstractVariable) = name(v1) > name(v2)
-isless(m1::AbstractMonomialLike, m2::AbstractMonomialLike) = isless(promote(m1, m2)...)
+isless(m1::AbstractTermLike, m2::AbstractTermLike) = isless(promote(m1, m2)...)
 
 # Graded Lexicographic order
 # First compare total degree, then lexicographic order
@@ -15,7 +15,6 @@ function isless(m1::AbstractMonomial{V}, m2::AbstractMonomial{V}) where {V}
     else
         return exponents(m1) < exponents(m2)
     end
-    false
 end
 
 function isless(t1::AbstractTerm, t2::AbstractTerm)

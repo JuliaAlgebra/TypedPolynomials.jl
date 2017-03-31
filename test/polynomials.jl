@@ -127,6 +127,20 @@ end
     @test x + 1 != nothing
 end
 
+@testset "ordering" begin
+    @test x > y
+    @test Monomial(x) > Monomial(y)
+    @test y < x
+    @test Monomial(y) < Monomial(x)
+    @test x^2 > x
+    @test y^2 > x
+    @test y^2 < x^2
+    @test 3x < 5x
+    @test 3x^2 > 5x
+    @test 5x < x^2
+    @test 1x^3 > 10y^3
+end
+
 function testmonomials(var, degree)
     [var^i for i in 0:degree]
 end
