@@ -82,6 +82,8 @@ end
     t1 = 2m1
     t2 = 2m2
     @test (@wrappedallocs t1 < t2) == 0
+
+    @test -(2x^2 * y ) == -1 * (2y * x^2)
 end
 
 @testset "polynomials" begin
@@ -111,6 +113,10 @@ end
 
     @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 688
     @test (@wrappedallocs x^2 + 1) <= 128
+
+    @test (1 + x) * (x + 3) == 3 + 4x + x^2
+    @test (2.0 + x) * (y + 1) == 2 + 2y + x + x * y
+    @test (x + 1) - 1 == x
 end
 
 @testset "equality" begin
@@ -125,7 +131,40 @@ end
     @test x^2 != nothing
     @test 3x != nothing
     @test x + 1 != nothing
+    @test nothing != x
+    @test nothing != x^2
+    @test nothing != 3x
+    @test nothing != x + 1
+
+    @test Polynomial([1, 0 * x, y]) == Polynomial([1, y])
+    @test Polynomial([1, 1 * x, y]) != Polynomial([1, y])
+    @test Polynomial([1, y]) == Polynomial([1, 0 * x, y])
+    @test Polynomial([1, y]) != Polynomial([1, 1 * x, y])
 end
+
+@testset "ordering" begin
+    @test x > y
+    @test Monomial(x) > Monomial(y)
+    @test y < x
+    @test Monomial(y) < Monomial(x)
+    @test x^2 > x
+    @test y^2 > x
+    @test y^2 < x^2
+    @test 3x < 5x
+    @test 3x^2 > 5x
+    @test 5x < x^2
+    @test 1x^3 > 10y^3
+end
+
+@testset "linear algebra" begin
+    @test [x, y]' * [1 2; 3 4] * [x, y] == x^2 + 5 * x * y + 4 * y^2
+    @test [x, y]' * [1 2; 3 4] == [(x + 3y) (2x + 4y)]
+    @test [x, y]' * [-1, 3] == 3y - x
+
+    @test_broken @inferred([x, y]' * [1, 2])
+    @test_broken @inferred([x, y]' * [1 2; 3 4])
+end
+
 
 function testmonomials(var, degree)
     [var^i for i in 0:degree]
