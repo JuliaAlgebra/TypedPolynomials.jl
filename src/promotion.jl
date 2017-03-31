@@ -1,10 +1,12 @@
-# promote_rule(::Type{S}, t::Type{<:PolynomialLike}) where {S} = promote_rule(t, S)
+@pure function isless(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
+    name(V1) < name(V2)
+end
 
-@generated function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
-    if name(V1) < name(V2)
-        :(Monomial{(V1(), V2()), 2})
+function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
+    if V1 < V2
+        Monomial{(V1(), V2()), 2}
     else
-        :(Monomial{(V2(), V1()), 2})
+        Monomial{(V2(), V1()), 2}
     end
 end
 
@@ -30,15 +32,25 @@ function _promote_monomial_noncommutative(::Type{Monomial{V1, N1}}, ::Type{Monom
     end
 end
 
-function _promote_monomial(::Type{<:Monomial{V1}}, ::Type{<:Monomial{V2}}) where {V1, V2}
-    varnames = union(name.(V1), name.(V2))
-    sort!(varnames)
-    vars = Expr(:tuple, [Expr(:call, Expr(:curly, :Variable, Expr(:quote, n))) for n in varnames]...)
-    :(Monomial{$vars, $(length(varnames))})
+@pure function merge(v1::Tuple{Vararg{Variable}}, v2::Variable)
+    for i in 1:length(v1)
+        if v2 == v1[i]
+            return v1
+        elseif v2 > v1[i]
+            return tuple(v1[1:i-1]..., v2, v1[i:end]...)
+        end
+    end
+    return tuple(v1..., v2)
 end
 
-@generated function promote_rule(::Type{M1}, ::Type{M2}) where {M1 <: Monomial, M2 <: Monomial}
-    _promote_monomial(M1, M2)
+@pure function merge(v1::Tuple{Vararg{Variable}}, v2::Variable, vars::Variable...)
+    merge(merge(v1, v2), vars...)
+end
+
+@pure function promote_rule(::Type{<:Monomial{V1}}, ::Type{<:Monomial{V2}}) where {V1, V2}
+    vars = merge(V1, V2...)
+    Monomial{vars, length(vars)}
+    # _promote_monomial(M1, M2)
 end
 
 function promote_rule(::Type{Term{T, M2}}, ::Type{M1}) where {M1 <: Monomial, T, M2 <: Monomial}
@@ -70,9 +82,9 @@ function promote_rule(::Type{<:Polynomial{T1}}, ::Type{<:Polynomial{T2}}) where 
     Polynomial{T, Vector{T}}
 end
 
-@generated function promote_rule(::Type{Polynomial{T1, SVector{N1, T1}}}, ::Type{Polynomial{T2, SVector{N2, T2}}}) where {T1, N1, T2, N2}
+function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
     T = promote_type(T1, T2)
-    :(Polynomial{$T, SVector{$(max(N1, N2)), $T}})
+    Polynomial{T, SVector{1, T}}
 end
 
 function promote_rule(::Type{V}, ::Type{S}) where {S, V <: Variable}

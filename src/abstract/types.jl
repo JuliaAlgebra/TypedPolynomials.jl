@@ -1,12 +1,12 @@
 abstract type AbstractVariable{Name} end
-name(::Type{<:AbstractVariable{N}}) where {N} = N
-name(v::AbstractVariable) = name(typeof(v))
-degree(::AbstractVariable) = 1
+@pure name(::Type{<:AbstractVariable{N}}) where {N} = N
+@pure name(v::AbstractVariable) = name(typeof(v))
+@pure degree(::AbstractVariable) = 1
 
 abstract type AbstractMonomial{Variables} end
 degree(m::AbstractMonomial) = sum(exponents(m))
-variables(::Type{<:AbstractMonomial{V}}) where {V} = V
-variables(m::AbstractMonomial) = variables(typeof(m))
+@pure variables(::Type{<:AbstractMonomial{V}}) where {V} = V
+@pure variables(m::AbstractMonomial) = variables(typeof(m))
 function exponents end
 function exponent end
 

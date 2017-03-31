@@ -10,9 +10,10 @@ jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = merges
 
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{(V(),), 1}((2,))
 
-@generated function (*)(m1::M, m2::M) where {M <: Monomial}
-    vars = variables(M)
-    :(Monomial{$vars, $(length(vars))}($(Expr(:tuple, [:(m1.exponents[$i] + m2.exponents[$i]) for i in 1:length(vars)]...))))
+function (*)(m1::Monomial{V, N}, m2::Monomial{V, N}) where {V, N}
+    e1 = m1.exponents
+    e2 = m2.exponents
+    Monomial{V, N}(ntuple(i -> e1[i] + e2[i], Val{N}))
 end
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))

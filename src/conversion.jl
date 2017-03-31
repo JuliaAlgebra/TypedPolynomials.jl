@@ -5,27 +5,37 @@ convert(::Type{Term{T, M}}, v::Variable) where {T, M} = Term{T, M}(one(T), conve
 convert(T::Type{Polynomial{T1, V1}}, p::Polynomial) where {T1, V1} = T(convert(V1, p.terms))
 convert(T::Type{Polynomial{T1, V1}}, x) where {T1, V1} = convert(T, Polynomial(convert(T1, x)))
 
-@generated function convert(::Type{Monomial{V1}}, m::Monomial) where {V1}
-    :(convert(Monomial{V1, $(length(V1))}, m))
+convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, numvariables(T)}, m)
+
+@pure function matchindices(::Type{Monomial{V1, N1}}, ::Type{Monomial{V2, N2}}) where {V1, N1, V2, N2}
+    i2 = 1
+    inds = ntuple(i -> begin
+        if i2 > N2
+            0
+        elseif V1[i] == V2[i2]
+            i2 += 1
+            i2 - 1
+        else
+            0
+        end
+    end, Val{N1})
+    if i2 <= N2
+        throw(InexactError())
+    end
+    inds
 end
 
-@generated function convert(::Type{Monomial{V1, N1}}, m::Monomial{V2}) where {V1, N1, V2}
-    args = Any[0 for v in V1]
-    i1 = 1
-    i2 = 1
-    while i1 <= length(V1) && i2 <= length(V2)
-        if V1[i1] == V2[i2]
-            args[i1] = (args[i1] == 0) ? :(exponent(m, $i2)) : :($(args[i1]) + exponent(m, $i2))
-            i2 += 1
+function convert(::Type{Monomial{V1, N1}}, m::Monomial) where {V1, N1}
+    inds = matchindices(Monomial{V1, N1}, typeof(m))
+    exps = ntuple(i -> begin
+        @inbounds ii = inds[i]
+        if ii == 0
+            0
         else
-            i1 += 1
+            m.exponents[ii]
         end
-    end
-    if i2 <= length(V2)
-        :(throw(InexactError()))
-    else
-        :(Monomial{V1, $(length(V1))}($(Expr(:tuple, args...))))
-    end
+    end, Val{N1})
+    Monomial{V1, N1}(exps)
 end
 
 function convert(::Type{Term{T1, M1}}, t::Term{T2, M2}) where {T1, M1, T2, M2}
