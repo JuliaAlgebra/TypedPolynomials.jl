@@ -5,8 +5,8 @@ abstract type AbstractVariable{Name} end
 
 abstract type AbstractMonomial{Variables} end
 degree(m::AbstractMonomial) = sum(exponents(m))
-variables(::Type{<:AbstractMonomial{V}}) where {V} = V
-variables(m::AbstractMonomial) = variables(typeof(m))
+@pure variables(::Type{<:AbstractMonomial{V}}) where {V} = V
+@pure variables(m::AbstractMonomial) = variables(typeof(m))
 function exponents end
 function exponent end
 

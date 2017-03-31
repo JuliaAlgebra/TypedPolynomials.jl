@@ -5,9 +5,7 @@ convert(::Type{Term{T, M}}, v::Variable) where {T, M} = Term{T, M}(one(T), conve
 convert(T::Type{Polynomial{T1, V1}}, p::Polynomial) where {T1, V1} = T(convert(V1, p.terms))
 convert(T::Type{Polynomial{T1, V1}}, x) where {T1, V1} = convert(T, Polynomial(convert(T1, x)))
 
-@generated function convert(::Type{Monomial{V1}}, m::Monomial) where {V1}
-    :(convert(Monomial{V1, $(length(V1))}, m))
-end
+convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, numvariables(T)}, m)
 
 @generated function convert(::Type{Monomial{V1, N1}}, m::Monomial{V2}) where {V1, N1, V2}
     args = Any[0 for v in V1]
