@@ -6,15 +6,27 @@ differentiate(v::AbstractVariable, ::AbstractVariable) = 0
 
 function differentiate(m::AbstractMonomial{Vars}, v::V) where {Vars, V <: AbstractVariable}
     if inmonomial(V, Vars...)
-        _diff(v, powers(m)...)
+        _diff(m, v)
     else
         0
     end
 end
 
-_diff(v::V, p::Tuple{V, Any}, p2...) where {V <: AbstractVariable} = p[2] * v^(p[2] - 1) * _diff(v, p2...)
-_diff(v::AbstractVariable, p::Tuple{AbstractVariable, Any}, p2...) = p[1]^p[2] * _diff(v, p2...)
-_diff(v::AbstractVariable) = 1
+_diff(m::AbstractMonomial, v::AbstractVariable) = _diff(m, exponents(m), v)
+
+function _diff(m::AbstractMonomial{Vars}, 
+               exponents::NTuple{N, Integer},
+               v::AbstractVariable) where {Vars, N}
+    vi = findfirst(var -> name(var) == name(v), Vars)
+    @assert vi != 0
+    exponents[vi] * Monomial{Vars, N}(ntuple(i -> begin
+        if i == vi
+            exponents[i] - 1
+        else
+            exponents[i]
+        end
+    end, Val{N}))
+end
 
 differentiate(t::AbstractTerm, v::AbstractVariable) = coefficient(t) * differentiate(monomial(t), v)
 differentiate(p::AbstractPolynomial, v::AbstractVariable) = Polynomial(differentiate.(terms(p), v))

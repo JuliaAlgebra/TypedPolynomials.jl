@@ -34,7 +34,6 @@ include("conversion.jl")
 include("promotion.jl")
 include("call.jl")
 
-
 include("StaticPolynomials/StaticPolynomials.jl")
 
 end # module

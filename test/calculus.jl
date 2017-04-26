@@ -12,4 +12,11 @@
     @test @inferred(differentiate(3x^2, x)) == 6x
     @test @inferred(differentiate(3x^2 * y^0, y)) == 0
     @test @inferred(differentiate(5 * x^2 + 2 * x + 1, x)) == 10x + 2
+
+    m = x^2
+    @test @wrappedallocs(differentiate(m, x)) == 0
+    @test @wrappedallocs(differentiate(m, y)) == 0
+    m = x^2 * y^3
+    @test @wrappedallocs(differentiate(m, x)) == 0
+    @test @wrappedallocs(differentiate(m, y)) == 0
 end
