@@ -21,6 +21,7 @@ export @polyvar,
 include("sequences.jl")
 import .Sequences: shortest_common_supersequence, mergesorted
 
+include("abstract/utils.jl")
 include("abstract/types.jl")
 include("abstract/operators.jl")
 include("abstract/show.jl")

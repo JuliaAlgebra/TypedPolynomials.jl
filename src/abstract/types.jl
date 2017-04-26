@@ -18,6 +18,7 @@ variables(T::Type{<:AbstractTerm}) = variables(monomialtype(T))
 variables(t::AbstractTerm) = variables(monomialtype(t))
 exponents(t::AbstractTerm) = exponents(monomial(t))
 exponent(t::AbstractTerm, v::AbstractVariable) = exponent(monomial(t), v)
+powers(m::AbstractMonomial) = tuplezip(variables(m), exponents(m))
 function coefficient end
 function monomial end
 
