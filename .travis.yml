@@ -9,9 +9,6 @@ notifications:
   email: false
 branches:
   only: master
-matrix:
-  allow_failures:
-    - julia: 0.6
 after_success:
   # push coverage results to Codecov
   - julia -e 'cd(Pkg.dir("TypedPolynomials")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
