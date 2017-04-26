@@ -51,6 +51,7 @@ import TypedPolynomials: pairzip
     @test_throws ArgumentError pairzip((x, y, z), (1, 2))
     @test_throws ArgumentError pairzip((x, y), (1, 2, 3))
     @test @inferred(pairzip((1, :x, r"x"), ("w", 1.0, +))) == (1=>"w", :x=>1.0, r"x"=>+)
+    @test @inferred(pairzip((1, :x, r"x")=>("w", 1.0, +))) == (1=>"w", :x=>1.0, r"x"=>+)
 end
 
 @testset "tuple substitution" begin
