@@ -8,6 +8,8 @@
     @test (@wrappedallocs x^2) == 0
     @test (@wrappedallocs x^1) == 0
     @test (@wrappedallocs x^0) == 0
+    @test @inferred(zero(x)) == @inferred(zero(typeof(x)))
+    @test zero(x) == 0 * x
 end
 
 @testset "orderings" begin
@@ -56,6 +58,9 @@ end
     @test @wrappedallocs((x * y) < x^2) == 0
 
     @test_broken exponents(convert(Monomial{(x, y, x)}, Monomial{(x, x, y, x)}((1, 1, 1, 1)))) == (2, 1, 1)
+
+    @test @inferred(zero(m)) == @inferred(zero(typeof(m)))
+    @test zero(m) == 0 * m
 end
 
 @testset "terms" begin
@@ -76,6 +81,9 @@ end
     @test variables(t) == (x, y)
     @test coefficient(t) == 2
     @test exponents(t) == (2, 1)
+
+    @test @inferred(zero(t)) == @inferred(zero(typeof(t)))
+    @test zero(t) == 0 * t
 
     m1 = x * y * z^3 * x^2 * y
     m2 = x^3 * y^3 * z^2

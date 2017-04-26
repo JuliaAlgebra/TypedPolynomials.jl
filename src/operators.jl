@@ -1,5 +1,7 @@
 one(::Type{M}) where {M <: Monomial} = M()
+one(m::MonomialLike) = one(typeof(m))
 one(::Type{Term{T, M}}) where {T, M} = Term(one(T), M())
+zero(::Type{V}) where {V <: Variable} = Term(0, Monomial(V()))
 zero(::Type{M}) where {M <: Monomial} = Term(0, M())
 zero(::Type{Term{T, M}}) where {T, M} = Term{T, M}(zero(T), M())
 zero(::Type{Polynomial{T, A}}) where {T, A} = Polynomial{T, A}(A())
@@ -20,3 +22,7 @@ function (*)(m1::Monomial{V, N}, m2::Monomial{V, N}) where {V, N}
 end
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
+
+# All of these types are immutable, so there's no need to copy anything to get
+# a shallow copy.
+copy(x::PolynomialLike) = x

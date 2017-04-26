@@ -49,11 +49,20 @@ end
 (*)(p1::AbstractPolynomial, p2::AbstractPolynomial) = sum(terms(p1) .* terms(p2).')
 (*)(t::AbstractPolynomialLike) = t
 
-@pure (==)(v1::AbstractVariable, v2::AbstractVariable) = name(v1) == name(v2)
+@pure (==)(::AbstractVariable{N}, ::AbstractVariable{N}) where {N} = true
+@pure (==)(::AbstractVariable, ::AbstractVariable) = false
 (==)(m1::AbstractMonomial{V}, m2::AbstractMonomial{V}) where {V} = exponents(m1) == exponents(m2)
-(==)(t1::AbstractTerm, t2::AbstractTerm) = coefficient(t1) == coefficient(t2) && monomial(t1) == monomial(t2)
-(==)(::AbstractTermLike, ::Void) = false
-(==)(::Void, ::AbstractTermLike) = false
+function (==)(t1::AbstractTerm, t2::AbstractTerm)
+    c1 = coefficient(t1)
+    c2 = coefficient(t2)
+    if iszero(c1) && iszero(c2)
+        true
+    else
+        c1 == c2 && monomial(t1) == monomial(t2)
+    end
+end
+(==)(::AbstractPolynomialLike, ::Void) = false
+(==)(::Void, ::AbstractPolynomialLike) = false
 
 function compare_terms(p1::AbstractPolynomial, p2::AbstractPolynomial, op)
     i1 = 1

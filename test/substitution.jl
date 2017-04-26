@@ -39,3 +39,7 @@ end
     @test @inferred(subs(x + 1, x=>1)) == 2
     @test @inferred(subs(x + 2y + z, y=>2.0, z=>π)) ≈ π + 4.0 + x
 end
+
+@testset "monomial substitution" begin
+    @test @inferred(subs(x^2 * y, y=>z^2)) == x^2 * z^2
+end
