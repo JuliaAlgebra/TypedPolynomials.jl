@@ -1,5 +1,6 @@
 const Substitution{Name} = Pair{<:AbstractVariable{Name}}
 const Substitutions = Tuple{Vararg{Substitution}}
+const MultiSubstitution{N} = Pair{<:Tuple{Vararg{<:AbstractVariable, N}}, <:Tuple{Vararg{Any, N}}}
 
 ## Variables
 subs(v::AbstractVariable{Name}, s::Substitution{Name}) where {Name} = s.second
@@ -58,7 +59,6 @@ is equivalent to:
 
     subs(polynomial, (x=>1, y=>2))
 """
-function subs(p::AbstractPolynomialLike, 
-              s::Pair{<:Tuple{Vararg{<:AbstractVariable, N}}, <:Tuple{Vararg{Any, N}}}) where {N}
+function subs(p::AbstractPolynomialLike, s::MultiSubstitution)
     subs(p, pairzip(s))
 end
