@@ -16,7 +16,8 @@ export @polyvar,
        monomial,
        terms,
        degree,
-       subs
+       subs,
+       differentiate
 
 include("sequences.jl")
 import .Sequences: shortest_common_supersequence, mergesorted
@@ -26,11 +27,13 @@ include("abstract/types.jl")
 include("abstract/operators.jl")
 include("abstract/show.jl")
 include("abstract/substitution.jl")
+include("abstract/calculus.jl")
 include("types.jl")
 include("operators.jl")
 include("conversion.jl")
 include("promotion.jl")
 include("call.jl")
+
 
 include("StaticPolynomials/StaticPolynomials.jl")
 
