@@ -58,7 +58,7 @@ function (==)(t1::AbstractTerm, t2::AbstractTerm)
     if iszero(c1) && iszero(c2)
         true
     else
-        coefficient(t1) == coefficient(t2) && monomial(t1) == monomial(t2)
+        c1 == c2 && monomial(t1) == monomial(t2)
     end
 end
 (==)(::AbstractPolynomialLike, ::Void) = false
