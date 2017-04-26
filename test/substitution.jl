@@ -44,6 +44,16 @@ end
     @test @inferred(subs(x^2 * y, y=>z^2)) == x^2 * z^2
 end
 
+import TypedPolynomials: pairzip
+
+@testset "pairzip" begin
+    @test @inferred(pairzip((x, y), (1, 2))) == (x=>1, y=>2)
+    @test_throws ArgumentError pairzip((x, y, z), (1, 2))
+    @test_throws ArgumentError pairzip((x, y), (1, 2, 3))
+    @test @inferred(pairzip((1, :x, r"x"), ("w", 1.0, +))) == (1=>"w", :x=>1.0, r"x"=>+)
+    @test @inferred(pairzip((1, :x, r"x")=>("w", 1.0, +))) == (1=>"w", :x=>1.0, r"x"=>+)
+end
+
 @testset "tuple substitution" begin
     @test @inferred(subs(x^2 * y * z^3, (x, y)=>(2, 3))) == (2^2 * 3 * z^3)
     @test @inferred(subs(5x, (x,)=>(6,))) == 30

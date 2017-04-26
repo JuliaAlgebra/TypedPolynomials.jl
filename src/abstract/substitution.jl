@@ -43,14 +43,15 @@ subs(x, s::Substitution...) = x
 
 """
 pairzip((a, b), (c, d)) gives (a=>c, b=>d)
-"""
-@generated function pairzip(x::Tuple{Vararg{Any, N}}, y::Tuple{Vararg{Any, N}}) where {N}
-    Expr(:tuple, [:(x[$i] => y[$i]) for i in 1:N]...)
-end
 
-function pairzip(p::Pair{<:Tuple{Vararg{Any, N}}, <:Tuple{Vararg{Any, N}}}) where {N}
-    pairzip(p.first, p.second)
-end
+This function was written by Fengyang Wang and shared on the Julia discourse
+forum: https://discourse.julialang.org/t/type-stable-zip-to-pairs/3390/2
+"""
+pairzip(::Tuple{}, ::Tuple{}) = ()
+pairzip(::Tuple{}, ::Tuple) = throw(ArgumentError("args must be equal in length"))
+pairzip(::Tuple, ::Tuple{}) = throw(ArgumentError("args must be equal in length"))
+pairzip(t::Tuple, u::Tuple) = (t[1] => u[1], pairzip(Base.tail(t), Base.tail(u))...)
+pairzip(p::Pair{<:Tuple, <:Tuple}) = pairzip(p.first, p.second)
 
 """
     subs(polynomial, (x, y)=>(1, 2))
