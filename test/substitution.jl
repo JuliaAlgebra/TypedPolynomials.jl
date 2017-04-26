@@ -43,3 +43,23 @@ end
 @testset "monomial substitution" begin
     @test @inferred(subs(x^2 * y, y=>z^2)) == x^2 * z^2
 end
+
+@testset "tuple substitution" begin
+    @test @inferred(subs(x^2 * y * z^3, (x, y)=>(2, 3))) == (2^2 * 3 * z^3)
+    @test @inferred(subs(5x, (x,)=>(6,))) == 30
+    @test @inferred(subs(x * y * z^2, (y, x) => (z, z))) == z^4
+    @test @inferred(subs(x^2 * y, (x, y) => (z^3, 5))) == 5 * z^6
+
+    @testset "call overloads" begin
+        @test @inferred(x((x,)=>(3,))) == 3
+
+        m = z^1 * y^2
+        @test @inferred(m((y, z) => (2, 3))) == 2^2 * 3
+
+        t = 3 * m
+        @test @inferred(t((y, z) => (2, 3))) == 3 * 2^2 * 3
+
+        p = 3 * m + 1
+        @test @inferred(p((y, z) => (2, 3))) == 3 * 2^2 * 3 + 1
+    end
+end

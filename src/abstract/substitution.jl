@@ -1,5 +1,6 @@
 const Substitution{Name} = Pair{<:AbstractVariable{Name}}
 const Substitutions = Tuple{Vararg{Substitution}}
+const MultiSubstitution{N} = Pair{<:Tuple{Vararg{<:AbstractVariable, N}}, <:Tuple{Vararg{Any, N}}}
 
 ## Variables
 subs(v::AbstractVariable{Name}, s::Substitution{Name}) where {Name} = s.second
@@ -40,4 +41,24 @@ subs(t::AbstractTerm, s::Substitution...) = subs(t, s)
 ## Everything else
 subs(x, s::Substitution...) = x
 
+"""
+pairzip((a, b), (c, d)) gives (a=>c, b=>d)
+"""
+@generated function pairzip(x::Tuple{Vararg{Any, N}}, y::Tuple{Vararg{Any, N}}) where {N}
+    Expr(:tuple, [:(x[$i] => y[$i]) for i in 1:N]...)
+end
 
+function pairzip(p::Pair{<:Tuple{Vararg{Any, N}}, <:Tuple{Vararg{Any, N}}}) where {N}
+    pairzip(p.first, p.second)
+end
+
+"""
+    subs(polynomial, (x, y)=>(1, 2))
+
+is equivalent to:
+
+    subs(polynomial, (x=>1, y=>2))
+"""
+function subs(p::AbstractPolynomialLike, s::MultiSubstitution)
+    subs(p, pairzip(s))
+end
