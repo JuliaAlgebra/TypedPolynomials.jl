@@ -30,7 +30,6 @@ import .Sequences: shortest_common_supersequence, mergesorted
 include("abstract/utils.jl")
 include("abstract/types.jl")
 include("abstract/operators.jl")
-include("abstract/show.jl")
 include("abstract/substitution.jl")
 include("abstract/calculus.jl")
 include("types.jl")

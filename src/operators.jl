@@ -1,3 +1,4 @@
+one(::Type{V}) where {V <: Variable} = Term(1, Monomial{V}())
 one(::Type{M}) where {M <: Monomial} = M()
 one(m::MonomialLike) = one(typeof(m))
 one(::Type{Term{T, M}}) where {T, M} = Term(one(T), M())
@@ -16,6 +17,9 @@ combine(t1::T, t2::T) where {T <: Term} = Term(t1.coefficient + t2.coefficient, 
 compare(t1::Term, t2::Term) = monomial(t1) < monomial(t2)
 
 jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = mergesorted(terms1, terms2, compare, combine)
+
+(+)(p1::AbstractPolynomial, p2::AbstractPolynomial) = convert(AbstractPolynomial, jointerms(terms(p1), terms(p2)))
+(-)(p1::AbstractPolynomial, p2::AbstractPolynomial) = convert(AbstractPolynomial, jointerms(terms(p1), (-).(terms(p2))))
 
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{(V(),), 1}((2,))
 
