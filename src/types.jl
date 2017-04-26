@@ -11,8 +11,14 @@ macro polyvar(names...)
     Expr(:block, exprs...)
 end
 
+checksorted(x::Tuple{Any}, cmp) = true
+checksorted(x::Tuple{}, cmp) = true
+checksorted(x::Tuple, cmp) = cmp(x[1], x[2]) && checksorted(Base.tail(x), cmp)
+
 struct Monomial{V, N} <: AbstractMonomial{V}
     exponents::NTuple{N, Int}
+
+    Monomial{V, N}(exponents::NTuple{N, Int}) where {V, N} = (@assert checksorted(V, >); new{V, N}(exponents))
 end
 Monomial{V, N}() where {N, V} = Monomial{V, N}(ntuple(_ -> 0, Val{N}))
 Monomial{V}() where {V} = Monomial{V, 0}()
