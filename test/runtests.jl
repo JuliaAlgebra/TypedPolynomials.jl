@@ -37,6 +37,7 @@ macro wrappedallocs(expr)
     end
 end
 
+include("macros.jl")
 include("calculus.jl")
 include("promotion.jl")
 include("polynomials.jl")

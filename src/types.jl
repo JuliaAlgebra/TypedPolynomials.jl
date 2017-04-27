@@ -1,16 +1,6 @@
 struct Variable{Name} <: AbstractVariable{Name}
 end
 
-macro polyvar(names...)
-    exprs = [
-        quote
-            $(esc(name)) = Variable{$(esc(Expr(:quote, name)))}()
-        end
-        for name in names
-    ]
-    Expr(:block, exprs...)
-end
-
 checksorted(x::Tuple{Any}, cmp) = true
 checksorted(x::Tuple{}, cmp) = true
 checksorted(x::Tuple, cmp) = cmp(x[1], x[2]) && checksorted(Base.tail(x), cmp)
