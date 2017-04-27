@@ -1,6 +1,7 @@
 module TypedPolynomials
 
 using StaticArrays: SVector
+using MacroTools
 import Base: *, +, -, /, ^, ==,
     promote_rule, convert, show, isless, size, getindex,
     one, zero, transpose, isapprox, @pure, dot, copy
@@ -37,5 +38,6 @@ include("operators.jl")
 include("conversion.jl")
 include("promotion.jl")
 include("call.jl")
+include("macros.jl")
 
 end # module
