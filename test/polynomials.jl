@@ -9,6 +9,7 @@
     @test (@wrappedallocs x^1) == 0
     @test (@wrappedallocs x^0) == 0
     @test @inferred(zero(x)) == @inferred(zero(typeof(x)))
+    @test_broken one(x) == 1
     @test zero(x) == 0 * x
 end
 
