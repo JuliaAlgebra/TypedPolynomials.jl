@@ -30,6 +30,20 @@ end
     @test x != 1y
     @test x != nothing
     @test x != 0
+
+    @test x > y
+    @test x^1 > y
+    @test x^1 > y^1
+    @test 1x^1 > 1y^1
+    @test x^1 > 1y^1
+    @test 1x^1 > y^1
+    @test y < x
+    @test y < x^1
+    @test y^1 < x
+    @test 1y^1 < x
+    @test 1y^1 < 1x^1
+    @test 1x < 2x
+    @test 2x > 1x
 end
 
 @testset "monomials" begin
@@ -82,6 +96,8 @@ end
 
     @test @inferred(zero(t)) == @inferred(zero(typeof(t)))
     @test zero(t) == 0 * t
+    @test @inferred(one(t)) == @inferred(one(typeof(t)))
+    @test 1 == one(t) == 1 * t^0
 
     m1 = x * y * z^3 * x^2 * y
     m2 = x^3 * y^3 * z^2
@@ -98,10 +114,25 @@ end
     @test p.terms[2] == Term(x)
     @test variables(p) == (x,)
 
+    @test @inferred(zero(p)) == @inferred(zero(typeof(p)))
+    @test zero(p) == 0 * p
+    @test @inferred(one(p)) == @inferred(one(typeof(p)))
+    @test one(p) == 1
+
+    @test mindeg(p) == 0
+    @test maxdeg(p) == 1
+    @test extdeg(p) == (0, 1)
+    @test nvars(p) == 1
+
     p = @inferred x^2 + x * x
     @test isa(p, Polynomial)
     @test length(terms(p)) == 1
     @test coefficient(terms(p)[1]) == 2
+
+    @test mindeg(p) == 2
+    @test maxdeg(p) == 2
+    @test extdeg(p) == (2, 2)
+    @test nvars(p) == 1
 
     p = @inferred (1 + x) + (y + 2)
     @test coefficient(terms(p)[1]) == 3
@@ -112,10 +143,20 @@ end
     @test coefficient(terms(p)[3]) == 1
     @test exponents(terms(p)[3]) == (1, 0)
 
+    @test mindeg(p) == 0
+    @test maxdeg(p) == 1
+    @test extdeg(p) == (0, 1)
+    @test nvars(p) == 2
+
     p = @inferred x^2 + y + x * x + 3 * x * y + x * y^2
     @test length(terms(p)) == 4
     @test coefficient.(terms(p)) == [1, 3, 2, 1]
     @test exponents.(terms(p)) == [(0, 1), (1, 1), (2, 0), (1, 2)]
+
+    @test mindeg(p) == 1
+    @test maxdeg(p) == 3
+    @test extdeg(p) == (1, 3)
+    @test nvars(p) == 2
 
     @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 688
     @test (@wrappedallocs x^2 + 1) <= 128
