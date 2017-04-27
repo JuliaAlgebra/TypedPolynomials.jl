@@ -18,9 +18,6 @@ compare(t1::Term, t2::Term) = monomial(t1) < monomial(t2)
 
 jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = mergesorted(terms1, terms2, compare, combine)
 
-(+)(p1::AbstractPolynomial, p2::AbstractPolynomial) = convert(AbstractPolynomial, jointerms(terms(p1), terms(p2)))
-(-)(p1::AbstractPolynomial, p2::AbstractPolynomial) = convert(AbstractPolynomial, jointerms(terms(p1), (-).(terms(p2))))
-
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{(V(),), 1}((2,))
 
 function (*)(m1::Monomial{V, N}, m2::Monomial{V, N}) where {V, N}
