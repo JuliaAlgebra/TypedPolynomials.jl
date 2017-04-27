@@ -27,7 +27,6 @@ Monomial(v::Variable) = Monomial{(v,), 1}((1,))
 
 exponents(m::Monomial) = m.exponents
 exponent(m::Monomial, i::Integer) = m.exponents[i]
-@pure numvariables(::Type{<:Monomial{V}}) where {V} = length(V)
 
 struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
     coefficient::CoeffType

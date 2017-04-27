@@ -5,7 +5,7 @@ convert(::Type{Term{T, M}}, v::Variable) where {T, M} = Term{T, M}(one(T), conve
 convert(T::Type{Polynomial{T1, V1}}, p::Polynomial) where {T1, V1} = T(convert(V1, p.terms))
 convert(T::Type{Polynomial{T1, V1}}, x) where {T1, V1} = convert(T, Polynomial(convert(T1, x)))
 
-convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, numvariables(T)}, m)
+convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, nvars(T)}, m)
 
 @pure function matchindices(::Type{Monomial{V1, N1}}, ::Type{Monomial{V2, N2}}) where {V1, N1, V2, N2}
     i2 = 1

@@ -1,6 +1,10 @@
 one(::Type{M}) where {M <: Monomial} = M()
 one(m::MonomialLike) = one(typeof(m))
 one(::Type{Term{T, M}}) where {T, M} = Term(one(T), M())
+one(t::Term) = one(typeof(t))
+one(::Type{P}) where {T, P <: Polynomial{T}} = Polynomial(one(T))
+one(p::Polynomial) = one(typeof(p))
+
 zero(::Type{V}) where {V <: Variable} = Term(0, Monomial(V()))
 zero(::Type{M}) where {M <: Monomial} = Term(0, M())
 zero(::Type{Term{T, M}}) where {T, M} = Term{T, M}(zero(T), M())
