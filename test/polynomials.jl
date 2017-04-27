@@ -57,8 +57,6 @@ end
 
     @test @wrappedallocs((x * y) < x^2) == 0
 
-    @test_broken exponents(convert(Monomial{(x, y, x)}, Monomial{(x, x, y, x)}((1, 1, 1, 1)))) == (2, 1, 1)
-
     @test @inferred(zero(m)) == @inferred(zero(typeof(m)))
     @test zero(m) == 0 * m
 end

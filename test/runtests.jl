@@ -38,6 +38,7 @@ macro wrappedallocs(expr)
 end
 
 include("StaticPolynomials/runtests.jl")
+include("calculus.jl")
 include("promotion.jl")
 include("polynomials.jl")
 include("substitution.jl")
