@@ -22,7 +22,7 @@ Create several variables at the same time:
 
     @polyvar(x, y, z)
 
-Create a list of variables x1, x2, x3, x4:
+Create a tuple of variables x1, x2, x3, x4:
 
     @polyvar(x[1:4])
 
