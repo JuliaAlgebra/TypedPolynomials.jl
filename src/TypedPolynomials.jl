@@ -17,7 +17,11 @@ export @polyvar,
        terms,
        degree,
        subs,
-       differentiate
+       differentiate,
+       mindeg,
+       maxdeg,
+       extdeg,
+       nvars
 
 include("sequences.jl")
 import .Sequences: shortest_common_supersequence, mergesorted
