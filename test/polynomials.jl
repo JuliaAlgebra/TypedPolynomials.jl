@@ -31,6 +31,20 @@ end
     @test x != 1y
     @test x != nothing
     @test x != 0
+
+    @test x > y
+    @test x^1 > y
+    @test x^1 > y^1
+    @test 1x^1 > 1y^1
+    @test x^1 > 1y^1
+    @test 1x^1 > y^1
+    @test y < x
+    @test y < x^1
+    @test y^1 < x
+    @test 1y^1 < x
+    @test 1y^1 < 1x^1
+    @test 1x < 2x
+    @test 2x > 1x
 end
 
 @testset "monomials" begin

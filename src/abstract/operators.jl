@@ -47,7 +47,6 @@ end
 (*)(t1::AbstractTerm, t2::AbstractTerm) = convert(AbstractTerm, coefficient(t1) * coefficient(t2), monomial(t1) * monomial(t2))
 # TODO: this is inefficient
 (*)(p1::AbstractPolynomial, p2::AbstractPolynomial) = sum(terms(p1) .* terms(p2).')
-(*)(t::AbstractPolynomialLike) = t
 
 @pure (==)(::AbstractVariable{N}, ::AbstractVariable{N}) where {N} = true
 @pure (==)(::AbstractVariable, ::AbstractVariable) = false

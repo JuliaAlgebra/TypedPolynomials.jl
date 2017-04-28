@@ -19,4 +19,6 @@
     m = x^2 * y^3
     @test @wrappedallocs(differentiate(m, x)) == 0
     @test @wrappedallocs(differentiate(m, y)) == 0
+
+    @test @inferred(differentiate(1, x)) == 0
 end
