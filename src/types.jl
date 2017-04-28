@@ -73,10 +73,12 @@ function monomial_powers{N}(::Val{N}, degree)
 end
 
 function monomials(vars::Tuple{Vararg{<:Variable}}, degree::Integer)
+    checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     [Monomial{vars}(p) for p in monomial_powers(Val{length(vars)}(), degree)]
 end
 
 function monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray)
+    checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
         for p in monomial_powers(Val{length(vars)}(), d)]
 end
