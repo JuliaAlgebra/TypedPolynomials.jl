@@ -1,16 +1,16 @@
 @polyvar x y z
 
 @testset "variables" begin
-    @test x * x == x^2
-    @test x^1 == x
-    @test x^0 == 1
+    @test @inferred(x * x) == @inferred(x^2)
+    @test @inferred(x^1) == x
+    @test @inferred(x^0) == 1
     @test (@wrappedallocs x * x) == 0
     @test (@wrappedallocs x^2) == 0
     @test (@wrappedallocs x^1) == 0
     @test (@wrappedallocs x^0) == 0
     @test @inferred(zero(x)) == @inferred(zero(typeof(x)))
-    @test_broken one(x) == 1
-    @test zero(x) == 0 * x
+    @test @inferred(one(x)) == 1
+    @test @inferred(zero(x)) == @inferred(0 * x)
 end
 
 @testset "orderings" begin

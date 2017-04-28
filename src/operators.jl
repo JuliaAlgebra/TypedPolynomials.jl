@@ -1,4 +1,4 @@
-one(::Type{V}) where {V <: Variable} = Term(1, Monomial{V}())
+one(::Type{V}) where {V <: Variable} = Monomial{(V(),), 1}()
 one(::Type{M}) where {M <: Monomial} = M()
 one(m::MonomialLike) = one(typeof(m))
 one(::Type{Term{T, M}}) where {T, M} = Term(one(T), M())
