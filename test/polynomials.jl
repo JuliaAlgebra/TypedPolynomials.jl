@@ -74,6 +74,8 @@ end
 
     @test @inferred(zero(m)) == @inferred(zero(typeof(m)))
     @test zero(m) == 0 * m
+
+    @test @inferred(Monomial{tuple(), 0}()) == @inferred(x^0)
 end
 
 @testset "terms" begin

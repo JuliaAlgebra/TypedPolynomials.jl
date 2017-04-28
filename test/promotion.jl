@@ -36,6 +36,9 @@
     @test typeof(@inferred promote(Polynomial(2x), 2y)) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
     @test typeof(@inferred promote(Polynomial(2x), Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
     @test typeof(@inferred promote(Polynomial(2x), Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
+
+    @test typeof(@inferred(promote(Monomial{tuple(), 0}(), x))) == NTuple{2, Monomial{(x,), 1}}
+    @test typeof(@inferred(promote(x, Monomial{tuple(), 0}()))) == NTuple{2, Monomial{(x,), 1}}
 end
 
 @testset "conversion" begin

@@ -40,6 +40,15 @@ end
     @test @inferred(subs(x + 2y + z, y=>2.0, z=>π)) ≈ π + 4.0 + x
 end
 
+@testset "more call overloads" begin
+    @polyvar x y z
+    t = 5x^2 * z * 3 * y * z
+    @test @inferred(t(x=>2, y=>2)) == @inferred(15 * 2^2 * z^2 * 2)
+    m = z * z * z
+    @test @inferred(m(x=>5)) == z^3
+    @test @inferred(m(z=>2)) == 8
+end
+
 @testset "monomial substitution" begin
     @test @inferred(subs(x^2 * y, y=>z^2)) == x^2 * z^2
 end
