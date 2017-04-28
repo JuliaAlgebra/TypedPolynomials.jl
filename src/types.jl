@@ -27,24 +27,29 @@ struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
 end
 Term(m::Monomial) = Term(1, m)
 Term(v::Variable) = Term(Monomial(v))
+Term(x, v::Variable) = Term(x, Monomial(v))
 
 coefficient(t::Term) = t.coefficient
 monomial(t::Term) = t.monomial
+coefftype(::Type{<:Term{C}}) where {C} = C
+monomialtype(::Type{<:Term{C, M}}) where {C, M} = M
 
 immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: AbstractPolynomial
     terms::V
 end
-Polynomial(terms::V) where {T <: Term, V <: AbstractVector{T}} = Polynomial{T, V}(terms)
+Polynomial(terms::AbstractVector{T}) where {T <: Term} = Polynomial{T, typeof(terms)}(terms)
+Polynomial(t::AbstractVector) = Polynomial(Term.(t))
 Polynomial(term::Term) = Polynomial(SVector(term))
 Polynomial(x) = Polynomial(Term(x))
+termtype(::Type{<:Polynomial{T}}) where {T} = T
 
 terms(p::Polynomial) = p.terms
 variables(::Type{<:Polynomial{T}}) where {T} = variables(T)
 variables(p::Polynomial) = variables(typeof(p))
 
-const MonomialLike = Union{<:Variable, <:Monomial}
-const TermLike = Union{<:MonomialLike, <:Term}
-const PolynomialLike = Union{<:TermLike, <:Polynomial}
+const MonomialLike = Union{Variable, Monomial}
+const TermLike = Union{MonomialLike, Term}
+const PolynomialLike = Union{TermLike, Polynomial}
 
 # Based on fillZfordeg!() from MultivariatePolynomials.jl by Benoit Legat
 # https://github.com/blegat/MultivariatePolynomials.jl/blob/d85ad85de413afa20fc8f5354c980387218ced2c/src/mono.jl#L186-L259

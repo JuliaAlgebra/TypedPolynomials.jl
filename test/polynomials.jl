@@ -111,6 +111,8 @@ end
     @test (@wrappedallocs t1 < t2) == 0
 
     @test -(2x^2 * y ) == -1 * (2y * x^2)
+
+    @test TypedPolynomials.monomialtype(5 * x * y) == Monomial{(x, y), 2}
 end
 
 @testset "polynomials" begin
@@ -163,12 +165,17 @@ end
     @test extdeg(p) == (1, 3)
     @test nvars(p) == 2
 
-    @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 688
+    @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 736
     @test (@wrappedallocs x^2 + 1) <= 128
 
     @test (1 + x) * (x + 3) == 3 + 4x + x^2
     @test (2.0 + x) * (y + 1) == 2 + 2y + x + x * y
     @test (x + 1) - 1 == x
+
+    @test @inferred(Polynomial(x) * x^2) == x^3
+    @test @inferred((x + y) * x^2) == @inferred(x^3 + x^2 * y)
+
+    @test @inferred(Polynomial([y, x])) == x + y
 end
 
 @testset "equality" begin
@@ -209,12 +216,9 @@ end
 end
 
 @testset "linear algebra" begin
-    @test [x, y]' * [1 2; 3 4] * [x, y] == x^2 + 5 * x * y + 4 * y^2
-    @test [x, y]' * [1 2; 3 4] == [(x + 3y) (2x + 4y)]
-    @test [x, y]' * [-1, 3] == 3y - x
-
-    @test_broken @inferred([x, y]' * [1, 2])
-    @test_broken @inferred([x, y]' * [1 2; 3 4])
+    @test @inferred([x, y]' * [1 2; 3 4] * [x, y]) == x^2 + 5 * x * y + 4 * y^2
+    @test @inferred([x, y]' * [1 2; 3 4]) == [(x + 3y) (2x + 4y)]
+    @test @inferred([x, y]' * [-1, 3]) == 3y - x
 end
 
 
@@ -225,4 +229,37 @@ end
 @testset "monomial vector" begin
     ms = @inferred testmonomials(x, 3)
     @test eltype(ms) == Monomial{(x,), 1}
+end
+
+@testset "operators" begin
+    @polyvar x y z
+
+    @test !iszero(x)
+    @test !iszero(x^2)
+    @test !iszero(5x)
+    @test !iszero(5x + 1)
+    @test iszero(0 * x)
+    @test iszero(0 * x + 0)
+
+    @test transpose(x) == x
+    @test transpose(x^2) == x^2
+    @test transpose(Term([1 2; 3 4], x)) == Term([1 2; 3 4]', x)
+
+    @test @inferred(dot(1, x)) == 1x
+    @test @inferred(dot(x, 5)) == 5x
+    @test @inferred(dot(Term([1, 2], x), Term([3, 4], y))) == [1, 2]' * [3, 4] * x * y
+end
+
+
+struct FakeScalar
+end
+
+@testset "Term construction shortcut" begin
+    @polyvar x y z
+
+    # Verify that our shortcut that (*)(x, m::MonomialLike) = Term(x, m) works
+    @test typeof(@inferred(FakeScalar() * x)) == Term{FakeScalar, Monomial{(x,), 1}}
+    @test typeof(@inferred(FakeScalar() * x^2)) == Term{FakeScalar, Monomial{(x,), 1}}
+    @test typeof(@inferred(x * FakeScalar())) == Term{FakeScalar, Monomial{(x,), 1}}
+    @test typeof(@inferred(x^2 * FakeScalar())) == Term{FakeScalar, Monomial{(x,), 1}}
 end
