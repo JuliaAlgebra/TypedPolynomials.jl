@@ -76,6 +76,8 @@ end
     @test zero(m) == 0 * m
 
     @test @inferred(Monomial{tuple(), 0}()) == @inferred(x^0)
+
+    @test @inferred(Monomial{(x, y)}([1, 2])) == Monomial{(x, y)}((1, 2))
 end
 
 @testset "terms" begin

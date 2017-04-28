@@ -37,6 +37,7 @@ macro wrappedallocs(expr)
     end
 end
 
+include("generators.jl")
 include("show.jl")
 include("macros.jl")
 include("calculus.jl")
