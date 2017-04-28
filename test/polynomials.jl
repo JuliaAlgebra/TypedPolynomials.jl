@@ -111,6 +111,8 @@ end
     @test (@wrappedallocs t1 < t2) == 0
 
     @test -(2x^2 * y ) == -1 * (2y * x^2)
+
+    @test TypedPolynomials.monomialtype(5 * x * y) == Monomial{(x, y), 2}
 end
 
 @testset "polynomials" begin
@@ -172,6 +174,8 @@ end
 
     @test @inferred(Polynomial(x) * x^2) == x^3
     @test @inferred((x + y) * x^2) == @inferred(x^3 + x^2 * y)
+
+    @test @inferred(Polynomial([y, x])) == x + y
 end
 
 @testset "equality" begin
@@ -225,6 +229,25 @@ end
 @testset "monomial vector" begin
     ms = @inferred testmonomials(x, 3)
     @test eltype(ms) == Monomial{(x,), 1}
+end
+
+@testset "operators" begin
+    @polyvar x y z
+
+    @test !iszero(x)
+    @test !iszero(x^2)
+    @test !iszero(5x)
+    @test !iszero(5x + 1)
+    @test iszero(0 * x)
+    @test iszero(0 * x + 0)
+
+    @test transpose(x) == x
+    @test transpose(x^2) == x^2
+    @test transpose(Term([1 2; 3 4], x)) == Term([1 2; 3 4]', x)
+
+    @test @inferred(dot(1, x)) == 1x
+    @test @inferred(dot(x, 5)) == 5x
+    @test @inferred(dot(Term([1, 2], x), Term([3, 4], y))) == [1, 2]' * [3, 4] * x * y
 end
 
 

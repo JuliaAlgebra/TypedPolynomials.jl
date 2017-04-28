@@ -27,6 +27,7 @@ struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
 end
 Term(m::Monomial) = Term(1, m)
 Term(v::Variable) = Term(Monomial(v))
+Term(x, v::Variable) = Term(x, Monomial(v))
 
 coefficient(t::Term) = t.coefficient
 monomial(t::Term) = t.monomial
