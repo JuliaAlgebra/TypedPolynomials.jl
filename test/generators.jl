@@ -25,4 +25,5 @@
         end
     end
     @test_throws ArgumentError monomials((z, y), 2)
+    @test_throws ArgumentError monomials((z, y), [1, 2])
 end
