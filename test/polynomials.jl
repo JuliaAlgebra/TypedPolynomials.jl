@@ -212,12 +212,9 @@ end
 end
 
 @testset "linear algebra" begin
-    @test [x, y]' * [1 2; 3 4] * [x, y] == x^2 + 5 * x * y + 4 * y^2
-    @test [x, y]' * [1 2; 3 4] == [(x + 3y) (2x + 4y)]
-    @test [x, y]' * [-1, 3] == 3y - x
-
-    @test_broken @inferred([x, y]' * [1, 2])
-    @test_broken @inferred([x, y]' * [1 2; 3 4])
+    @test @inferred([x, y]' * [1 2; 3 4] * [x, y]) == x^2 + 5 * x * y + 4 * y^2
+    @test @inferred([x, y]' * [1 2; 3 4]) == [(x + 3y) (2x + 4y)]
+    @test @inferred([x, y]' * [-1, 3]) == 3y - x
 end
 
 

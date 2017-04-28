@@ -36,7 +36,8 @@ monomialtype(::Type{<:Term{C, M}}) where {C, M} = M
 immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: AbstractPolynomial
     terms::V
 end
-Polynomial(terms::V) where {T <: Term, V <: AbstractVector{T}} = Polynomial{T, V}(terms)
+Polynomial(terms::AbstractVector{T}) where {T <: Term} = Polynomial{T, typeof(terms)}(terms)
+Polynomial(t::AbstractVector) = Polynomial(Term.(t))
 Polynomial(term::Term) = Polynomial(SVector(term))
 Polynomial(x) = Polynomial(Term(x))
 termtype(::Type{<:Polynomial{T}}) where {T} = T

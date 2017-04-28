@@ -4,7 +4,7 @@ using StaticArrays: SVector
 using MacroTools
 import Base: *, +, -, /, ^, ==,
     promote_rule, convert, show, isless, size, getindex,
-    one, zero, transpose, isapprox, @pure, dot, copy
+    one, zero, iszero, transpose, isapprox, @pure, dot, copy
 export @polyvar,
        Variable,
        Monomial,

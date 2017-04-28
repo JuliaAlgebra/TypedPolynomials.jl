@@ -6,9 +6,9 @@ one(t::Term) = one(typeof(t))
 one(::Type{P}) where {T, P <: Polynomial{T}} = Polynomial(one(T))
 one(p::Polynomial) = one(typeof(p))
 
-zero(::Type{V}) where {V <: Variable} = Polynomial(Term(0, Monomial(V())))
-zero(::Type{M}) where {M <: Monomial} = Polynomial(Term(0, M()))
-zero(::Type{Term{T, M}}) where {T, M} = Polynomial(Term{T, M}(zero(T), M()))
+zero(::Type{V}) where {V <: Variable} = Polynomial([Term(0, Monomial(V()))])
+zero(::Type{M}) where {M <: Monomial} = Polynomial([Term(0, M())])
+zero(::Type{Term{T, M}}) where {T, M} = Polynomial([Term{T, M}(zero(T), M())])
 zero(::Type{Polynomial{T, A}}) where {T, A} = zero(T)
 zero(t::PolynomialLike) = zero(typeof(t))
 
@@ -59,8 +59,8 @@ end
 
 (*)(x, t::Term) = Term(x * coefficient(t), monomial(t))
 (*)(t::Term, x) = Term(coefficient(t) * x, monomial(t))
-(*)(p::Polynomial, x) = sum(terms(p) .* x)
-(*)(x, p::Polynomial) = sum(x .* terms(p))
+(*)(p::Polynomial, x) = (*)(promote(p, x)...)
+(*)(x, p::Polynomial) = (*)(promote(x, p)...)
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
 

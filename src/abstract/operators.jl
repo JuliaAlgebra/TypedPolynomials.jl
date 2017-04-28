@@ -103,3 +103,11 @@ dot(m1::AbstractMonomialLike, m2::AbstractMonomialLike) = m1 * m2
 dot(t::AbstractTermLike, x) = dot(coefficient(t), x) * monomial(t)
 dot(x, t::AbstractTermLike) = dot(x, coefficient(t)) * monomial(t)
 dot(t1::AbstractTermLike, t2::AbstractTermLike) = dot(coefficient(t1), coefficient(t2)) * (monomial(t1) * monomial(t2))
+dot(p1::AbstractPolynomialLike, p2::AbstractPolynomialLike) = p1 * p2
+dot(x, p::AbstractPolynomialLike) = x * p
+dot(p::AbstractPolynomialLike, x) = p * x
+
+iszero(v::AbstractVariable) = false
+iszero(m::AbstractMonomial) = false
+iszero(t::AbstractTerm) = iszero(coefficient(t))
+iszero(p::AbstractPolynomial) = all(iszero, terms(p))
