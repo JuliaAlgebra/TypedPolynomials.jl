@@ -163,12 +163,15 @@ end
     @test extdeg(p) == (1, 3)
     @test nvars(p) == 2
 
-    @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 688
+    @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 736
     @test (@wrappedallocs x^2 + 1) <= 128
 
     @test (1 + x) * (x + 3) == 3 + 4x + x^2
     @test (2.0 + x) * (y + 1) == 2 + 2y + x + x * y
     @test (x + 1) - 1 == x
+
+    @test @inferred(Polynomial(x) * x^2) == x^3
+    @test @inferred((x + y) * x^2) == @inferred(x^3 + x^2 * y)
 end
 
 @testset "equality" begin
@@ -225,4 +228,18 @@ end
 @testset "monomial vector" begin
     ms = @inferred testmonomials(x, 3)
     @test eltype(ms) == Monomial{(x,), 1}
+end
+
+
+struct FakeScalar
+end
+
+@testset "Term construction shortcut" begin
+    @polyvar x y z
+
+    # Verify that our shortcut that (*)(x, m::MonomialLike) = Term(x, m) works
+    @test typeof(@inferred(FakeScalar() * x)) == Term{FakeScalar, Monomial{(x,), 1}}
+    @test typeof(@inferred(FakeScalar() * x^2)) == Term{FakeScalar, Monomial{(x,), 1}}
+    @test typeof(@inferred(x * FakeScalar())) == Term{FakeScalar, Monomial{(x,), 1}}
+    @test typeof(@inferred(x^2 * FakeScalar())) == Term{FakeScalar, Monomial{(x,), 1}}
 end
