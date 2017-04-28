@@ -22,7 +22,8 @@ export @polyvar,
        mindeg,
        maxdeg,
        extdeg,
-       nvars
+       nvars,
+       monomials
 
 include("sequences.jl")
 import .Sequences: shortest_common_supersequence, mergesorted
