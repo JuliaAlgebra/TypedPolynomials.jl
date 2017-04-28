@@ -32,6 +32,8 @@ function _promote_monomial_noncommutative(::Type{Monomial{V1, N1}}, ::Type{Monom
     end
 end
 
+@pure merge(v1::Tuple{Vararg{Variable}}) = v1
+
 @pure function merge(v1::Tuple{Vararg{Variable}}, v2::Variable)
     for i in 1:length(v1)
         if v2 == v1[i]
