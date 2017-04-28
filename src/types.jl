@@ -33,11 +33,11 @@ monomial(t::Term) = t.monomial
 coefftype(::Type{<:Term{C}}) where {C} = C
 monomialtype(::Type{<:Term{C, M}}) where {C, M} = M
 
-immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: AbstractPolynomial
-    terms::V
+immutable Polynomial{T <: Term} <: AbstractPolynomial
+    terms::Vector{T}
 end
-Polynomial(terms::V) where {T <: Term, V <: AbstractVector{T}} = Polynomial{T, V}(terms)
-Polynomial(term::Term) = Polynomial(SVector(term))
+Polynomial(terms::V) where {T <: Term, V <: AbstractVector{T}} = Polynomial{T}(terms)
+Polynomial(term::Term) = Polynomial([term])
 Polynomial(x) = Polynomial(Term(x))
 termtype(::Type{<:Polynomial{T}}) where {T} = T
 

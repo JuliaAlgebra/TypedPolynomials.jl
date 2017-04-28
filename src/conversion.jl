@@ -2,8 +2,8 @@ convert(::Type{M}, v::Variable) where {Vars, M <: Monomial{Vars}} = convert(M, M
 convert(T::Type{Term{T1, M1}}, x) where {T1, M1} = T(convert(T1, x), M1())
 convert(::Type{Term{T, M1}}, m::Monomial) where {T, M1} = Term(one(T), convert(M1, m))
 convert(::Type{Term{T, M}}, v::Variable) where {T, M} = Term(one(T), convert(M, v))
-convert(T::Type{Polynomial{T1, V1}}, p::Polynomial) where {T1, V1} = T(convert(V1, p.terms))
-convert(T::Type{Polynomial{T1, V1}}, x) where {T1, V1} = convert(T, Polynomial(convert(T1, x)))
+convert(T::Type{Polynomial{T1}}, p::Polynomial) where {T1} = T(convert(Vector{T1}, p.terms))
+convert(::Type{Polynomial{T1}}, x) where {T1} = Polynomial(convert(T1, x))
 
 convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, nvars(T)}, m)
 

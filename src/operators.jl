@@ -9,7 +9,7 @@ one(p::Polynomial) = one(typeof(p))
 zero(::Type{V}) where {V <: Variable} = Polynomial(Term(0, Monomial(V())))
 zero(::Type{M}) where {M <: Monomial} = Polynomial(Term(0, M()))
 zero(::Type{Term{T, M}}) where {T, M} = Polynomial(Term{T, M}(zero(T), M()))
-zero(::Type{Polynomial{T, A}}) where {T, A} = zero(T)
+zero(::Type{Polynomial{T}}) where {T} = zero(T)
 zero(t::PolynomialLike) = zero(typeof(t))
 
 combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
