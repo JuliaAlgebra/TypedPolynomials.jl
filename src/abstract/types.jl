@@ -2,6 +2,7 @@ abstract type AbstractVariable{Name} end
 @pure name(::Type{<:AbstractVariable{N}}) where {N} = N
 @pure name(v::AbstractVariable) = name(typeof(v))
 @pure degree(::AbstractVariable) = 1
+@pure nvars(::AbstractVariable) = 1
 
 abstract type AbstractMonomial{Variables} end
 degree(m::AbstractMonomial) = sum(exponents(m))
