@@ -28,7 +28,8 @@ function subs(p::AbstractPolynomial, s::Substitutions)
 end
 
 ## Varargs catchers
-subs(v::AbstractVariable, s1::Substitution, s2::Substitution...) = subs(subs(v, s1), s2...)
+subs(v::AbstractVariable{N}, s1::Substitution{N}, s2::Substitution...) where {N} = s1.second
+subs(v::AbstractVariable, s1::Substitution, s2::Substitution...) = subs(v, s2...)
 subs(p::AbstractPolynomial, s::Substitution...) = subs(p, s)
 subs(m::AbstractMonomial, s::Substitution...) = subs(m, s)
 subs(t::AbstractTerm, s::Substitution...) = subs(t, s)

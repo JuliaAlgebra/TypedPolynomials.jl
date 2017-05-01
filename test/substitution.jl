@@ -91,8 +91,8 @@ end
 end
 
 @testset "swapping variables" begin
-    @test_broken subs(x^2 * y, x=>y^2, y=>x) == y^5 * x
+    @test subs(x^2 * y, x=>y^2, y=>x) == y^4 * x
     # From example 1 in MultivariatePolynomials README
     p = 2x + 3.0x*y^2 + y
-    @test_broken p((x, y)=>(y, x)) == 2y + 3y*x^2 + x
+    @test p((x, y)=>(y, x)) == 2y + 3y*x^2 + x
 end
