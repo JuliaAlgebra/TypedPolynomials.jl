@@ -12,19 +12,12 @@ using TypedPolynomials: @polyvar, Variable
     @test typeof(y) == Variable{:y}
     @test typeof(z) == Variable{:z}
 
-    @polyvar a[1:5]
-    @test typeof(a1) == Variable{:a1}
-    @test typeof(a2) == Variable{:a2}
-    @test typeof(a3) == Variable{:a3}
-    @test typeof(a4) == Variable{:a4}
-    @test typeof(a5) == Variable{:a5}
+    @polyvar a[1:3]
+    @test typeof(a) == Tuple{Variable{:a1}, Variable{:a2}, Variable{:a3}}
 
     @polyvar b c[1:2]
     @test typeof(b) == Variable{:b}
-    @test_broken typeof(c) == Tuple{Variable{:c1}, Variable{:c2}}
-    @test_broken c == (c1, c2)
-    @test typeof(c1) == Variable{:c1}
-    @test typeof(c2) == Variable{:c2}
+    @test typeof(c) == Tuple{Variable{:c1}, Variable{:c2}}
 end
 
 @testset "macro assignments" begin
