@@ -35,6 +35,7 @@ subs(m::AbstractMonomial, s::Substitution...) = subs(m, s)
 subs(t::AbstractTerm, s::Substitution...) = subs(t, s)
 
 ## Everything else
+subs(x, s::Substitutions) = x
 subs(x, s::Substitution...) = x
 
 """
@@ -44,6 +45,4 @@ is equivalent to:
 
     subs(polynomial, (x=>1, y=>2))
 """
-function subs(p::AbstractPolynomialLike, s::MultiSubstitution)
-    subs(p, pairzip(s))
-end
+subs(p, s::MultiSubstitution) = subs(p, pairzip(s))
