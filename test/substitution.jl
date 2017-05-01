@@ -89,3 +89,17 @@ end
         @test @inferred(p((y, z) => (2, 3))) == 3 * 2^2 * 3 + 1
     end
 end
+
+@testset "swapping variables" begin
+    @test subs(x^2 * y, x=>y^2, y=>x) == y^4 * x
+    # From example 1 in MultivariatePolynomials README
+    p = 2x + 3.0x*y^2 + y
+    @test p((x, y)=>(y, x)) == 2y + 3y*x^2 + x
+end
+
+@testset "non-variable substitution" begin
+    @test @inferred(subs(5, x=>2)) == 5
+    @test @inferred(subs(11, (x, y)=>(y, x))) == 11
+end
+
+

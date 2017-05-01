@@ -21,6 +21,8 @@ using TypedPolynomials: @polyvar, Variable
 
     @polyvar b c[1:2]
     @test typeof(b) == Variable{:b}
+    @test_broken typeof(c) == Tuple{Variable{:c1}, Variable{:c2}}
+    @test_broken c == (c1, c2)
     @test typeof(c1) == Variable{:c1}
     @test typeof(c2) == Variable{:c2}
 end
