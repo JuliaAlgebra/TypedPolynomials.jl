@@ -93,21 +93,21 @@ isapprox(p1::AbstractPolynomial, p2::AbstractPolynomial; kwargs...) = compare_te
 
 transpose(v::AbstractVariable) = v
 transpose(m::AbstractMonomial) = m
-transpose(t::T) where {T <: AbstractTerm} = T(coefficient(t)', monomial(t))
+transpose(t::T) where {T <: AbstractTerm} = coefficient(t)' * monomial(t)
 transpose(p::AbstractPolynomial) = convert(AbstractPolynomial, [transpose(t) for t in terms(p)])
 
-dot(m::AbstractMonomialLike, x) = m * x
-dot(x, m::AbstractMonomialLike) = x * m
-dot(m1::AbstractMonomialLike, m2::AbstractMonomialLike) = m1 * m2
-
-dot(t::AbstractTermLike, x) = dot(coefficient(t), x) * monomial(t)
-dot(x, t::AbstractTermLike) = dot(x, coefficient(t)) * monomial(t)
-dot(t1::AbstractTermLike, t2::AbstractTermLike) = dot(coefficient(t1), coefficient(t2)) * (monomial(t1) * monomial(t2))
-dot(p1::AbstractPolynomialLike, p2::AbstractPolynomialLike) = p1 * p2
-dot(x, p::AbstractPolynomialLike) = x * p
-dot(p::AbstractPolynomialLike, x) = p * x
+dot(p1::AbstractPolynomialLike, p2::AbstractPolynomialLike) = p1' * p2
+dot(x, p::AbstractPolynomialLike) = x' * p
+dot(p::AbstractPolynomialLike, x) = p' * x
 
 iszero(v::AbstractVariable) = false
 iszero(m::AbstractMonomial) = false
 iszero(t::AbstractTerm) = iszero(coefficient(t))
 iszero(p::AbstractPolynomial) = all(iszero, terms(p))
+
+# Amazingly, this works! Thanks, StaticArrays.jl! 
+"""
+Convert a tuple of variables into a static vector to allow array-like usage.
+The element type of the vector will be Monomial{vars, length(vars)}.
+"""
+vec(vars::Tuple{Vararg{<:AbstractVariable}}) = SVector(vars)
