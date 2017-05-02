@@ -277,8 +277,13 @@ end
     @test vecdot(x, [y, z]) == x[1]*y + x[2]*z
     @test vecdot([y, z], x) == x[1]*y + x[2]*z
 
-    @test [1 2; 3 4] * vec(x) == [x[1] + 2x[2], 3x[1] + 4x[2]]
-    @test vecdot(x, [1 2; 3 4] * vec(x)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
+    xv = @inferred(vec(x))
+    @test @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
+    @test @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
+    @test @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
+
+    @test @inferred([1 2; 3 4] * xv) == [x[1] + 2x[2], 3x[1] + 4x[2]]
+    @test @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
 end
 
 struct FakeScalar
