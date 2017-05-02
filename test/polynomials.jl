@@ -267,6 +267,24 @@ end
     @test @inferred(dot(Term([1, 2], x), Term([3, 4], y))) == [1, 2]' * [3, 4] * x * y
 end
 
+@testset "linear algebra with tuples" begin
+    @polyvar x[1:2] y z
+
+    @test x .+ x == 2 .* x
+    @test x .- y == (x[1] - y, x[2] - y)
+
+    @test vecdot(x, x) == x[1]^2 + x[2]^2
+    @test vecdot(x, [y, z]) == x[1]*y + x[2]*z
+    @test vecdot([y, z], x) == x[1]*y + x[2]*z
+
+    xv = @inferred(vec(x))
+    @test @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
+    @test @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
+    @test @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
+
+    @test @inferred([1 2; 3 4] * xv) == [x[1] + 2x[2], 3x[1] + 4x[2]]
+    @test @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
+end
 
 struct FakeScalar
 end

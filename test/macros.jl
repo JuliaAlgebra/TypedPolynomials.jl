@@ -2,6 +2,7 @@ module M
 
 using Base.Test
 using TypedPolynomials: @polyvar, Variable
+using StaticArrays: SVector
 
 @testset "macros" begin
     @polyvar x
@@ -14,6 +15,7 @@ using TypedPolynomials: @polyvar, Variable
 
     @polyvar a[1:3]
     @test typeof(a) == Tuple{Variable{:a1}, Variable{:a2}, Variable{:a3}}
+    @test vec(a) == SVector(a)
 
     @polyvar b c[1:2]
     @test typeof(b) == Variable{:b}
