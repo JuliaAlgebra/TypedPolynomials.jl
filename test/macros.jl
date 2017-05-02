@@ -14,6 +14,7 @@ using TypedPolynomials: @polyvar, Variable
 
     @polyvar a[1:3]
     @test typeof(a) == Tuple{Variable{:a1}, Variable{:a2}, Variable{:a3}}
+    @test_broken vec(a) == SVector(a)
 
     @polyvar b c[1:2]
     @test typeof(b) == Variable{:b}

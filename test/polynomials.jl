@@ -267,6 +267,19 @@ end
     @test @inferred(dot(Term([1, 2], x), Term([3, 4], y))) == [1, 2]' * [3, 4] * x * y
 end
 
+@testset "linear algeba" begin
+    @polyvar x[1:2] y z
+
+    @test_broken x + x == 2 * x
+    @test_broken x - y == SVector(x[1] - y, x[2] - y)
+
+    @test_broken dot(x, x) == x[1]^2 + x[2]^2
+    @test_broken dot(x, [y, z]) == x[1]*y + x[2]*z
+    @test_broken dot([y, z], x) == x[1]*y + x[2]*z
+
+    @test_broken [1 2; 3 4] * x == [x[1] + 2x[2], 3x[1] + 4x[2]]
+    @test_broken dot(x, [1 2; 3 4] * x) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
+end
 
 struct FakeScalar
 end
