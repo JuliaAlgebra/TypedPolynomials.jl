@@ -95,6 +95,7 @@ end
     # From example 1 in MultivariatePolynomials README
     p = 2x + 3.0x*y^2 + y
     @test p((x, y)=>(y, x)) == 2y + 3y*x^2 + x
+    @test p((x, y)=>[1, 2]) == 16
 end
 
 @testset "non-variable substitution" begin
