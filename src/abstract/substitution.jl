@@ -5,6 +5,7 @@ const MultiSubstitution{N} = Pair{<:Tuple{Vararg{<:AbstractVariable, N}}, <:Tupl
 ## Variables
 subs(v::AbstractVariable{Name}, s::Substitution{Name}) where {Name} = s.second
 subs(v::AbstractVariable{N1}, s::Substitution{N2}) where {N1, N2} = v
+subs(v::AbstractVariable, s::Substitutions) = subs(v, s...)
 
 ## Monomials
 subs(s::Substitutions, p::Tuple{AbstractVariable, Integer}) = subs(p[1], s...)^p[2]
@@ -46,3 +47,6 @@ is equivalent to:
     subs(polynomial, (x=>1, y=>2))
 """
 subs(p, s::MultiSubstitution) = subs(p, pairzip(s))
+
+# inefficient but convenient method to allow subs(p, (x, y)=>[1, 2])
+subs(p, s::Pair{<:Tuple{Vararg{<:AbstractVariable}}, <:AbstractVector}) = subs(p, s.first => Tuple(s.second))
