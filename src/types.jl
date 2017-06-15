@@ -43,7 +43,8 @@ immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: AbstractPolynomial
 end
 Polynomial(terms::AbstractVector{T}) where {T <: Term} = Polynomial{T, typeof(terms)}(terms)
 Polynomial(t::AbstractVector) = Polynomial(Term.(t))
-Polynomial(term::Term) = Polynomial(SVector(term))
+# Polynomial(term::Term) = Polynomial(SVector(term))
+Polynomial(term::Term) = Polynomial([term])
 Polynomial(x) = Polynomial(Term(x))
 termtype(::Type{<:Polynomial{T}}) where {T} = T
 
