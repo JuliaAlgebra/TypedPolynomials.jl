@@ -60,34 +60,34 @@ function promote_rule(::Type{Term{T, M2}}, ::Type{M1}) where {M1 <: Monomial, T,
 end
 promote_rule(M::Type{<:Monomial}, T::Type{<:Term}) = promote_rule(T, M)
 
-function _promote_term(::Type{Term{T1, M1}}, ::Type{Term{T2, M2}}) where {T1, M1, T2, M2}
-    Term{promote_type(T1, T2), promote_type(M1, M2)}
-end
+# function _promote_term(::Type{Term{T1, M1}}, ::Type{Term{T2, M2}}) where {T1, M1, T2, M2}
+#     Term{promote_type(T1, T2), promote_type(M1, M2)}
+# end
 
-promote_rule(T1::Type{<:Term}, T2::Type{<:Term}) = _promote_term(T1, T2)
+promote_rule(::Type{Term{T1, M1}}, ::Type{Term{T2, M2}}) where {T1, M1 <: Monomial, T2, M2 <: Monomial} = Term{promote_type(T1, T2), promote_type(M1, M2)}
 
 function promote_rule(::Type{<:Polynomial{T2}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term}
     T = promote_type(T1, T2)
     Polynomial{T, Vector{T}}
 end
-promote_rule(T::Type{<:Term}, P::Type{<:Polynomial}) = promote_rule(P, T)
+promote_rule(T::Type{Term{T1, M1}}, P::Type{<:Polynomial}) where {T1, M1 <: Monomial} = promote_rule(P, T)
 promote_rule(T::Type{<:Monomial}, P::Type{<:Polynomial}) = promote_rule(P, T)
 promote_rule(T::Type{<:Variable}, P::Type{<:Polynomial}) = promote_rule(P, T)
 
-function promote_rule(::Type{Polynomial{T2, SVector{N, T2}}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term, N}
-    T = promote_type(T1, T2)
-    Polynomial{T, SVector{N, T}}
-end
+# function promote_rule(::Type{Polynomial{T2, SVector{N, T2}}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term, N}
+#     T = promote_type(T1, T2)
+#     Polynomial{T, SVector{N, T}}
+# end
 
 function promote_rule(::Type{<:Polynomial{T1}}, ::Type{<:Polynomial{T2}}) where {T1 <: TermLike, T2 <: TermLike}
     T = promote_type(T1, T2)
     Polynomial{T, Vector{T}}
 end
 
-function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
-    T = promote_type(T1, T2)
-    Polynomial{T, SVector{1, T}}
-end
+# function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
+#     T = promote_type(T1, T2)
+#     Polynomial{T, SVector{1, T}}
+# end
 
 function promote_rule(::Type{V}, ::Type{S}) where {S, V <: Variable}
     Term{S, Monomial{(V(),), 1}}
@@ -97,11 +97,11 @@ function promote_rule(::Type{M}, ::Type{S}) where {S, M <: Monomial}
     Term{S, M}
 end
 
-function _promote_any_term(::Type{S}, ::Type{Term{T, M}}) where {S, T, M <: Monomial}
-    Term{promote_type(S, T), M}
-end
+# function _promote_any_term(::Type{S}, ::Type{Term{T, M}}) where {S, T, M <: Monomial}
+#     Term{promote_type(S, T), M}
+# end
 
-promote_rule(t::Type{<:Term}, s) = _promote_any_term(s, t)
+promote_rule(t::Type{Term{T, M}}, ::Type{S}) where {T, M <: Monomial, S} = Term{promote_type(S, T), M}
 
 function promote_rule(::Type{<:Polynomial{T}}, ::Type{S}) where {S, T <: TermLike}
     R = promote_type(S, T)

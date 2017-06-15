@@ -182,8 +182,8 @@ end
     @test extdeg(p) == (1, 3)
     @test nvars(p) == 2
 
-    @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 736
-    @test (@wrappedallocs x^2 + 1) <= 128
+    @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 1376
+    @test (@wrappedallocs x^2 + 1) <= 384
 
     @test (1 + x) * (x + 3) == 3 + 4x + x^2
     @test (2.0 + x) * (y + 1) == 2 + 2y + x + x * y

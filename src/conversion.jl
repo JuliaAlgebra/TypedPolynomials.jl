@@ -38,7 +38,7 @@ function convert(::Type{Monomial{V1, N1}}, m::Monomial) where {V1, N1}
     Monomial{V1, N1}(exps)
 end
 
-convert(::Type{Term{T1, M1}}, t::Term) where {T1, M1} = Term(convert(T1, t.coefficient), convert(M1, t.monomial))
+convert(::Type{Term{T1, M1}}, t::Term) where {T1, M1} = Term{T1, M1}(convert(T1, t.coefficient), convert(M1, t.monomial))
 convert(::Type{AbstractTerm}, coeff, mono::Monomial) = Term(coeff, mono)
 convert(::Type{AbstractPolynomial}, t::TermLike) = Polynomial(t)
 convert(::Type{AbstractPolynomial}, v::AbstractVector{<:Term}) = Polynomial(v)
