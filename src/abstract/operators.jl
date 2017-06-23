@@ -110,5 +110,4 @@ iszero(p::AbstractPolynomial) = all(iszero, terms(p))
 Convert a tuple of variables into a static vector to allow array-like usage.
 The element type of the vector will be Monomial{vars, length(vars)}.
 """
-vec(vars::Tuple{Vararg{<:AbstractVariable}}) = [vars...]
-# vec(vars::Tuple{Vararg{<:AbstractVariable}}) = SVector(vars)
+vec(vars::Tuple{Vararg{<:AbstractVariable}}) = SVector(vars)

@@ -74,20 +74,20 @@ promote_rule(T::Type{Term{T1, M1}}, P::Type{<:Polynomial}) where {T1, M1 <: Mono
 promote_rule(T::Type{<:Monomial}, P::Type{<:Polynomial}) = promote_rule(P, T)
 promote_rule(T::Type{<:Variable}, P::Type{<:Polynomial}) = promote_rule(P, T)
 
-# function promote_rule(::Type{Polynomial{T2, SVector{N, T2}}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term, N}
-#     T = promote_type(T1, T2)
-#     Polynomial{T, SVector{N, T}}
-# end
+function promote_rule(::Type{Polynomial{T2, SVector{N, T2}}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term, N}
+    T = promote_type(T1, T2)
+    Polynomial{T, SVector{N, T}}
+end
 
 function promote_rule(::Type{<:Polynomial{T1}}, ::Type{<:Polynomial{T2}}) where {T1 <: TermLike, T2 <: TermLike}
     T = promote_type(T1, T2)
     Polynomial{T, Vector{T}}
 end
 
-# function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
-#     T = promote_type(T1, T2)
-#     Polynomial{T, SVector{1, T}}
-# end
+function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
+    T = promote_type(T1, T2)
+    Polynomial{T, SVector{1, T}}
+end
 
 function promote_rule(::Type{V}, ::Type{S}) where {S, V <: Variable}
     Term{S, Monomial{(V(),), 1}}

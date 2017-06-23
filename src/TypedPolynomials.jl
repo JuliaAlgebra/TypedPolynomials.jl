@@ -1,5 +1,6 @@
 module TypedPolynomials
 
+using StaticArrays: SVector
 using MacroTools
 import Base: *, +, -, /, ^, ==,
     promote_rule, convert, show, isless, size, getindex,

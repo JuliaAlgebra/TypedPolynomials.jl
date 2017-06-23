@@ -1,5 +1,6 @@
 using TypedPolynomials
 using Base.Test
+using StaticArrays: SVector
 
 """
     @wrappedallocs(expr)

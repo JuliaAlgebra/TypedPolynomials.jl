@@ -12,7 +12,7 @@
     @test typeof(@inferred promote(y, x)) == NTuple{2, Monomial{(x, y), 2}}
     @test typeof(@inferred promote(x, y^2)) == NTuple{2, Monomial{(x, y), 2}}
     @test typeof(@inferred promote(x, 2y)) == NTuple{2, Term{Int, Monomial{(x, y), 2}}}
-    @test typeof(@inferred promote(x, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
+    @test typeof(@inferred promote(x, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
     @test typeof(@inferred promote(x, Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
 
     @test typeof(@inferred promote(x^2, 1)) == NTuple{2, Term{Int, Monomial{(x,), 1}}}
@@ -20,21 +20,21 @@
     @test typeof(@inferred promote(y, x^2)) == NTuple{2, Monomial{(x, y), 2}}
     @test typeof(@inferred promote(x^2, y^2)) == NTuple{2, Monomial{(x, y), 2}}
     @test typeof(@inferred promote(x^2, 2y)) == NTuple{2, Term{Int, Monomial{(x, y), 2}}}
-    @test typeof(@inferred promote(x^2, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
+    @test typeof(@inferred promote(x^2, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
     @test typeof(@inferred promote(x^2, Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
 
     @test typeof(@inferred promote(2x, 1)) == NTuple{2, Term{Int, Monomial{(x,), 1}}}
     @test typeof(@inferred promote(2x, y)) == NTuple{2, Term{Int, Monomial{(x, y), 2}}}
     @test typeof(@inferred promote(2x, y^2)) == NTuple{2, Term{Int, Monomial{(x, y), 2}}}
     @test typeof(@inferred promote(2x, 2y)) == NTuple{2, Term{Int, Monomial{(x, y), 2}}}
-    @test typeof(@inferred promote(2x, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
+    @test typeof(@inferred promote(2x, Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
     @test typeof(@inferred promote(2x, Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
 
     @test typeof(@inferred promote(Polynomial(2x), 1)) == NTuple{2, Polynomial{Term{Int, Monomial{(x,), 1}}, Vector{Term{Int, Monomial{(x,), 1}}}}}
-    @test typeof(@inferred promote(Polynomial(2x), y)) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
-    @test typeof(@inferred promote(Polynomial(2x), y^2)) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
-    @test typeof(@inferred promote(Polynomial(2x), 2y)) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
-    @test typeof(@inferred promote(Polynomial(2x), Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
+    @test typeof(@inferred promote(Polynomial(2x), y)) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
+    @test typeof(@inferred promote(Polynomial(2x), y^2)) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
+    @test typeof(@inferred promote(Polynomial(2x), 2y)) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
+    @test typeof(@inferred promote(Polynomial(2x), Polynomial(2y))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, SVector{1, Term{Int, Monomial{(x, y), 2}}}}}
     @test typeof(@inferred promote(Polynomial(2x), Polynomial([2y]))) == NTuple{2, Polynomial{Term{Int, Monomial{(x, y), 2}}, Vector{Term{Int, Monomial{(x, y), 2}}}}}
 
     @test typeof(@inferred(promote(Monomial{tuple(), 0}(), x))) == NTuple{2, Monomial{(x,), 1}}
