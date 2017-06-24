@@ -44,14 +44,30 @@ end
 (*)(t1::Term, t2::Term) = Term(coefficient(t1) * coefficient(t2), monomial(t1) * monomial(t2))
 (*)(p1::P1, p2::P2) where {P1 <: Polynomial, P2 <: Polynomial} = (*)(promote(p1, p2)...)
 
-# TODO: this could be faster with an in-place summation
+function add!(p::Polynomial, t::TermLike)
+    for i in 1:length(p.terms)
+        ti = p.terms[i]
+        if t == ti
+            p.terms[i] = Term(coefficient(t) + coefficient(ti), monomial(t))
+            return
+        elseif t < ti
+            insert!(p.terms, i, t)
+            return
+        end
+    end
+    push!(p.terms, t)
+    return
+end
+
 function (*)(p1::P, p2::P) where {P <: Polynomial}
     C = coefftype(termtype(P))
     M = monomialtype(termtype(P))
     result = Polynomial([Term(zero(C), M())])
     for t1 in terms(p1)
         for t2 in terms(p2)
-            result += t1 * t2
+            expected = result + t1 * t2
+            add!(result, t1 * t2)
+            @assert result == expected
         end
     end
     result

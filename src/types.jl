@@ -24,6 +24,8 @@ _exponent(v::V, p1::Tuple{V, Integer}, p2...) where {V <: Variable} = p1[2]
 _exponent(v::Variable, p1::Tuple{Variable, Integer}, p2...) = _exponent(v, p2...)
 _exponent(v::Variable) = 0
 exponent(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
+monomial(m::Monomial) = m
+coefficient(m::Monomial) = 1
 
 struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
     coefficient::CoeffType
