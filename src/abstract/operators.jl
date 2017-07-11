@@ -105,7 +105,7 @@ iszero(m::AbstractMonomial) = false
 iszero(t::AbstractTerm) = iszero(coefficient(t))
 iszero(p::AbstractPolynomial) = all(iszero, terms(p))
 
-# Amazingly, this works! Thanks, StaticArrays.jl! 
+# Amazingly, this works! Thanks, StaticArrays.jl!
 """
 Convert a tuple of variables into a static vector to allow array-like usage.
 The element type of the vector will be Monomial{vars, length(vars)}.
