@@ -1,11 +1,11 @@
-struct Variable{Name} <: AbstractVariable{Name}
+struct Variable{Name} <: TypedVariable{Name}
 end
 
 checksorted(x::Tuple{Any}, cmp) = true
 checksorted(x::Tuple{}, cmp) = true
 checksorted(x::Tuple, cmp) = cmp(x[1], x[2]) && checksorted(Base.tail(x), cmp)
 
-struct Monomial{V, N} <: AbstractMonomial{V}
+struct Monomial{V, N} <: TypedMonomial{V}
     exponents::NTuple{N, Int}
 
     Monomial{V, N}(exponents::NTuple{N, Int}) where {V, N} = (@assert checksorted(V, >); new{V, N}(exponents))
@@ -18,14 +18,17 @@ Monomial{V}(exponents::T) where {V, N, T <: Tuple{Vararg{Any, N}}} = Monomial{V,
 Monomial(v::Variable) = Monomial{(v,), 1}((1,))
 Monomial{V}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V, length(V)}(NTuple{length(V), Int}(exponents))
 
-exponents(m::Monomial) = m.exponents
-exponent(m::Monomial, i::Integer) = m.exponents[i]
+MP.constantmonomial(p::TypedPolynomialLike) = Monomial{variables(p), nvars(p)}()
+MP.constantmonomial(::Type{TT}) where {TT<:TypedPolynomialLike} = Monomial{variables(TT), nvars(TT)}()
+
+MP.exponents(m::Monomial) = m.exponents
+MP.exponent(m::Monomial, i::Integer) = m.exponents[i]
 _exponent(v::V, p1::Tuple{V, Integer}, p2...) where {V <: Variable} = p1[2]
 _exponent(v::Variable, p1::Tuple{Variable, Integer}, p2...) = _exponent(v, p2...)
 _exponent(v::Variable) = 0
-exponent(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
+MP.exponent(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
 
-struct Term{CoeffType, M <: Monomial} <: AbstractTerm{CoeffType, M}
+struct Term{CoeffType, M <: Monomial} <: TypedTerm{CoeffType, M}
     coefficient::CoeffType
     monomial::M
 end
@@ -33,23 +36,22 @@ Term(m::Monomial) = Term(1, m)
 Term(v::Variable) = Term(Monomial(v))
 Term(x, v::Variable) = Term(x, Monomial(v))
 
-coefficient(t::Term) = t.coefficient
-monomial(t::Term) = t.monomial
+MP.coefficient(t::Term) = t.coefficient
+MP.monomial(t::Term) = t.monomial
 coefftype(::Type{<:Term{C}}) where {C} = C
-monomialtype(::Type{<:Term{C, M}}) where {C, M} = M
 
-immutable Polynomial{T <: Term, V <: AbstractVector{T}} <: AbstractPolynomial
+struct Polynomial{CoeffType, T <: Term{CoeffType}, V <: AbstractVector{T}} <: TypedPolynomial{CoeffType}
     terms::V
 end
-Polynomial(terms::AbstractVector{T}) where {T <: Term} = Polynomial{T, typeof(terms)}(terms)
+Polynomial(terms::AbstractVector{T}) where {C, T <: Term{C}} = Polynomial{C, T, typeof(terms)}(terms)
 Polynomial(t::AbstractVector) = Polynomial(Term.(t))
-# Polynomial(term::Term) = Polynomial(SVector(term))
+olynomial(term::Term) = Polynomial(SVector(term))
 Polynomial(term::Term) = Polynomial([term])
 Polynomial(x) = Polynomial(Term(x))
-termtype(::Type{<:Polynomial{T}}) where {T} = T
+MP.termtype(::Type{<:Polynomial{C, T}}) where {C, T} = T
 
-terms(p::Polynomial) = p.terms
-variables(::Type{<:Polynomial{T}}) where {T} = variables(T)
+MP.terms(p::Polynomial) = p.terms
+variables(::Type{<:Polynomial{C, T}}) where {C, T} = variables(T)
 variables(p::Polynomial) = variables(typeof(p))
 
 const MonomialLike = Union{Variable, Monomial}
@@ -58,7 +60,7 @@ const PolynomialLike = Union{TermLike, Polynomial}
 
 # Based on fillZfordeg!() from MultivariatePolynomials.jl by Benoit Legat
 # https://github.com/blegat/MultivariatePolynomials.jl/blob/d85ad85de413afa20fc8f5354c980387218ced2c/src/mono.jl#L186-L259
-function monomial_powers{N}(::Val{N}, degree)
+function monomial_powers(::Val{N}, degree) where N
     result = Vector{NTuple{N, Int}}()
     powers = zeros(Int, N)
     powers[1] = degree
@@ -82,12 +84,12 @@ function monomial_powers{N}(::Val{N}, degree)
     result
 end
 
-function monomials(vars::Tuple{Vararg{<:Variable}}, degree::Integer)
+function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degree::Integer)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     [Monomial{vars}(p) for p in monomial_powers(Val{length(vars)}(), degree)]
 end
 
-function monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray)
+function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
         for p in monomial_powers(Val{length(vars)}(), d)]

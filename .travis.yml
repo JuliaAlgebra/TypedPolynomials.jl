@@ -11,7 +11,10 @@ branches:
   only: master
 matrix:
   allow_failures:
-    - julia: 0.6
+    - julia: nightly
+script:
+  - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
+  - julia -e 'Pkg.init(); Pkg.add("MultivariatePolynomials"); Pkg.checkout("MultivariatePolynomials", "typed"); Pkg.clone(pwd()); Pkg.build("TypedPolynomials"); Pkg.test("TypedPolynomials"; coverage=true)'
 after_success:
   # push coverage results to Codecov
   - julia -e 'cd(Pkg.dir("TypedPolynomials")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'

@@ -54,34 +54,34 @@ end
     @test isa(m, Monomial)
     @test variables(m) == (x,)
     @test exponents(m) == (2,)
-    @test exponent(m, x) == 2
-    @test exponent(m, y) == 0
-    @test exponent(m, z) == 0
+    @test MultivariatePolynomials.exponent(m, x) == 2
+    @test MultivariatePolynomials.exponent(m, y) == 0
+    @test MultivariatePolynomials.exponent(m, z) == 0
     @test nvars(m) == 1
 
     m = x * y
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (1, 1)
-    @test exponent(m, x) == 1
-    @test exponent(m, y) == 1
-    @test exponent(m, z) == 0
+    @test MultivariatePolynomials.exponent(m, x) == 1
+    @test MultivariatePolynomials.exponent(m, y) == 1
+    @test MultivariatePolynomials.exponent(m, z) == 0
     @test nvars(m) == 2
 
     m = y * x
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (1, 1)
-    @test exponent(m, x) == 1
-    @test exponent(m, y) == 1
-    @test exponent(m, z) == 0
+    @test MultivariatePolynomials.exponent(m, x) == 1
+    @test MultivariatePolynomials.exponent(m, y) == 1
+    @test MultivariatePolynomials.exponent(m, z) == 0
 
     m = y * x^2 * y^3
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (2, 4)
-    @test exponent(m, x) == 2
-    @test exponent(m, y) == 4
+    @test MultivariatePolynomials.exponent(m, x) == 2
+    @test MultivariatePolynomials.exponent(m, y) == 4
 
     @test x * y < x^2
 
@@ -113,8 +113,8 @@ end
     @test variables(t) == (x, y)
     @test coefficient(t) == 2
     @test exponents(t) == (2, 1)
-    @test exponent(t, x) == 2
-    @test exponent(t, y) == 1
+    @test MultivariatePolynomials.exponent(t, x) == 2
+    @test MultivariatePolynomials.exponent(t, y) == 1
 
     @test @inferred(zero(t)) == @inferred(zero(typeof(t)))
     @test zero(t) == 0 * t

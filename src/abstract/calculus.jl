@@ -1,10 +1,10 @@
-differentiate(::V, ::V) where {V <: AbstractVariable} = 1
-differentiate(v::AbstractVariable, ::AbstractVariable) = 0
+MP.differentiate(::V, ::V) where {V <: TypedVariable} = 1
+MP.differentiate(v::TypedVariable, ::TypedVariable) = 0
 
 @pure inmonomial(V) = false
 @pure inmonomial(V, Vars...) = name(V) == name(Vars[1]) || inmonomial(V, Base.tail(Vars)...)
 
-function differentiate(m::AbstractMonomial{Vars}, v::V) where {Vars, V <: AbstractVariable}
+function MP.differentiate(m::TypedMonomial{Vars}, v::V) where {Vars, V <: TypedVariable}
     if inmonomial(V, Vars...)
         _diff(m, v)
     else
@@ -12,11 +12,11 @@ function differentiate(m::AbstractMonomial{Vars}, v::V) where {Vars, V <: Abstra
     end
 end
 
-_diff(m::AbstractMonomial, v::AbstractVariable) = _diff(m, exponents(m), v)
+_diff(m::TypedMonomial, v::TypedVariable) = _diff(m, exponents(m), v)
 
-function _diff(m::AbstractMonomial{Vars}, 
+function _diff(m::TypedMonomial{Vars},
                exponents::NTuple{N, Integer},
-               v::AbstractVariable) where {Vars, N}
+               v::TypedVariable) where {Vars, N}
     vi = findfirst(var -> name(var) == name(v), Vars)
     @assert vi != 0
     exponents[vi] * Monomial{Vars, N}(ntuple(i -> begin
@@ -27,9 +27,3 @@ function _diff(m::AbstractMonomial{Vars},
         end
     end, Val{N}))
 end
-
-differentiate(t::AbstractTerm, v::AbstractVariable) = coefficient(t) * differentiate(monomial(t), v)
-differentiate(p::AbstractPolynomial, v::AbstractVariable) = Polynomial(differentiate.(terms(p), v))
-
-# Fallback for everything else
-differentiate(x, v::AbstractVariable) = 0

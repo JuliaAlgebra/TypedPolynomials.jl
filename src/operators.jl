@@ -1,16 +1,16 @@
-one(::Type{V}) where {V <: Variable} = Monomial{(V(),), 1}()
-one(::Type{M}) where {M <: Monomial} = M()
-one(m::MonomialLike) = one(typeof(m))
-one(::Type{Term{T, M}}) where {T, M} = Term(one(T), M())
-one(t::Term) = one(typeof(t))
-one(::Type{P}) where {T, P <: Polynomial{T}} = Polynomial(one(T))
-one(p::Polynomial) = one(typeof(p))
+Base.one(::Type{V}) where {V <: Variable} = Monomial{(V(),), 1}()
+Base.one(::Type{M}) where {M <: Monomial} = M()
+Base.one(m::MonomialLike) = one(typeof(m))
+Base.one(::Type{Term{T, M}}) where {T, M} = Term(one(T), M())
+Base.one(t::Term) = one(typeof(t))
+Base.one(::Type{P}) where {C, T, P <: Polynomial{C, T}} = Polynomial(one(T))
+Base.one(p::Polynomial) = one(typeof(p))
 
-zero(::Type{V}) where {V <: Variable} = Polynomial([Term(0, Monomial(V()))])
-zero(::Type{M}) where {M <: Monomial} = Polynomial([Term(0, M())])
-zero(::Type{Term{T, M}}) where {T, M} = Polynomial([Term{T, M}(zero(T), M())])
-zero(::Type{Polynomial{T, A}}) where {T, A} = zero(T)
-zero(t::PolynomialLike) = zero(typeof(t))
+Base.zero(::Type{V}) where {V <: Variable} = Polynomial([Term(0, Monomial(V()))])
+Base.zero(::Type{M}) where {M <: Monomial} = Polynomial([Term(0, M())])
+Base.zero(::Type{Term{T, M}}) where {T, M} = Polynomial([Term{T, M}(zero(T), M())])
+Base.zero(::Type{Polynomial{C, T, A}}) where {C, T, A} = zero(T)
+Base.zero(t::PolynomialLike) = zero(typeof(t))
 
 combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
 combine(t1::T, t2::T) where {T <: Term} = Term(t1.coefficient + t2.coefficient, t1.monomial)
@@ -20,16 +20,16 @@ jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = merges
 
 # Multiplication is handled as a special case so that we can write these
 # definitions without resorting to promotion:
-(*)(x, v::MonomialLike) = Term(x, Monomial(v))
-(*)(v::MonomialLike, x) = Term(x, Monomial(v))
+MP.multconstant(α, v::MonomialLike) = Term(α, Monomial(v))
+MP.multconstant(v::MonomialLike, α) = Term(α, Monomial(v))
 
-for T1 in [Variable, Monomial, Term, Polynomial]
-    for T2 in [Variable, Monomial, Term, Polynomial]
-        if T1 != T2
-            @eval (*)(x1::$T1, x2::$T2) = (*)(promote(x1, x2)...)
-        end
-    end
-end
+#for T1 in [Variable, Monomial, Term, Polynomial]
+#    for T2 in [Variable, Monomial, Term, Polynomial]
+#        if T1 != T2
+#            @eval (*)(x1::$T1, x2::$T2) = (*)(promote(x1, x2)...)
+#        end
+#    end
+#end
 
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{(V(),), 1}((2,))
 (*)(v1::Variable, v2::Variable) = (*)(promote(v1, v2)...)
@@ -57,13 +57,13 @@ function (*)(p1::P, p2::P) where {P <: Polynomial}
     result
 end
 
-(*)(x, t::Term) = Term(x * coefficient(t), monomial(t))
-(*)(t::Term, x) = Term(coefficient(t) * x, monomial(t))
-(*)(p::Polynomial, x) = (*)(promote(p, x)...)
-(*)(x, p::Polynomial) = (*)(promote(x, p)...)
+MP.multconstant(x, t::Term) = Term(x * coefficient(t), monomial(t))
+MP.multconstant(t::Term, x) = Term(coefficient(t) * x, monomial(t))
+MP.multconstant(p::Polynomial, x) = (*)(promote(p, x)...)
+MP.multconstant(x, p::Polynomial) = (*)(promote(x, p)...)
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
 
 # All of these types are immutable, so there's no need to copy anything to get
 # a shallow copy.
-copy(x::PolynomialLike) = x
+Base.copy(x::PolynomialLike) = x

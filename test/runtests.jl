@@ -1,3 +1,4 @@
+using MultivariatePolynomials
 using TypedPolynomials
 using Base.Test
 
