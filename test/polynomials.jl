@@ -11,8 +11,8 @@
     @test @inferred(zero(x)) == @inferred(zero(typeof(x)))
     @test @inferred(one(x)) == 1
     @test @inferred(zero(x)) == @inferred(0 * x)
-    @test nvars(x) == 1
-    @test nvars(y) == 1
+    @test nvariables(x) == 1
+    @test nvariables(y) == 1
 end
 
 @testset "orderings" begin
@@ -57,7 +57,7 @@ end
     @test MultivariatePolynomials.exponent(m, x) == 2
     @test MultivariatePolynomials.exponent(m, y) == 0
     @test MultivariatePolynomials.exponent(m, z) == 0
-    @test nvars(m) == 1
+    @test nvariables(m) == 1
 
     m = x * y
     @test isa(m, Monomial)
@@ -66,7 +66,7 @@ end
     @test MultivariatePolynomials.exponent(m, x) == 1
     @test MultivariatePolynomials.exponent(m, y) == 1
     @test MultivariatePolynomials.exponent(m, z) == 0
-    @test nvars(m) == 2
+    @test nvariables(m) == 2
 
     m = y * x
     @test isa(m, Monomial)
@@ -146,7 +146,7 @@ end
     @test mindeg(p) == 0
     @test maxdeg(p) == 1
     @test extdeg(p) == (0, 1)
-    @test nvars(p) == 1
+    @test nvariables(p) == 1
 
     p = @inferred x^2 + x * x
     @test isa(p, Polynomial)
@@ -156,7 +156,7 @@ end
     @test mindeg(p) == 2
     @test maxdeg(p) == 2
     @test extdeg(p) == (2, 2)
-    @test nvars(p) == 1
+    @test nvariables(p) == 1
 
     p = @inferred (1 + x) + (y + 2)
     @test coefficient(terms(p)[1]) == 3
@@ -170,7 +170,7 @@ end
     @test mindeg(p) == 0
     @test maxdeg(p) == 1
     @test extdeg(p) == (0, 1)
-    @test nvars(p) == 2
+    @test nvariables(p) == 2
 
     p = @inferred x^2 + y + x * x + 3 * x * y + x * y^2
     @test length(terms(p)) == 4
@@ -180,7 +180,7 @@ end
     @test mindeg(p) == 1
     @test maxdeg(p) == 3
     @test extdeg(p) == (1, 3)
-    @test nvars(p) == 2
+    @test nvariables(p) == 2
 
     @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 1376
     @test (@wrappedallocs x^2 + 1) <= 384

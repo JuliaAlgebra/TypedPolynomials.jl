@@ -7,7 +7,7 @@ Base.convert(T::Type{Polynomial{C1, T1, V1}}, x) where {C1, T1, V1} = convert(T,
 # Break ambibuity
 Base.convert(T::Type{Polynomial{C1, T1, V1}}, x::MP.AbstractTermLike) where {C1, T1, V1} = convert(T, Polynomial(convert(T1, x)))
 
-Base.convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, nvars(T)}, m)
+Base.convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, nvariables(T)}, m)
 
 @pure function matchindices(::Type{Monomial{V1, N1}}, ::Type{Monomial{V2, N2}}) where {V1, N1, V2, N2}
     i2 = 1

@@ -18,8 +18,8 @@ Monomial{V}(exponents::T) where {V, N, T <: Tuple{Vararg{Any, N}}} = Monomial{V,
 Monomial(v::Variable) = Monomial{(v,), 1}((1,))
 Monomial{V}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V, length(V)}(NTuple{length(V), Int}(exponents))
 
-MP.constantmonomial(p::TypedPolynomialLike) = Monomial{variables(p), nvars(p)}()
-MP.constantmonomial(::Type{TT}) where {TT<:TypedPolynomialLike} = Monomial{variables(TT), nvars(TT)}()
+MP.constantmonomial(p::TypedPolynomialLike) = Monomial{variables(p), nvariables(p)}()
+MP.constantmonomial(::Type{TT}) where {TT<:TypedPolynomialLike} = Monomial{variables(TT), nvariables(TT)}()
 
 MP.exponents(m::Monomial) = m.exponents
 MP.exponent(m::Monomial, i::Integer) = m.exponents[i]
@@ -51,8 +51,8 @@ Polynomial(x) = Polynomial(Term(x))
 MP.termtype(::Type{<:Polynomial{C, T}}) where {C, T} = T
 
 MP.terms(p::Polynomial) = p.terms
-variables(::Type{<:Polynomial{C, T}}) where {C, T} = variables(T)
-variables(p::Polynomial) = variables(typeof(p))
+MP.variables(::Type{<:Polynomial{C, T}}) where {C, T} = variables(T)
+MP.variables(p::Polynomial) = variables(typeof(p))
 
 const MonomialLike = Union{Variable, Monomial}
 const TermLike = Union{MonomialLike, Term}
