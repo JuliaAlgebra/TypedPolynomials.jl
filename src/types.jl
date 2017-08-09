@@ -45,7 +45,7 @@ struct Polynomial{CoeffType, T <: Term{CoeffType}, V <: AbstractVector{T}} <: Ty
 end
 Polynomial(terms::AbstractVector{T}) where {C, T <: Term{C}} = Polynomial{C, T, typeof(terms)}(terms)
 Polynomial(t::AbstractVector) = Polynomial(Term.(t))
-olynomial(term::Term) = Polynomial(SVector(term))
+# Polynomial(term::Term) = Polynomial(SVector(term))
 Polynomial(term::Term) = Polynomial([term])
 Polynomial(x) = Polynomial(Term(x))
 MP.termtype(::Type{<:Polynomial{C, T}}) where {C, T} = T
