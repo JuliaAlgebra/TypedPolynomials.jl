@@ -39,6 +39,7 @@ Term(x, v::Variable) = Term(x, Monomial(v))
 MP.coefficient(t::Term) = t.coefficient
 MP.monomial(t::Term) = t.monomial
 coefftype(::Type{<:Term{C}}) where {C} = C
+MP.termtype(::Type{<:Term{C, M}}, ::Type{T}) where {C, M, T} = Term{T, M}
 
 struct Polynomial{CoeffType, T <: Term{CoeffType}, V <: AbstractVector{T}} <: TypedPolynomial{CoeffType}
     terms::V
@@ -49,6 +50,11 @@ Polynomial(t::AbstractVector) = Polynomial(Term.(t))
 Polynomial(term::Term) = Polynomial([term])
 Polynomial(x) = Polynomial(Term(x))
 MP.termtype(::Type{<:Polynomial{C, T}}) where {C, T} = T
+changeeltype(::Type{<:Vector}, ::Type{T}) where T = Vector{T}
+function MP.polynomialtype(::Type{<:Polynomial{C, T, V}}, ::Type{NewC}) where {C, T, V, NewC}
+    NewT = termtype(T, NewC)
+    Polynomial{NewC, NewT, changeeltype(V, NewT)}
+end
 
 MP.terms(p::Polynomial) = p.terms
 MP.variables(::Type{<:Polynomial{C, T}}) where {C, T} = variables(T)

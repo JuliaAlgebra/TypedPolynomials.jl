@@ -14,7 +14,7 @@ Base.zero(t::PolynomialLike) = zero(typeof(t))
 
 combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
 combine(t1::T, t2::T) where {T <: Term} = Term(t1.coefficient + t2.coefficient, t1.monomial)
-compare(t1::Term, t2::Term) = monomial(t1) < monomial(t2)
+compare(t1::Term, t2::Term) = monomial(t1) > monomial(t2)
 
 jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = mergesorted(terms1, terms2, compare, combine)
 

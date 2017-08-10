@@ -33,11 +33,11 @@ for op in [:+, :-]
     @eval $op(p1::TypedTermLike, p2::TypedPolynomial) = $op(polynomial(p1), p2)
 end
 
-(+)(p1::TypedPolynomial, p2::TypedPolynomial) = polynomial(jointerms(terms(p1), terms(p2)))
-
 #(-)(t::TypedTermLike) = -1 * t
-(-)(p1::TypedPolynomial, p2::TypedPolynomial) = polynomial(jointerms(terms(p1), (-).(terms(p2))))
 
+# We call Polynomial since it is already sorted and polynomial sort them
+(+)(p1::TypedPolynomial, p2::TypedPolynomial) = Polynomial(jointerms(terms(p1), terms(p2)))
+(-)(p1::TypedPolynomial, p2::TypedPolynomial) = Polynomial(jointerms(terms(p1), (-).(terms(p2))))
 
 @pure (==)(::TypedVariable{N}, ::TypedVariable{N}) where {N} = true
 @pure (==)(::TypedVariable, ::TypedVariable) = false
