@@ -1,6 +1,7 @@
 module TypedPolynomials
 
-using MultivariatePolynomials
+using Reexport
+@reexport using MultivariatePolynomials
 const MP = MultivariatePolynomials
 
 using MacroTools
