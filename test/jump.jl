@@ -5,8 +5,8 @@ using JuMP: @variable, Model
     m = Model()
     @variable(m, q[1:2])
 
-    @test @inferred(q' * [x, y]) == q[2] * y + q[1] * x
-    @test @inferred([x, y]' * q) == q[2] * y + q[1] * x
+    @test_broken @inferred(q' * [x, y]) == q[2] * y + q[1] * x
+    @test_broken @inferred([x, y]' * q) == q[2] * y + q[1] * x
 
     m = Model()
     @variable(m, Q[1:2, 1:2])

@@ -15,8 +15,12 @@ end
 Monomial{V, N}() where {N, V} = Monomial{V, N}(ntuple(_ -> 0, Val{N}))
 Monomial{V}() where {V} = Monomial{V, 0}()
 Monomial{V}(exponents::T) where {V, N, T <: Tuple{Vararg{Any, N}}} = Monomial{V, N}(exponents)
-Monomial(v::Variable) = Monomial{(v,), 1}((1,))
 Monomial{V}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V, length(V)}(NTuple{length(V), Int}(exponents))
+
+MP.monomialtype(::Type{V}) where V<:Variable = monomialtype(V())
+MP.monomialtype(v::Variable) = Monomial{(v,), 1}
+Monomial(v::Variable) = monomialtype(v)((1,))
+MP.monomial(v::Variable) = Monomial(v)
 
 MP.constantmonomial(p::TypedPolynomialLike) = Monomial{variables(p), nvariables(p)}()
 MP.constantmonomial(::Type{TT}) where {TT<:TypedPolynomialLike} = Monomial{variables(TT), nvariables(TT)}()
@@ -32,14 +36,17 @@ struct Term{CoeffType, M <: Monomial} <: TypedTerm{CoeffType, M}
     coefficient::CoeffType
     monomial::M
 end
-Term(m::Monomial) = Term(1, m)
 Term(v::Variable) = Term(Monomial(v))
 Term(x, v::Variable) = Term(x, Monomial(v))
+
+MP.termtype(::Union{M, Type{M}}, ::Type{T}) where {M<:Monomial, T} = Term{T, M}
+Term(m::Monomial) = Term(1, m)
 
 MP.coefficient(t::Term) = t.coefficient
 MP.monomial(t::Term) = t.monomial
 coefftype(::Type{<:Term{C}}) where {C} = C
 MP.termtype(::Type{<:Term{C, M}}, ::Type{T}) where {C, M, T} = Term{T, M}
+MP.nvariables(::Union{Term{C, M}, Type{Term{C, M}}}) where {C, V, N, M<:Monomial{V, N}} = N
 
 struct Polynomial{CoeffType, T <: Term{CoeffType}, V <: AbstractVector{T}} <: TypedPolynomial{CoeffType}
     terms::V
@@ -47,7 +54,6 @@ end
 Polynomial(terms::AbstractVector{T}) where {C, T <: Term{C}} = Polynomial{C, T, typeof(terms)}(terms)
 Polynomial(t::AbstractVector) = Polynomial(Term.(t))
 # Polynomial(term::Term) = Polynomial(SVector(term))
-Polynomial(term::Term) = Polynomial([term])
 Polynomial(x) = Polynomial(Term(x))
 MP.termtype(::Type{<:Polynomial{C, T}}) where {C, T} = T
 changeeltype(::Type{<:Vector}, ::Type{T}) where T = Vector{T}
@@ -56,9 +62,13 @@ function MP.polynomialtype(::Type{<:Polynomial{C, T, V}}, ::Type{NewC}) where {C
     Polynomial{NewC, NewT, changeeltype(V, NewT)}
 end
 
+MP.polynomialtype(::Type{Term{C, M}}) where {C, M} = Polynomial{C, Term{C, M}, Vector{Term{C, M}}}
+Polynomial(term::Term) = Polynomial([term])
+
 MP.terms(p::Polynomial) = p.terms
 MP.variables(::Type{<:Polynomial{C, T}}) where {C, T} = variables(T)
 MP.variables(p::Polynomial) = variables(typeof(p))
+MP.nvariables(::Polynomial{C, T}) where {V, N, C, M<:Monomial{V, N}, T<:Term{C, M}} = N
 
 const MonomialLike = Union{Variable, Monomial}
 const TermLike = Union{MonomialLike, Term}

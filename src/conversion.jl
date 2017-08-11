@@ -1,11 +1,12 @@
 Base.convert(::Type{M}, v::Variable) where {Vars, M <: Monomial{Vars}} = convert(M, Monomial(v))
-Base.convert(T::Type{Term{T1, M1}}, x) where {T1, M1} = T(convert(T1, x), M1())
 Base.convert(::Type{Term{T, M1}}, m::Monomial) where {T, M1} = Term(one(T), convert(M1, m))
 Base.convert(::Type{Term{T, M}}, v::Variable) where {T, M} = Term(one(T), convert(M, v))
 Base.convert(T::Type{Polynomial{C1, T1, V1}}, p::Polynomial) where {C1, T1, V1} = T(convert(V1, p.terms))
-Base.convert(T::Type{Polynomial{C1, T1, V1}}, x) where {C1, T1, V1} = convert(T, Polynomial(convert(T1, x)))
 # Break ambibuity
 Base.convert(T::Type{Polynomial{C1, T1, V1}}, x::MP.AbstractTermLike) where {C1, T1, V1} = convert(T, Polynomial(convert(T1, x)))
+
+MP.convertconstant(T::Type{Term{T1, M1}}, α) where {T1, M1} = T(convert(T1, α), M1())
+MP.convertconstant(T::Type{Polynomial{C1, T1, V1}}, α) where {C1, T1, V1} = convert(T, Polynomial(convert(T1, α)))
 
 Base.convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, nvariables(T)}, m)
 
@@ -43,9 +44,7 @@ end
 Base.convert(::Type{Term{T1, M1}}, t::Term) where {T1, M1} = Term{T1, M1}(convert(T1, t.coefficient), convert(M1, t.monomial))
 #MP.term(coeff, mono::Monomial) = Term(coeff, mono)
 MP.polynomial(t::TermLike) = Polynomial(t)
-function MP.polynomial(v::AbstractVector{<:Term})
-    Polynomial(sort(v, lt=compare))
-end
+MP.polynomial(v::AbstractVector{<:Term}, ::MP.SortedUniqState) = Polynomial(v)
 function MP.polynomial(p::P, ::Type{C}) where {P<:TypedPolynomialLike, C}
     convert(polynomialtype(P, C), p)
 end

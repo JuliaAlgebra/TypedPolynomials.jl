@@ -1,9 +1,9 @@
 abstract type TypedVariable{Name} <: AbstractVariable end
 @pure MP.name(::Type{<:TypedVariable{N}}) where {N} = N
 @pure MP.name(v::TypedVariable) = name(typeof(v))
-@pure MP.deg(::TypedVariable) = 1
-@pure MP.nvariables(::TypedVariable) = 1
 @pure MP.variables(v::TypedVariable) = (v,)
+@pure MP.variables(::Type{V}) where V<:TypedVariable = (V(),)
+Base.hash(::TypedVariable{N}, u::UInt) where N = hash(N, u)
 
 abstract type TypedMonomial{Variables} <: AbstractMonomial end
 MP.deg(m::TypedMonomial) = sum(exponents(m))
@@ -21,7 +21,7 @@ MP.variables(t::TypedTerm) = variables(monomialtype(t))
 MP.nvariables(t::TypedTerm{C, M}) where {C, M} = nvariables(M)
 
 abstract type TypedPolynomial{CoeffType} <: AbstractPolynomial{CoeffType} end
-MP.nvariables(p::TypedPolynomial) = maximum(nvariables, terms(p))
+#MP.nvariables(p::TypedPolynomial) = maximum(nvariables, terms(p))
 # termtype(::Type{<:TypedPolynomial{T}}) where {T} = T
 # termtype(p::TypedPolynomial) = termtype(typeof(p))
 # variables(T::Type{<:TypedPolynomial}) = variables(termtype(T))

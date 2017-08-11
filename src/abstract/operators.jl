@@ -99,10 +99,10 @@ end
 #iszero(t::TypedTerm) = iszero(coefficient(t))
 iszero(p::TypedPolynomial) = all(iszero, terms(p))
 
-# Amazingly, this works! Thanks, StaticArrays.jl!
-"""
-Convert a tuple of variables into a static vector to allow array-like usage.
-The element type of the vector will be Monomial{vars, length(vars)}.
-"""
-vec(vars::Tuple{Vararg{<:TypedVariable}}) = [vars...]
-# vec(vars::Tuple{Vararg{<:TypedVariable}}) = SVector(vars)
+## Amazingly, this works! Thanks, StaticArrays.jl!
+#"""
+#Convert a tuple of variables into a static vector to allow array-like usage.
+#The element type of the vector will be Monomial{vars, length(vars)}.
+#"""
+#vec(vars::Tuple{Vararg{<:TypedVariable}}) = [vars...]
+## vec(vars::Tuple{Vararg{<:TypedVariable}}) = SVector(vars)
