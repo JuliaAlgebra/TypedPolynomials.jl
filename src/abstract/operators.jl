@@ -27,11 +27,11 @@ end
 #    end
 #end
 
-for op in [:+, :-]
-    @eval $op(p1::TypedTermLike, p2::TypedTermLike) = $op(polynomial(p1), polynomial(p2))
-    @eval $op(p1::TypedPolynomial, p2::TypedTermLike) = $op(p1, polynomial(p2))
-    @eval $op(p1::TypedTermLike, p2::TypedPolynomial) = $op(polynomial(p1), p2)
-end
+#for op in [:+, :-]
+#    @eval $op(p1::TypedTermLike, p2::TypedTermLike) = $op(polynomial(p1), polynomial(p2))
+#    @eval $op(p1::TypedPolynomial, p2::TypedTermLike) = $op(p1, polynomial(p2))
+#    @eval $op(p1::TypedTermLike, p2::TypedPolynomial) = $op(polynomial(p1), p2)
+#end
 
 #(-)(t::TypedTermLike) = -1 * t
 
