@@ -66,9 +66,9 @@ promote_rule(M::Type{<:Monomial}, T::Type{<:Term}) = promote_rule(T, M)
 
 promote_rule(::Type{Term{T1, M1}}, ::Type{Term{T2, M2}}) where {T1, M1 <: Monomial, T2, M2 <: Monomial} = Term{promote_type(T1, T2), promote_type(M1, M2)}
 
-function promote_rule(::Type{<:Polynomial{T2}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term}
+function promote_rule(::Type{<:Polynomial{<:Any, T2}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term}
     T = promote_type(T1, T2)
-    Polynomial{T, Vector{T}}
+    Polynomial{coefficienttype(T), T, Vector{T}}
 end
 promote_rule(T::Type{Term{T1, M1}}, P::Type{<:Polynomial}) where {T1, M1 <: Monomial} = promote_rule(P, T)
 promote_rule(T::Type{<:Monomial}, P::Type{<:Polynomial}) = promote_rule(P, T)
@@ -79,9 +79,9 @@ promote_rule(T::Type{<:Variable}, P::Type{<:Polynomial}) = promote_rule(P, T)
 #     Polynomial{T, SVector{N, T}}
 # end
 
-function promote_rule(::Type{<:Polynomial{T1}}, ::Type{<:Polynomial{T2}}) where {T1 <: TermLike, T2 <: TermLike}
+function promote_rule(::Type{<:Polynomial{<:Any, T1}}, ::Type{<:Polynomial{<:Any, T2}}) where {T1 <: TermLike, T2 <: TermLike}
     T = promote_type(T1, T2)
-    Polynomial{T, Vector{T}}
+    Polynomial{coefficienttype(T), T, Vector{T}}
 end
 
 # function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
@@ -89,11 +89,11 @@ end
 #     Polynomial{T, SVector{1, T}}
 # end
 
-function promote_rule(::Type{V}, ::Type{S}) where {S, V <: Variable}
+function MP.promote_rule_constant(::Type{S}, ::Type{V}) where {S, V <: Variable}
     Term{S, Monomial{(V(),), 1}}
 end
 
-function promote_rule(::Type{M}, ::Type{S}) where {S, M <: Monomial}
+function MP.promote_rule_constant(::Type{S}, ::Type{M}) where {S, M <: Monomial}
     Term{S, M}
 end
 
@@ -101,9 +101,9 @@ end
 #     Term{promote_type(S, T), M}
 # end
 
-promote_rule(t::Type{Term{T, M}}, ::Type{S}) where {T, M <: Monomial, S} = Term{promote_type(S, T), M}
+MP.promote_rule_constant(::Type{S}, t::Type{Term{T, M}}) where {T, M <: Monomial, S} = Term{promote_type(S, T), M}
 
-function promote_rule(::Type{<:Polynomial{T}}, ::Type{S}) where {S, T <: TermLike}
+function MP.promote_rule_constant(::Type{S}, ::Type{<:Polynomial{<:Any, T}}) where {S, T <: TermLike}
     R = promote_type(S, T)
-    Polynomial{R, Vector{R}}
+    Polynomial{coefficienttype(R), R, Vector{R}}
 end

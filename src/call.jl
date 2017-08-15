@@ -1,4 +1,4 @@
-(p::Polynomial)(s...) = subs(p, s...)
-(p::Term)(s...) = subs(p, s...)
-(p::Monomial)(s...) = subs(p, s...)
-(p::Variable)(s...) = subs(p, s...)
+(p::Polynomial)(s...) = MP.substitute(MP.Eval(), p, s)
+(t::Term)(s...)       = MP.substitute(MP.Eval(), t, s)
+(m::Monomial)(s...)   = MP.substitute(MP.Eval(), m, s)
+(v::Variable)(s...)   = MP.substitute(MP.Eval(), v, s)

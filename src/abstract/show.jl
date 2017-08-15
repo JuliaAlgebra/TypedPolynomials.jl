@@ -1,6 +1,6 @@
-show(io::IO, v::AbstractVariable) = print(io, name(v))
+show(io::IO, v::TypedVariable) = print(io, name(v))
 
-function show(io::IO, t::AbstractTerm)
+function show(io::IO, t::TypedTerm)
     c = coefficient(t)
     if c == 0
         print(io, "0")
@@ -15,7 +15,7 @@ function show(io::IO, t::AbstractTerm)
 end
 
 format_exponent(e) = e == 1 ? "" : "^$e"
-function show(io::IO, m::AbstractMonomial)
+function show(io::IO, m::TypedMonomial)
     exps = exponents(m)
     if all(exps .== 0)
         print(io, "1")
@@ -28,7 +28,7 @@ function show(io::IO, m::AbstractMonomial)
     end
 end
 
-function show(io::IO, p::AbstractPolynomial)
+function show(io::IO, p::TypedPolynomial)
     ts = terms(p)
     if isempty(ts)
         print(io, "0")

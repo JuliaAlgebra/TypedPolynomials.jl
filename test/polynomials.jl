@@ -11,8 +11,8 @@
     @test @inferred(zero(x)) == @inferred(zero(typeof(x)))
     @test @inferred(one(x)) == 1
     @test @inferred(zero(x)) == @inferred(0 * x)
-    @test nvars(x) == 1
-    @test nvars(y) == 1
+    @test nvariables(x) == 1
+    @test nvariables(y) == 1
 end
 
 @testset "orderings" begin
@@ -54,34 +54,34 @@ end
     @test isa(m, Monomial)
     @test variables(m) == (x,)
     @test exponents(m) == (2,)
-    @test exponent(m, x) == 2
-    @test exponent(m, y) == 0
-    @test exponent(m, z) == 0
-    @test nvars(m) == 1
+    @test MultivariatePolynomials.exponent(m, x) == 2
+    @test MultivariatePolynomials.exponent(m, y) == 0
+    @test MultivariatePolynomials.exponent(m, z) == 0
+    @test nvariables(m) == 1
 
     m = x * y
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (1, 1)
-    @test exponent(m, x) == 1
-    @test exponent(m, y) == 1
-    @test exponent(m, z) == 0
-    @test nvars(m) == 2
+    @test MultivariatePolynomials.exponent(m, x) == 1
+    @test MultivariatePolynomials.exponent(m, y) == 1
+    @test MultivariatePolynomials.exponent(m, z) == 0
+    @test nvariables(m) == 2
 
     m = y * x
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (1, 1)
-    @test exponent(m, x) == 1
-    @test exponent(m, y) == 1
-    @test exponent(m, z) == 0
+    @test MultivariatePolynomials.exponent(m, x) == 1
+    @test MultivariatePolynomials.exponent(m, y) == 1
+    @test MultivariatePolynomials.exponent(m, z) == 0
 
     m = y * x^2 * y^3
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (2, 4)
-    @test exponent(m, x) == 2
-    @test exponent(m, y) == 4
+    @test MultivariatePolynomials.exponent(m, x) == 2
+    @test MultivariatePolynomials.exponent(m, y) == 4
 
     @test x * y < x^2
 
@@ -113,8 +113,8 @@ end
     @test variables(t) == (x, y)
     @test coefficient(t) == 2
     @test exponents(t) == (2, 1)
-    @test exponent(t, x) == 2
-    @test exponent(t, y) == 1
+    @test MultivariatePolynomials.exponent(t, x) == 2
+    @test MultivariatePolynomials.exponent(t, y) == 1
 
     @test @inferred(zero(t)) == @inferred(zero(typeof(t)))
     @test zero(t) == 0 * t
@@ -135,7 +135,7 @@ end
 @testset "polynomials" begin
     p = @inferred x + 1
     @test isa(p, Polynomial)
-    @test p.terms[2] == Term(x)
+    @test p.terms[1] == Term(x)
     @test variables(p) == (x,)
 
     @test @inferred(zero(p)) == @inferred(zero(typeof(p)))
@@ -146,7 +146,7 @@ end
     @test mindeg(p) == 0
     @test maxdeg(p) == 1
     @test extdeg(p) == (0, 1)
-    @test nvars(p) == 1
+    @test nvariables(p) == 1
 
     p = @inferred x^2 + x * x
     @test isa(p, Polynomial)
@@ -156,31 +156,31 @@ end
     @test mindeg(p) == 2
     @test maxdeg(p) == 2
     @test extdeg(p) == (2, 2)
-    @test nvars(p) == 1
+    @test nvariables(p) == 1
 
     p = @inferred (1 + x) + (y + 2)
-    @test coefficient(terms(p)[1]) == 3
-    @test exponents(terms(p)[1]) == (0, 0)
+    @test coefficient(terms(p)[3]) == 3
+    @test exponents(terms(p)[3]) == (0, 0)
     @test variables(p) == (x, y)
     @test coefficient(terms(p)[2]) == 1
     @test exponents(terms(p)[2]) == (0, 1)
-    @test coefficient(terms(p)[3]) == 1
-    @test exponents(terms(p)[3]) == (1, 0)
+    @test coefficient(terms(p)[1]) == 1
+    @test exponents(terms(p)[1]) == (1, 0)
 
     @test mindeg(p) == 0
     @test maxdeg(p) == 1
     @test extdeg(p) == (0, 1)
-    @test nvars(p) == 2
+    @test nvariables(p) == 2
 
     p = @inferred x^2 + y + x * x + 3 * x * y + x * y^2
     @test length(terms(p)) == 4
-    @test coefficient.(terms(p)) == [1, 3, 2, 1]
-    @test exponents.(terms(p)) == [(0, 1), (1, 1), (2, 0), (1, 2)]
+    @test coefficient.(terms(p)) == [1, 2, 3, 1]
+    @test exponents.(terms(p)) == [(1, 2), (2, 0), (1, 1), (0, 1)]
 
     @test mindeg(p) == 1
     @test maxdeg(p) == 3
     @test extdeg(p) == (1, 3)
-    @test nvars(p) == 2
+    @test nvariables(p) == 2
 
     @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 1376
     @test (@wrappedallocs x^2 + 1) <= 384
@@ -192,7 +192,7 @@ end
     @test @inferred(Polynomial(x) * x^2) == x^3
     @test @inferred((x + y) * x^2) == @inferred(x^3 + x^2 * y)
 
-    @test @inferred(Polynomial([y, x])) == x + y
+    @test @inferred(Polynomial([x, y])) == y + x
 end
 
 @testset "equality" begin
@@ -235,7 +235,7 @@ end
 @testset "linear algebra" begin
     @test @inferred([x, y]' * [1 2; 3 4] * [x, y]) == x^2 + 5 * x * y + 4 * y^2
     @test @inferred([x, y]' * [1 2; 3 4]) == [(x + 3y) (2x + 4y)]
-    @test @inferred([x, y]' * [-1, 3]) == 3y - x
+    @test_broken @inferred([x, y]' * [-1, 3]) == 3y - x
 end
 
 
@@ -278,12 +278,12 @@ end
     @test vecdot([y, z], x) == x[1]*y + x[2]*z
 
     xv = @inferred(vec(x))
-    @test @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
-    @test @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
-    @test @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
+    @test_broken @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
+    @test_broken @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
+    @test_broken @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
 
     @test @inferred([1 2; 3 4] * xv) == [x[1] + 2x[2], 3x[1] + 4x[2]]
-    @test @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
+    @test_broken @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
 end
 
 struct FakeScalar

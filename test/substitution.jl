@@ -1,11 +1,10 @@
-
 @testset "complete substitution" begin
     @polyvar x y z
 
     p = x^2 * y + y^2 + x
     @test (@inferred p(x=>1, y=>2)) == 7
     @test (@inferred p(x=>5)(y=>3)) == p(x=>5, y=>3)
-    @test @wrappedallocs(p(x=>1, y=>2)) == 0
+    @test @wrappedallocs(p(x=>1, y=>2)) == 0 # Works on Julia v0.6 but fails on Julia v0.7
     @test (@inferred x(x=>5)) == 5
     @test (@inferred x(y=>2)) == x
     @test (@inferred x(x=>y)) == y
@@ -18,17 +17,19 @@ end
     p = x^2 * y + y^2 + x
     p2 = @inferred p(x=>4)
     @test length(terms(p2)) == 3
-    @test terms(p2)[1].coefficient == 4
-    @test degree(terms(p2)[1].monomial) == 0
+    @test terms(p2)[1].coefficient == 1
+    @test deg(terms(p2)[1].monomial) == 2
+    @test exponents(monomial(terms(p2)[1])) == (2,)
     @test terms(p2)[2].coefficient == 16
-    @test degree(terms(p2)[2].monomial) == 1
+    @test deg(terms(p2)[2].monomial) == 1
     @test exponents(monomial(terms(p2)[2])) == (1,)
-    @test terms(p2)[3].coefficient == 1
-    @test degree(terms(p2)[3].monomial) == 2
-    @test exponents(monomial(terms(p2)[3])) == (2,)
+    @test terms(p2)[3].coefficient == 4
+    @test deg(terms(p2)[3].monomial) == 0
 end
 
 @testset "more inference" begin
+    @polyvar x y z
+
     @test @inferred(subs(x, x=>1)) == 1
     @test @inferred(subs(x, x=>1, y=>2)) == 1
     @test @inferred(subs(x^2, x=>3.0)) == 9.0
@@ -50,27 +51,14 @@ end
 end
 
 @testset "monomial substitution" begin
+    @polyvar x y z
+
     @test @inferred(subs(x^2 * y, y=>z^2)) == x^2 * z^2
 end
 
-import TypedPolynomials: pairzip, tuplezip
-
-@testset "pairzip" begin
-    @test @inferred(pairzip((x, y), (1, 2))) == (x=>1, y=>2)
-    @test_throws ArgumentError pairzip((x, y, z), (1, 2))
-    @test_throws ArgumentError pairzip((x, y), (1, 2, 3))
-    @test @inferred(pairzip((1, :x, r"x"), ("w", 1.0, +))) == (1=>"w", :x=>1.0, r"x"=>+)
-    @test @inferred(pairzip((1, :x, r"x")=>("w", 1.0, +))) == (1=>"w", :x=>1.0, r"x"=>+)
-end
-
-@testset "tuplezip" begin
-    @test @inferred(tuplezip((x, y), (1, 2))) == ((x, 1), (y, 2))
-    @test_throws ArgumentError tuplezip((x, y, z), (1, 2))
-    @test_throws ArgumentError tuplezip((x, y), (1, 2, 3))
-    @test @inferred(tuplezip((1, :x, r"x"), ("w", 1.0, +))) == ((1, "w"), (:x, 1.0), (r"x", +))
-end
-
 @testset "tuple substitution" begin
+    @polyvar x y z
+
     @test @inferred(subs(x^2 * y * z^3, (x, y)=>(2, 3))) == (2^2 * 3 * z^3)
     @test @inferred(subs(5x, (x,)=>(6,))) == 30
     @test @inferred(subs(x * y * z^2, (y, x) => (z, z))) == z^4
@@ -91,6 +79,8 @@ end
 end
 
 @testset "swapping variables" begin
+    @polyvar x y z
+
     @test subs(x^2 * y, x=>y^2, y=>x) == y^4 * x
     # From example 1 in MultivariatePolynomials README
     p = 2x + 3.0x*y^2 + y
@@ -99,6 +89,8 @@ end
 end
 
 @testset "non-variable substitution" begin
+    @polyvar x y z
+
     @test @inferred(subs(5, x=>2)) == 5
     @test @inferred(subs(11, (x, y)=>(y, x))) == 11
 end

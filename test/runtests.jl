@@ -1,3 +1,4 @@
+using MultivariatePolynomials
 using TypedPolynomials
 using Base.Test
 
@@ -45,3 +46,7 @@ include("promotion.jl")
 include("polynomials.jl")
 include("substitution.jl")
 include("sequences.jl")
+
+const mvp_test = joinpath(Pkg.dir("MultivariatePolynomials"), "test")
+const Mod = TypedPolynomials
+include(joinpath(mvp_test, "commutativetests.jl"))

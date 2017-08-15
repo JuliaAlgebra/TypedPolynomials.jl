@@ -51,4 +51,3 @@ end
 macro polyvar(name)
     Expr(:block, _makevar(name), _return_name(name))
 end
-
