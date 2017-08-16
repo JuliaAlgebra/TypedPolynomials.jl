@@ -235,7 +235,7 @@ end
 @testset "linear algebra" begin
     @test @inferred([x, y]' * [1 2; 3 4] * [x, y]) == x^2 + 5 * x * y + 4 * y^2
     @test @inferred([x, y]' * [1 2; 3 4]) == [(x + 3y) (2x + 4y)]
-    @test_broken @inferred([x, y]' * [-1, 3]) == 3y - x
+    @test @inferred([x, y]' * [-1, 3]) == 3y - x
 end
 
 
@@ -278,12 +278,12 @@ end
     @test vecdot([y, z], x) == x[1]*y + x[2]*z
 
     xv = @inferred(vec(x))
-    @test_broken @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
-    @test_broken @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
-    @test_broken @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
+    @test @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
+    @test @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
+    @test @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
 
     @test @inferred([1 2; 3 4] * xv) == [x[1] + 2x[2], 3x[1] + 4x[2]]
-    @test_broken @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
+    @test @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
 end
 
 struct FakeScalar

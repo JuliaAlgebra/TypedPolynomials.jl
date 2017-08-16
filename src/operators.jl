@@ -9,7 +9,7 @@ Base.one(p::Polynomial) = one(typeof(p))
 #Base.zero(::Type{V}) where {V <: Variable} = Polynomial([Term(0, Monomial(V()))])
 #Base.zero(::Type{M}) where {M <: Monomial} = Polynomial([Term(0, M())])
 #Base.zero(::Type{Term{T, M}}) where {T, M} = Polynomial([Term{T, M}(zero(T), M())])
-Base.zero(::Type{Polynomial{C, T, A}}) where {C, T, A} = zero(T)
+Base.zero(::Type{Polynomial{C, T, A}}) where {C, T, A} = Polynomial(A())
 Base.zero(t::PolynomialLike) = zero(typeof(t))
 
 combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
@@ -38,17 +38,12 @@ function MP.divides(m1::Monomial{V, N}, m2::Monomial{V, N}) where {V, N}
     reduce((d, exp) -> d && (exp[1] <= exp[2]), true, zip(m1.exponents, m2.exponents))
 end
 MP.divides(m1::Monomial, m2::Monomial) = divides(promote(m1, m2)...)
-function combinemono(m1::Monomial{V, N}, m2::Monomial{V, N}, op) where {V, N}
-    e1 = m1.exponents
-    e2 = m2.exponents
-    Monomial{V, N}(ntuple(i -> op(e1[i], e2[i]), Val{N}))
+function MP.mapexponents(op, m1::M, m2::M) where M<:Monomial
+    M(map(op, m1.exponents, m2.exponents))
 end
-combinemono(m1::Monomial, m2::Monomial, op) = combinemono(promote(m1, m2)..., op)
-# _div(a, b) assumes that b divides a
-MP._div(m1::Monomial, m2::Monomial) = combinemono(m1, m2, -)
-(*)(m1::Monomial, m2::Monomial) = combinemono(m1, m2, +)
+MP.mapexponents(op, m1::Monomial, m2::Monomial) = mapexponents(op, promote(m1, m2)...)
 
-(*)(t1::Term, t2::Term) = Term(coefficient(t1) * coefficient(t2), monomial(t1) * monomial(t2))
+#(*)(t1::Term, t2::Term) = Term(coefficient(t1) * coefficient(t2), monomial(t1) * monomial(t2))
 (*)(p1::P1, p2::P2) where {P1 <: Polynomial, P2 <: Polynomial} = (*)(promote(p1, p2)...)
 
 # TODO: this could be faster with an in-place summation
