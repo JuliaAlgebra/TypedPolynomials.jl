@@ -6,7 +6,7 @@ abstract type TypedVariable{Name} <: AbstractVariable end
 Base.hash(::TypedVariable{N}, u::UInt) where N = hash(N, u)
 
 abstract type TypedMonomial{Variables} <: AbstractMonomial end
-MP.deg(m::TypedMonomial) = sum(exponents(m))
+#MP.deg(m::TypedMonomial) = sum(exponents(m))
 @pure MP.variables(::Type{<:TypedMonomial{V}}) where {V} = V
 @pure MP.variables(m::TypedMonomial) = variables(typeof(m))
 @pure MP.nvariables(::Type{<:TypedMonomial{V}}) where {V} = length(V)

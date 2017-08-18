@@ -110,3 +110,5 @@ function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray)
     Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
         for p in monomial_powers(Val{length(vars)}(), d)]
 end
+
+MP.similarvariable(::Union{Variable, Monomial, Term, Polynomial}, ::Val{N}) where N = Variable{N}()

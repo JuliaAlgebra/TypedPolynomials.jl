@@ -97,7 +97,7 @@ end
 #iszero(v::TypedVariable) = false
 #iszero(m::TypedMonomial) = false
 #iszero(t::TypedTerm) = iszero(coefficient(t))
-iszero(p::TypedPolynomial) = all(iszero, terms(p))
+#iszero(p::TypedPolynomial) = all(iszero, terms(p))
 
 ## Amazingly, this works! Thanks, StaticArrays.jl!
 #"""
