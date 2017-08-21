@@ -54,34 +54,34 @@ end
     @test isa(m, Monomial)
     @test variables(m) == (x,)
     @test exponents(m) == (2,)
-    @test MultivariatePolynomials.exponent(m, x) == 2
-    @test MultivariatePolynomials.exponent(m, y) == 0
-    @test MultivariatePolynomials.exponent(m, z) == 0
+    @test degree(m, x) == 2
+    @test degree(m, y) == 0
+    @test degree(m, z) == 0
     @test nvariables(m) == 1
 
     m = x * y
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (1, 1)
-    @test MultivariatePolynomials.exponent(m, x) == 1
-    @test MultivariatePolynomials.exponent(m, y) == 1
-    @test MultivariatePolynomials.exponent(m, z) == 0
+    @test degree(m, x) == 1
+    @test degree(m, y) == 1
+    @test degree(m, z) == 0
     @test nvariables(m) == 2
 
     m = y * x
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (1, 1)
-    @test MultivariatePolynomials.exponent(m, x) == 1
-    @test MultivariatePolynomials.exponent(m, y) == 1
-    @test MultivariatePolynomials.exponent(m, z) == 0
+    @test degree(m, x) == 1
+    @test degree(m, y) == 1
+    @test degree(m, z) == 0
 
     m = y * x^2 * y^3
     @test isa(m, Monomial)
     @test variables(m) == (x, y)
     @test exponents(m) == (2, 4)
-    @test MultivariatePolynomials.exponent(m, x) == 2
-    @test MultivariatePolynomials.exponent(m, y) == 4
+    @test degree(m, x) == 2
+    @test degree(m, y) == 4
 
     @test x * y < x^2
 
@@ -113,8 +113,8 @@ end
     @test variables(t) == (x, y)
     @test coefficient(t) == 2
     @test exponents(t) == (2, 1)
-    @test MultivariatePolynomials.exponent(t, x) == 2
-    @test MultivariatePolynomials.exponent(t, y) == 1
+    @test degree(t, x) == 2
+    @test degree(t, y) == 1
 
     @test @inferred(zero(t)) == @inferred(zero(typeof(t)))
     @test zero(t) == 0 * t
@@ -143,9 +143,9 @@ end
     @test @inferred(one(p)) == @inferred(one(typeof(p)))
     @test one(p) == 1
 
-    @test mindeg(p) == 0
-    @test maxdeg(p) == 1
-    @test extdeg(p) == (0, 1)
+    @test mindegree(p) == 0
+    @test maxdegree(p) == 1
+    @test extdegree(p) == (0, 1)
     @test nvariables(p) == 1
 
     p = @inferred x^2 + x * x
@@ -153,9 +153,9 @@ end
     @test length(terms(p)) == 1
     @test coefficient(terms(p)[1]) == 2
 
-    @test mindeg(p) == 2
-    @test maxdeg(p) == 2
-    @test extdeg(p) == (2, 2)
+    @test mindegree(p) == 2
+    @test maxdegree(p) == 2
+    @test extdegree(p) == (2, 2)
     @test nvariables(p) == 1
 
     p = @inferred (1 + x) + (y + 2)
@@ -167,9 +167,9 @@ end
     @test coefficient(terms(p)[1]) == 1
     @test exponents(terms(p)[1]) == (1, 0)
 
-    @test mindeg(p) == 0
-    @test maxdeg(p) == 1
-    @test extdeg(p) == (0, 1)
+    @test mindegree(p) == 0
+    @test maxdegree(p) == 1
+    @test extdegree(p) == (0, 1)
     @test nvariables(p) == 2
 
     p = @inferred x^2 + y + x * x + 3 * x * y + x * y^2
@@ -177,9 +177,9 @@ end
     @test coefficient.(terms(p)) == [1, 2, 3, 1]
     @test exponents.(terms(p)) == [(1, 2), (2, 0), (1, 1), (0, 1)]
 
-    @test mindeg(p) == 1
-    @test maxdeg(p) == 3
-    @test extdeg(p) == (1, 3)
+    @test mindegree(p) == 1
+    @test maxdegree(p) == 3
+    @test extdegree(p) == (1, 3)
     @test nvariables(p) == 2
 
     @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 1376

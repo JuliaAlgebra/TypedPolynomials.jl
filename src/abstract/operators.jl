@@ -6,8 +6,8 @@
 # Graded Lexicographic order
 # First compare total degree, then lexicographic order
 function isless(m1::TypedMonomial{V}, m2::TypedMonomial{V}) where {V}
-    d1 = deg(m1)
-    d2 = deg(m2)
+    d1 = degree(m1)
+    d2 = degree(m2)
     if d1 < d2
         return true
     elseif d1 > d2

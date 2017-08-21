@@ -18,13 +18,13 @@ end
     p2 = @inferred p(x=>4)
     @test length(terms(p2)) == 3
     @test terms(p2)[1].coefficient == 1
-    @test deg(terms(p2)[1].monomial) == 2
+    @test degree(terms(p2)[1].monomial) == 2
     @test exponents(monomial(terms(p2)[1])) == (2,)
     @test terms(p2)[2].coefficient == 16
-    @test deg(terms(p2)[2].monomial) == 1
+    @test degree(terms(p2)[2].monomial) == 1
     @test exponents(monomial(terms(p2)[2])) == (1,)
     @test terms(p2)[3].coefficient == 4
-    @test deg(terms(p2)[3].monomial) == 0
+    @test degree(terms(p2)[3].monomial) == 0
 end
 
 @testset "more inference" begin
