@@ -46,7 +46,7 @@ MP.coefficient(t::Term) = t.coefficient
 MP.monomial(t::Term) = t.monomial
 coefftype(::Type{<:Term{C}}) where {C} = C
 MP.termtype(::Type{<:Term{C, M}}, ::Type{T}) where {C, M, T} = Term{T, M}
-MP.nvariables(::Union{Term{C, M}, Type{Term{C, M}}}) where {C, V, N, M<:Monomial{V, N}} = N
+#MP.nvariables(::Union{Term{C, M}, Type{Term{C, M}}}) where {C, V, N, M<:Monomial{V, N}} = N
 
 struct Polynomial{CoeffType, T <: Term{CoeffType}, V <: AbstractVector{T}} <: TypedPolynomial{CoeffType}
     terms::V

@@ -18,7 +18,7 @@ MP.monomialtype(t::TypedTerm) = monomialtype(typeof(t))
 MP.variables(T::Type{<:TypedTerm}) = variables(monomialtype(T))
 MP.variables(t::TypedTerm) = variables(monomialtype(t))
 #MP.powers(m::TypedMonomial) = tuplezip(variables(m), exponents(m))
-MP.nvariables(t::TypedTerm{C, M}) where {C, M} = nvariables(M)
+MP.nvariables(t::Union{TypedTerm{C, M}, Type{<:TypedTerm{C, M}}}) where {C, M} = nvariables(M)
 
 abstract type TypedPolynomial{CoeffType} <: AbstractPolynomial{CoeffType} end
 #MP.nvariables(p::TypedPolynomial) = maximum(nvariables, terms(p))
@@ -30,3 +30,5 @@ abstract type TypedPolynomial{CoeffType} <: AbstractPolynomial{CoeffType} end
 const TypedMonomialLike = Union{<:TypedVariable, <:TypedMonomial}
 const TypedTermLike = Union{<:TypedMonomialLike, <:TypedTerm}
 const TypedPolynomialLike = Union{<:TypedTermLike, <:TypedPolynomial}
+
+MP.nvariables(::AbstractVector{T}) where {T <: AbstractTermLike} = nvariables(T)
