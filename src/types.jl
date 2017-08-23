@@ -46,7 +46,7 @@ MP.coefficient(t::Term) = t.coefficient
 MP.monomial(t::Term) = t.monomial
 coefftype(::Type{<:Term{C}}) where {C} = C
 MP.termtype(::Type{<:Term{C, M}}, ::Type{T}) where {C, M, T} = Term{T, M}
-MP.nvariables(::Union{Term{C, M}, Type{Term{C, M}}}) where {C, V, N, M<:Monomial{V, N}} = N
+#MP.nvariables(::Union{Term{C, M}, Type{Term{C, M}}}) where {C, V, N, M<:Monomial{V, N}} = N
 
 struct Polynomial{CoeffType, T <: Term{CoeffType}, V <: AbstractVector{T}} <: TypedPolynomial{CoeffType}
     terms::V
@@ -63,11 +63,10 @@ function MP.polynomialtype(::Type{<:Polynomial{C, T, V}}, ::Type{NewC}) where {C
 end
 
 MP.polynomialtype(::Type{Term{C, M}}) where {C, M} = Polynomial{C, Term{C, M}, Vector{Term{C, M}}}
-Polynomial(term::Term) = Polynomial([term])
+Polynomial(term::TT) where TT<:Term = Polynomial(iszero(term) ? TT[] : [term])
 
 MP.terms(p::Polynomial) = p.terms
-MP.variables(::Type{<:Polynomial{C, T}}) where {C, T} = variables(T)
-MP.variables(p::Polynomial) = variables(typeof(p))
+MP.variables(::Union{Polynomial{C, T}, AbstractArray{<:Polynomial{C, T}}, Type{<:Polynomial{C, T}}}) where {C, T} = variables(T)
 MP.nvariables(::Polynomial{C, T}) where {V, N, C, M<:Monomial{V, N}, T<:Term{C, M}} = N
 
 const MonomialLike = Union{Variable, Monomial}
@@ -110,3 +109,5 @@ function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray)
     Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
         for p in monomial_powers(Val{length(vars)}(), d)]
 end
+
+MP.similarvariable(::Union{PolynomialLike, Type{<:PolynomialLike}}, ::Type{Val{N}}) where N = Variable{N}()

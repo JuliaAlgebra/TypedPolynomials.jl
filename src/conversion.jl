@@ -43,7 +43,7 @@ end
 
 Base.convert(::Type{Term{T1, M1}}, t::Term) where {T1, M1} = Term{T1, M1}(convert(T1, t.coefficient), convert(M1, t.monomial))
 #MP.term(coeff, mono::Monomial) = Term(coeff, mono)
-MP.polynomial(t::TermLike) = Polynomial(t)
+#MP.polynomial(t::TermLike) = Polynomial(t)
 MP.polynomial(v::AbstractVector{<:Term}, ::MP.SortedUniqState) = Polynomial(v)
 function MP.polynomial(p::P, ::Type{C}) where {P<:TypedPolynomialLike, C}
     convert(polynomialtype(P, C), p)

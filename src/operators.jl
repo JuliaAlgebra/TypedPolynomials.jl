@@ -50,7 +50,7 @@ MP.mapexponents(op, m1::Monomial, m2::Monomial) = mapexponents(op, promote(m1, m
 function (*)(p1::P, p2::P) where {P <: Polynomial}
     C = coefftype(termtype(P))
     M = monomialtype(termtype(P))
-    result = Polynomial([Term(zero(C), M())])
+    result = Polynomial(termtype(P)[])
     for t1 in terms(p1)
         for t2 in terms(p2)
             result += t1 * t2
@@ -59,10 +59,10 @@ function (*)(p1::P, p2::P) where {P <: Polynomial}
     result
 end
 
-MP.multconstant(x, t::Term) = Term(x * coefficient(t), monomial(t))
-MP.multconstant(t::Term, x) = Term(coefficient(t) * x, monomial(t))
-MP.multconstant(p::Polynomial, x) = (*)(promote(p, x)...)
-MP.multconstant(x, p::Polynomial) = (*)(promote(x, p)...)
+#MP.multconstant(x, t::Term) = Term(x * coefficient(t), monomial(t))
+#MP.multconstant(t::Term, x) = Term(coefficient(t) * x, monomial(t))
+#MP.multconstant(p::Polynomial, x) = (*)(promote(p, x)...)
+#MP.multconstant(x, p::Polynomial) = (*)(promote(x, p)...)
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
 
