@@ -49,4 +49,5 @@ include("sequences.jl")
 
 const mvp_test = joinpath(Pkg.dir("MultivariatePolynomials"), "test")
 const Mod = TypedPolynomials
+include(joinpath(mvp_test, "utils.jl"))
 include(joinpath(mvp_test, "commutativetests.jl"))
