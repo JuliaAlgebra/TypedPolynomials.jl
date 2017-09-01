@@ -44,13 +44,13 @@ end
 MP.mapexponents(op, m1::Monomial, m2::Monomial) = mapexponents(op, promote(m1, m2)...)
 
 #(*)(t1::Term, t2::Term) = Term(coefficient(t1) * coefficient(t2), monomial(t1) * monomial(t2))
-(*)(p1::P1, p2::P2) where {P1 <: Polynomial, P2 <: Polynomial} = (*)(promote(p1, p2)...)
+#(*)(p1::P1, p2::P2) where {P1 <: Polynomial, P2 <: Polynomial} = (*)(promote(p1, p2)...)
 
 # TODO: this could be faster with an in-place summation
-function (*)(p1::P, p2::P) where {P <: Polynomial}
-    C = coefftype(termtype(P))
-    M = monomialtype(termtype(P))
-    result = Polynomial(termtype(P)[])
+function (*)(p1::Polynomial{S}, p2::Polynomial{T}) where {S, T}
+    C = Base.promote_op(*, S, T)
+    M = promote_type(monomialtype(p1), monomialtype(p2))
+    result = Polynomial(termtype(M, C)[])
     for t1 in terms(p1)
         for t2 in terms(p2)
             result += t1 * t2
