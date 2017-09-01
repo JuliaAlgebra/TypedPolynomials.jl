@@ -99,15 +99,15 @@ function monomial_powers(::Val{N}, degree) where N
     result
 end
 
-function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degree::Integer)
+function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degree::Integer, filter::Function=m->true)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
-    [Monomial{vars}(p) for p in monomial_powers(Val{length(vars)}(), degree)]
+    [Monomial{vars}(p) for p in monomial_powers(Val{length(vars)}(), degree) if filter(Monomial{vars}(p))]
 end
 
-function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray)
+function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray, filter::Function=m->true)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
-        for p in monomial_powers(Val{length(vars)}(), d)]
+        for p in monomial_powers(Val{length(vars)}(), d) if filter(Monomial{vars}(p))]
 end
 
 MP.similarvariable(::Union{PolynomialLike, Type{<:PolynomialLike}}, ::Type{Val{N}}) where N = Variable{N}()

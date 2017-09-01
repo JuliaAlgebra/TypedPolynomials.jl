@@ -31,4 +31,5 @@ const TypedMonomialLike = Union{<:TypedVariable, <:TypedMonomial}
 const TypedTermLike = Union{<:TypedMonomialLike, <:TypedTerm}
 const TypedPolynomialLike = Union{<:TypedTermLike, <:TypedPolynomial}
 
-MP.nvariables(::AbstractVector{T}) where {T <: AbstractTermLike} = nvariables(T)
+MP.variables(::Union{AbstractVector{T}, Type{<:AbstractVector{T}}}) where {T <: TypedPolynomialLike} = variables(T)
+MP.nvariables(::Union{AbstractVector{T}, Type{<:AbstractVector{T}}}) where {T <: TypedPolynomialLike} = nvariables(T)
