@@ -106,8 +106,13 @@ end
 
 function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray, filter::Function=m->true)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
-    Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
-        for p in monomial_powers(Val{length(vars)}(), d) if filter(Monomial{vars}(p))]
+    if isempty(degrees)
+        # Otherwise, the following error is thrown: "ArgumentError: argument to Flatten must contain at least one iterator"
+        Monomial{vars, length(vars)}[]
+    else
+        Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
+            for p in monomial_powers(Val{length(vars)}(), d) if filter(Monomial{vars}(p))]
+    end
 end
 
 MP.similarvariable(::Union{PolynomialLike, Type{<:PolynomialLike}}, ::Type{Val{N}}) where N = Variable{N}()
