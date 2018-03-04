@@ -249,8 +249,6 @@ end
 end
 
 @testset "operators" begin
-    @polyvar x y z
-
     @test !iszero(x)
     @test !iszero(x^2)
     @test !iszero(5x)

@@ -2,7 +2,7 @@ function capture_show(x)
     b = IOBuffer()
     show(b, x)
     seekstart(b)
-    readstring(b)
+    read(b, String)
 end
 
 @testset "show" begin

@@ -1,4 +1,5 @@
 Base.convert(::Type{M}, v::Variable) where {Vars, M <: Monomial{Vars}} = convert(M, Monomial(v))
+Base.convert(::Type{Monomial}, v::Variable) = Monomial(v)
 Base.convert(::Type{Term{T, M1}}, m::Monomial) where {T, M1} = Term(one(T), convert(M1, m))
 Base.convert(::Type{Term{T, M}}, v::Variable) where {T, M} = Term(one(T), convert(M, v))
 Base.convert(T::Type{Polynomial{C1, T1, V1}}, p::Polynomial) where {C1, T1, V1} = T(convert(V1, p.terms))
@@ -21,9 +22,9 @@ Base.convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, 
         else
             0
         end
-    end, Val{N1})
+    end, Val{N1}())
     if i2 <= N2
-        throw(InexactError())
+        throw(InexactError(:matchindices, Monomial{V1, N1}, Monomial{V2, N2}))
     end
     inds
 end
@@ -37,7 +38,7 @@ function Base.convert(::Type{Monomial{V1, N1}}, m::Monomial) where {V1, N1}
         else
             m.exponents[ii]
         end
-    end, Val{N1})
+    end, Val{N1}())
     Monomial{V1, N1}(exps)
 end
 

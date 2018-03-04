@@ -1,6 +1,7 @@
 module M
 
-using Base.Test
+using Compat
+using Compat.Test
 using TypedPolynomials: @polyvar, Variable
 # using StaticArrays: SVector
 
