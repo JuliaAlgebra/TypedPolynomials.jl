@@ -20,8 +20,12 @@ jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = merges
 
 # Multiplication is handled as a special case so that we can write these
 # definitions without resorting to promotion:
-MP.multconstant(α, v::MonomialLike) = Term(α, convert(Monomial, v))
-MP.multconstant(v::MonomialLike, α) = Term(α, convert(Monomial, v))
+MP.multconstant(v::Monomial, α) = Term(α, v)
+MP.multconstant(v::Variable, α) = Term(α, Monomial(v))
+MP.multconstant(α, v::Monomial) = Term(α, v)
+MP.multconstant(α, v::Variable) = Term(α, Monomial(v))
+
+
 
 #for T1 in [Variable, Monomial, Term, Polynomial]
 #    for T2 in [Variable, Monomial, Term, Polynomial]
@@ -68,7 +72,9 @@ end
 
 # All of these types are immutable, so there's no need to copy anything to get
 # a shallow copy.
-Base.copy(x::PolynomialLike) = x
+Base.copy(x::TermLike) = x
+
+Base.copy(p::Polynomial) = Polynomial(copy(terms(p)))
 
 adjoint(v::Variable) = v
 adjoint(m::Monomial) = m

@@ -1,5 +1,7 @@
 module Sequences
 
+using Compat
+
 export shortest_common_supersequence
 
 """
