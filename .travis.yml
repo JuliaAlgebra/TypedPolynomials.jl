@@ -16,7 +16,7 @@ matrix:
 before_install:
   - julia -e 'Pkg.init()'
   - julia -e 'Pkg.clone("https://github.com/rdeits/MultivariatePolynomials.jl")'
-  - julia -e 'Pkg.checkout("MultivariatePolynomials", "fix-0.7")
+  - julia -e 'Pkg.checkout("MultivariatePolynomials", "fix-0.7")'
 
 after_success:
   # push coverage results to Codecov
