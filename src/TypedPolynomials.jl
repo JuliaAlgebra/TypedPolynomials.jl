@@ -17,7 +17,10 @@ export @polyvar,
        Monomial,
        Term,
        Polynomial,
-       variables
+       variables,
+       terms,
+       differentiate,
+       subs
 
 include("sequences.jl")
 import .Sequences: shortest_common_supersequence, mergesorted
