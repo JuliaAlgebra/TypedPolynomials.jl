@@ -56,7 +56,7 @@ const Mod = TypedPolynomials
     include("sequences.jl")
 end
 
-# @testset "MultivariatePolynomials interface tests"
-#     include(joinpath(mvp_test, "utils.jl"))
-#     include(joinpath(mvp_test, "commutativetests.jl"))
-# end
+@testset "MultivariatePolynomials interface tests"
+    include(joinpath(mvp_test, "utils.jl"))
+    include(joinpath(mvp_test, "commutativetests.jl"))
+end
