@@ -1,3 +1,7 @@
+# We mark `isless()` as `@pure` because it's used in computing the correct
+# (sorted) monomial order during type promotion, so its results must be
+# assumed to be hyper-pure. Overloading this method in user code would be
+# a bad idea. 
 @pure function isless(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
     name(V1) < name(V2)
 end
@@ -36,7 +40,7 @@ end
 
 @pure function merge(v1::Tuple{Vararg{Variable}}, v2::Variable)
     for i in 1:length(v1)
-        if v2 == v1[i]
+        if v2 === v1[i]
             return v1
         elseif v2 > v1[i]
             return tuple(v1[1:i-1]..., v2, v1[i:end]...)

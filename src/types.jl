@@ -1,10 +1,12 @@
 struct Variable{Name} <: AbstractVariable
 end
 
-@pure MP.name(::Type{Variable{N}}) where {N} = N
-@pure MP.name(v::Variable) = name(typeof(v))
-@pure MP.variables(v::Variable) = (v,)
-@pure MP.variables(::Type{V}) where {V <: Variable} = (V(),)
+Base.show(io::IO, ::Type{Variable{N}}) where {N} = print(io, "Variable{$N}")
+
+MP.name(::Type{Variable{N}}) where {N} = N
+MP.name(v::Variable) = name(typeof(v))
+MP.variables(v::Variable) = (v,)
+MP.variables(::Type{V}) where {V <: Variable} = (V(),)
 Base.hash(v::Variable, u::UInt) = hash(name(v), u)
 
 checksorted(x::Tuple{Any}, cmp) = true
@@ -27,10 +29,10 @@ end
 Monomial(v::Variable) = monomialtype(v)((1,))
 MP.monomial(v::Variable) = Monomial(v)
 
-@pure MP.variables(::Type{<:Monomial{V}}) where {V} = V
-@pure MP.variables(m::Monomial) = variables(typeof(m))
-@pure MP.nvariables(::Type{<:Monomial{V}}) where {V} = length(V)
-@pure MP.nvariables(m::Monomial) = nvariables(typeof(m))
+MP.variables(::Type{<:Monomial{V}}) where {V} = V
+MP.variables(m::Monomial) = variables(typeof(m))
+MP.nvariables(::Type{<:Monomial{V}}) where {V} = length(V)
+MP.nvariables(m::Monomial) = nvariables(typeof(m))
 MP.monomialtype(::Type{V}) where V<:Variable = monomialtype(V())
 MP.monomialtype(v::Variable) = Monomial{(v,), 1}
 

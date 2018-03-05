@@ -27,8 +27,8 @@ jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = merges
 (+)(p1::Polynomial, p2::Polynomial) = Polynomial(jointerms(terms(p1), terms(p2)))
 (-)(p1::Polynomial, p2::Polynomial) = Polynomial(jointerms(terms(p1), (-).(terms(p2))))
 
-@pure (==)(::Variable{N}, ::Variable{N}) where {N} = true
-@pure (==)(::Variable, ::Variable) = false
+(==)(::Variable{N}, ::Variable{N}) where {N} = true
+(==)(::Variable, ::Variable) = false
 (==)(m1::Monomial{V}, m2::Monomial{V}) where {V} = exponents(m1) == exponents(m2)
 
 # Multiplication is handled as a special case so that we can write these
