@@ -5,6 +5,7 @@ using Compat.Test
 using Compat.Random
 using Compat.Pkg
 using Compat.LinearAlgebra
+using NBInclude
 
 """
     @wrappedallocs(expr)
@@ -54,6 +55,7 @@ const Mod = TypedPolynomials
     include("polynomials.jl")
     include("substitution.jl")
     include("sequences.jl")
+    nbinclude(joinpath(@__DIR__, "..", "demo.ipynb"))
 end
 
 @testset "MultivariatePolynomials interface tests" begin

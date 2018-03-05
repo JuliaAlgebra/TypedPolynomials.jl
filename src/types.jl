@@ -1,8 +1,6 @@
 struct Variable{Name} <: AbstractVariable
 end
 
-Base.show(io::IO, ::Type{Variable{N}}) where {N} = print(io, "Variable{$N}")
-
 MP.name(::Type{Variable{N}}) where {N} = N
 MP.name(v::Variable) = name(typeof(v))
 MP.variables(v::Variable) = (v,)
