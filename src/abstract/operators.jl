@@ -42,6 +42,11 @@ end
 @pure (==)(::TypedVariable{N}, ::TypedVariable{N}) where {N} = true
 @pure (==)(::TypedVariable, ::TypedVariable) = false
 (==)(m1::TypedMonomial{V}, m2::TypedMonomial{V}) where {V} = exponents(m1) == exponents(m2)
+
+dot(v1::AbstractVector{<:TypedTermLike}, v2::AbstractVector) = vecdot(v1, v2)
+dot(v1::AbstractVector, v2::AbstractVector{<:TypedTermLike}) = vecdot(v1, v2)
+dot(v1::AbstractVector{<:TypedTermLike}, v2::AbstractVector{<:TypedTermLike}) = vecdot(v1, v2)
+
 #function (==)(t1::TypedTerm, t2::TypedTerm)
 #    c1 = coefficient(t1)
 #    c2 = coefficient(t2)

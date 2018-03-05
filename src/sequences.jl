@@ -1,5 +1,7 @@
 module Sequences
 
+using Compat
+
 export shortest_common_supersequence
 
 """
@@ -83,7 +85,7 @@ end
 function mergesorted(v1::AbstractArray, v2::AbstractArray, isless=Base.isless, 
                      combine=Base.:+, filter=x -> !iszero(x))
     T = Base.promote_op(combine, eltype(v1), eltype(v2))
-    result = Vector{T}(length(v1) + length(v2))
+    result = Vector{T}(uninitialized, length(v1) + length(v2))
     i = 1
     i1 = 1
     i2 = 1

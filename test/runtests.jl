@@ -1,6 +1,10 @@
 using MultivariatePolynomials
 using TypedPolynomials
-using Base.Test
+using Compat
+using Compat.Test
+using Compat.Random
+using Compat.Pkg
+using Compat.LinearAlgebra
 
 """
     @wrappedallocs(expr)
@@ -37,17 +41,22 @@ macro wrappedallocs(expr)
     end
 end
 
-include("jump.jl")
-include("generators.jl")
-include("show.jl")
-include("macros.jl")
-include("calculus.jl")
-include("promotion.jl")
-include("polynomials.jl")
-include("substitution.jl")
-include("sequences.jl")
-
 const mvp_test = joinpath(Pkg.dir("MultivariatePolynomials"), "test")
 const Mod = TypedPolynomials
-include(joinpath(mvp_test, "utils.jl"))
-include(joinpath(mvp_test, "commutativetests.jl"))
+
+@testset "TypedPolynomials" begin
+    # include("jump.jl")
+    include("generators.jl")
+    include("show.jl")
+    include("macros.jl")
+    include("calculus.jl")
+    include("promotion.jl")
+    include("polynomials.jl")
+    include("substitution.jl")
+    include("sequences.jl")
+end
+
+# @testset "MultivariatePolynomials interface tests"
+#     include(joinpath(mvp_test, "utils.jl"))
+#     include(joinpath(mvp_test, "commutativetests.jl"))
+# end

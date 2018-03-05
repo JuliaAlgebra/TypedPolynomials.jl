@@ -1,3 +1,5 @@
+__precompile__()
+
 module TypedPolynomials
 
 using MultivariatePolynomials
@@ -6,7 +8,10 @@ const MP = MultivariatePolynomials
 using MacroTools
 import Base: *, +, -, /, ^, ==,
     promote_rule, show, isless, size, getindex,
-    one, zero, iszero, transpose, isapprox, @pure, dot, copy, exponent, vec
+    one, zero, iszero, isapprox, @pure, copy, exponent, vec
+using Compat
+using Compat.LinearAlgebra
+import Compat.LinearAlgebra: dot, adjoint
 export @polyvar,
        Variable,
        Monomial,

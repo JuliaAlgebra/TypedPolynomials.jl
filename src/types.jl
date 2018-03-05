@@ -8,14 +8,14 @@ checksorted(x::Tuple, cmp) = cmp(x[1], x[2]) && checksorted(Base.tail(x), cmp)
 struct Monomial{V, N} <: TypedMonomial{V}
     exponents::NTuple{N, Int}
 
-    Monomial{V, N}(exponents::NTuple{N, Int}) where {V, N} = (@assert checksorted(V, >); new{V, N}(exponents))
-    Monomial{V}(exponents::NTuple{N, Int}) where {V, N} = (@assert checksorted(V, >); new{V, N}(exponents))
+    function Monomial{V, N}(exponents::NTuple{N, Int}=ntuple(_ -> 0, Val{N}())) where {V, N}
+        @assert checksorted(V, >)
+        new{V, N}(exponents)
+    end
+    Monomial{V}(exponents::NTuple{N, Integer}=()) where {V, N} = Monomial{V, N}(exponents)
+    Monomial{V}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V}(NTuple{length(V), Int}(exponents))
 end
 
-Monomial{V, N}() where {N, V} = Monomial{V, N}(ntuple(_ -> 0, Val{N}))
-Monomial{V}() where {V} = Monomial{V, 0}()
-Monomial{V}(exponents::T) where {V, N, T <: Tuple{Vararg{Any, N}}} = Monomial{V, N}(exponents)
-Monomial{V}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V, length(V)}(NTuple{length(V), Int}(exponents))
 
 MP.monomialtype(::Type{V}) where V<:Variable = monomialtype(V())
 MP.monomialtype(v::Variable) = Monomial{(v,), 1}
