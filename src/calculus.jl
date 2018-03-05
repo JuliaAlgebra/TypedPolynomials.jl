@@ -2,10 +2,10 @@ MP.differentiate(::V, ::V) where {V <: Variable} = 1
 MP.differentiate(v::Variable, ::Variable) = 0
 
 @pure inmonomial(V) = false
-@pure inmonomial(V, Vars...) = name(V) == name(Vars[1]) || inmonomial(V, Base.tail(Vars)...)
+@pure inmonomial(V, Vars...) = (V === first(Vars)) || inmonomial(V, Base.tail(Vars)...)
 
 function MP.differentiate(m::Monomial{Vars}, v::V) where {Vars, V <: Variable}
-    if inmonomial(V, Vars...)
+    if inmonomial(v, Vars...)
         _diff(m, v)
     else
         0
@@ -15,7 +15,7 @@ end
 _diff(m::Monomial, v::Variable) = _diff(m, exponents(m), v)
 
 function find_variable_index(var::Variable, vars::Tuple, i=1)
-    if name(var) == name(first(vars))
+    if var === first(vars)
         return i
     else
         return find_variable_index(var, Base.tail(vars), i + 1)

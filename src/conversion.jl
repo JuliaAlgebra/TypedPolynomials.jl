@@ -16,7 +16,7 @@ Base.convert(T::Type{Monomial{V}}, m::Monomial) where {V} = convert(Monomial{V, 
     inds = ntuple(i -> begin
         if i2 > N2
             0
-        elseif V1[i] == V2[i2]
+        elseif V1[i] === V2[i2]
             i2 += 1
             i2 - 1
         else
