@@ -1,10 +1,10 @@
-MP.differentiate(::V, ::V) where {V <: TypedVariable} = 1
-MP.differentiate(v::TypedVariable, ::TypedVariable) = 0
+MP.differentiate(::V, ::V) where {V <: Variable} = 1
+MP.differentiate(v::Variable, ::Variable) = 0
 
 @pure inmonomial(V) = false
 @pure inmonomial(V, Vars...) = name(V) == name(Vars[1]) || inmonomial(V, Base.tail(Vars)...)
 
-function MP.differentiate(m::TypedMonomial{Vars}, v::V) where {Vars, V <: TypedVariable}
+function MP.differentiate(m::Monomial{Vars}, v::V) where {Vars, V <: Variable}
     if inmonomial(V, Vars...)
         _diff(m, v)
     else
@@ -12,9 +12,9 @@ function MP.differentiate(m::TypedMonomial{Vars}, v::V) where {Vars, V <: TypedV
     end
 end
 
-_diff(m::TypedMonomial, v::TypedVariable) = _diff(m, exponents(m), v)
+_diff(m::Monomial, v::Variable) = _diff(m, exponents(m), v)
 
-function find_variable_index(var::TypedVariable, vars::Tuple, i=1)
+function find_variable_index(var::Variable, vars::Tuple, i=1)
     if name(var) == name(first(vars))
         return i
     else
@@ -22,11 +22,11 @@ function find_variable_index(var::TypedVariable, vars::Tuple, i=1)
     end
 end
 
-find_variable_index(v::TypedVariable, ::Tuple{}, i) = error("Could not find variable $v")
+find_variable_index(v::Variable, ::Tuple{}, i) = error("Could not find variable $v")
 
-function _diff(m::TypedMonomial{Vars},
+function _diff(m::Monomial{Vars},
                exponents::NTuple{N, Integer},
-               v::TypedVariable) where {Vars, N}
+               v::Variable) where {Vars, N}
     vi = find_variable_index(v, Vars)
     # vi = findfirst(var -> name(var) == name(v), Vars)
     exponents[vi] * Monomial{Vars, N}(ntuple(i -> begin
