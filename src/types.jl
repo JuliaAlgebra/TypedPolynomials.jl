@@ -63,10 +63,12 @@ MP.nvariables(t::Union{Term, Type{<:Term}}) = nvariables(monomialtype(t))
 
 struct Polynomial{CoeffType, T <: Term{CoeffType}, V <: AbstractVector{T}} <: AbstractPolynomial{CoeffType}
     terms::V
+
+    Polynomial{C, T, V}(terms::AbstractVector{T}) where {C, T, V} = new{C, T, V}(terms)
+    Polynomial{C, T, V}(p::Polynomial{C, T, V}) where {C, T, V} = p
 end
 Polynomial(terms::AbstractVector{T}) where {C, T <: Term{C}} = Polynomial{C, T, typeof(terms)}(terms)
 Polynomial(t::AbstractVector) = Polynomial(Term.(t))
-# Polynomial(term::Term) = Polynomial(SVector(term))
 Polynomial(x) = Polynomial(Term(x))
 MP.termtype(::Type{<:Polynomial{C, T}}) where {C, T} = T
 changeeltype(::Type{<:Vector}, ::Type{T}) where T = Vector{T}
@@ -74,7 +76,6 @@ function MP.polynomialtype(::Type{<:Polynomial{C, T, V}}, ::Type{NewC}) where {C
     NewT = termtype(T, NewC)
     Polynomial{NewC, NewT, changeeltype(V, NewT)}
 end
-
 MP.polynomialtype(::Type{Term{C, M}}) where {C, M} = Polynomial{C, Term{C, M}, Vector{Term{C, M}}}
 Polynomial(term::TT) where TT<:Term = Polynomial(iszero(term) ? TT[] : [term])
 
