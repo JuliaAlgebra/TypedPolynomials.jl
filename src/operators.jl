@@ -35,8 +35,6 @@ jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = merges
 # definitions without resorting to promotion:
 MP.multconstant(v::Monomial, α) = Term(α, v)
 MP.multconstant(v::Variable, α) = Term(α, Monomial(v))
-MP.multconstant(α, v::Monomial) = Term(α, v)
-MP.multconstant(α, v::Variable) = Term(α, Monomial(v))
 
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{(V(),), 1}((2,))
 (*)(v1::Variable, v2::Variable) = (*)(promote(v1, v2)...)
