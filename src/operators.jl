@@ -33,8 +33,6 @@ jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = merges
 
 # Multiplication is handled as a special case so that we can write these
 # definitions without resorting to promotion:
-MP.multconstant(v::Monomial, α) = Term(α, v)
-MP.multconstant(v::Variable, α) = Term(α, Monomial(v))
 MP.multconstant(α, v::Monomial) = Term(α, v)
 MP.multconstant(α, v::Variable) = Term(α, Monomial(v))
 
