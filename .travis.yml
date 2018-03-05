@@ -12,8 +12,7 @@ branches:
 
 before_install:
   - julia -e 'Pkg.init()'
-  - julia -e 'Pkg.clone("https://github.com/rdeits/MultivariatePolynomials.jl")'
-  - julia -e 'Pkg.checkout("MultivariatePolynomials", "fix-0.7")'
+  - julia -e 'Pkg.clone("https://github.com/JuliaAlgebra/MultivariatePolynomials.jl")'
 
 after_success:
   # push coverage results to Codecov
