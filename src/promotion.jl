@@ -52,17 +52,12 @@ end
 @pure function promote_rule(::Type{<:Monomial{V1}}, ::Type{<:Monomial{V2}}) where {V1, V2}
     vars = merge(V1, V2...)
     Monomial{vars, length(vars)}
-    # _promote_monomial(M1, M2)
 end
 
 function promote_rule(::Type{Term{T, M2}}, ::Type{M1}) where {M1 <: Monomial, T, M2 <: Monomial}
     Term{T, promote_type(M1, M2)}
 end
 promote_rule(M::Type{<:Monomial}, T::Type{<:Term}) = promote_rule(T, M)
-
-# function _promote_term(::Type{Term{T1, M1}}, ::Type{Term{T2, M2}}) where {T1, M1, T2, M2}
-#     Term{promote_type(T1, T2), promote_type(M1, M2)}
-# end
 
 promote_rule(::Type{Term{T1, M1}}, ::Type{Term{T2, M2}}) where {T1, M1 <: Monomial, T2, M2 <: Monomial} = Term{promote_type(T1, T2), promote_type(M1, M2)}
 
@@ -74,20 +69,10 @@ promote_rule(T::Type{Term{T1, M1}}, P::Type{<:Polynomial}) where {T1, M1 <: Mono
 promote_rule(T::Type{<:Monomial}, P::Type{<:Polynomial}) = promote_rule(P, T)
 promote_rule(T::Type{<:Variable}, P::Type{<:Polynomial}) = promote_rule(P, T)
 
-# function promote_rule(::Type{Polynomial{T2, SVector{N, T2}}}, ::Type{T1}) where {T1 <: TermLike, T2 <: Term, N}
-#     T = promote_type(T1, T2)
-#     Polynomial{T, SVector{N, T}}
-# end
-
 function promote_rule(::Type{<:Polynomial{<:Any, T1}}, ::Type{<:Polynomial{<:Any, T2}}) where {T1 <: TermLike, T2 <: TermLike}
     T = promote_type(T1, T2)
     Polynomial{coefficienttype(T), T, Vector{T}}
 end
-
-# function promote_rule(::Type{Polynomial{T1, SVector{1, T1}}}, ::Type{Polynomial{T2, SVector{1, T2}}}) where {T1, T2}
-#     T = promote_type(T1, T2)
-#     Polynomial{T, SVector{1, T}}
-# end
 
 function MP.promote_rule_constant(::Type{S}, ::Type{V}) where {S, V <: Variable}
     Term{S, Monomial{(V(),), 1}}
@@ -96,10 +81,6 @@ end
 function MP.promote_rule_constant(::Type{S}, ::Type{M}) where {S, M <: Monomial}
     Term{S, M}
 end
-
-# function _promote_any_term(::Type{S}, ::Type{Term{T, M}}) where {S, T, M <: Monomial}
-#     Term{promote_type(S, T), M}
-# end
 
 MP.promote_rule_constant(::Type{S}, t::Type{Term{T, M}}) where {T, M <: Monomial, S} = Term{promote_type(S, T), M}
 

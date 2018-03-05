@@ -9,9 +9,12 @@ notifications:
   email: false
 branches:
   only: master
-matrix:
-  allow_failures:
-    - julia: nightly
+
+before_install:
+  - julia -e 'Pkg.init()'
+  - julia -e 'Pkg.clone("https://github.com/rdeits/MultivariatePolynomials.jl")'
+  - julia -e 'Pkg.checkout("MultivariatePolynomials", "fix-0.7")'
+
 after_success:
   # push coverage results to Codecov
   - julia -e 'cd(Pkg.dir("TypedPolynomials")); Pkg.add("Coverage"); using Coverage; Codecov.submit(Codecov.process_folder())'
