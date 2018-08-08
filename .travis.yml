@@ -3,16 +3,22 @@ language: julia
 os:
   - linux
 julia:
-  - 0.6
+  - 0.7
   - nightly
+
+matrix:
+ allow_failures:
+   - 1.0
+   - julia: nightly
+
 notifications:
   email: false
 branches:
   only: master
-
-before_install:
-  - julia -e 'Pkg.init()'
-  - julia -e 'Pkg.clone("https://github.com/JuliaAlgebra/MultivariatePolynomials.jl")'
+#
+# before_install:
+#   - julia -e 'Pkg.init()'
+#   - julia -e 'Pkg.clone("https://github.com/JuliaAlgebra/MultivariatePolynomials.jl")'
 
 after_success:
   # push coverage results to Codecov

@@ -17,7 +17,7 @@
     @test @inferred(monomials((x, y), 0:2)) == [x^2, x * y, y^2, x, y, 1]
     @test @inferred(monomials((x, y), [1, 0, 2])) == [x^2, x * y, y^2, x, y, 1]
 
-    srand(1)
+    Random.seed!(1)
     for vars in ((x,), (x, y), (x, y, z), (x, z))
         for degree in 0:5
             @test issorted(@inferred(monomials(vars, degree)), rev=true)

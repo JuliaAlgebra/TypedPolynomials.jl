@@ -1,7 +1,6 @@
 module M
 
-using Compat
-using Compat.Test
+using Test
 using TypedPolynomials: @polyvar, Variable
 
 @testset "macro tests" begin
@@ -34,4 +33,3 @@ using TypedPolynomials: @polyvar, Variable
 end
 
 end
-

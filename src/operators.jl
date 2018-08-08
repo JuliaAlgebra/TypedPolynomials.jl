@@ -40,7 +40,7 @@ MP.multconstant(α, v::Variable) = Term(α, Monomial(v))
 (*)(v1::Variable, v2::Variable) = (*)(promote(v1, v2)...)
 
 function MP.divides(m1::Monomial{V, N}, m2::Monomial{V, N}) where {V, N}
-    reduce((d, exp) -> d && (exp[1] <= exp[2]), true, zip(m1.exponents, m2.exponents))
+    reduce((d, exp) -> d && (exp[1] <= exp[2]), zip(m1.exponents, m2.exponents), init=true)
 end
 MP.divides(m1::Monomial, m2::Monomial) = divides(promote(m1, m2)...)
 function MP.mapexponents(op, m1::M, m2::M) where M<:Monomial
@@ -63,9 +63,9 @@ end
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
 
-dot(v1::AbstractVector{<:TermLike}, v2::AbstractVector) = vecdot(v1, v2)
-dot(v1::AbstractVector, v2::AbstractVector{<:TermLike}) = vecdot(v1, v2)
-dot(v1::AbstractVector{<:TermLike}, v2::AbstractVector{<:TermLike}) = vecdot(v1, v2)
+# dot(v1::AbstractVector{<:TermLike}, v2::AbstractVector) = dot(v1, v2)
+# dot(v1::AbstractVector, v2::AbstractVector{<:TermLike}) = dot(v1, v2)
+# dot(v1::AbstractVector{<:TermLike}, v2::AbstractVector{<:TermLike}) = dot(v1, v2)
 
 # All of these types are immutable, so there's no need to copy anything to get
 # a shallow copy.

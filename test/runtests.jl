@@ -1,10 +1,10 @@
 using MultivariatePolynomials
 using TypedPolynomials
-using Compat
-using Compat.Test
-using Compat.Random
-using Compat.Pkg
-using Compat.LinearAlgebra
+
+using Test
+using Random
+using Pkg
+using LinearAlgebra
 using NBInclude
 
 """
@@ -42,7 +42,9 @@ macro wrappedallocs(expr)
     end
 end
 
-const mvp_test = joinpath(Pkg.dir("MultivariatePolynomials"), "test")
+
+
+const mvp_test = joinpath(dirname(pathof(MultivariatePolynomials)), "..", "test")
 const Mod = TypedPolynomials
 
 @testset "TypedPolynomials" begin
@@ -55,10 +57,13 @@ const Mod = TypedPolynomials
     include("polynomials.jl")
     include("substitution.jl")
     include("sequences.jl")
-    nbinclude(joinpath(@__DIR__, "..", "demo.ipynb"))
 end
 
 @testset "MultivariatePolynomials interface tests" begin
     include(joinpath(mvp_test, "utils.jl"))
     include(joinpath(mvp_test, "commutativetests.jl"))
+end
+
+@testset "Demo" begin
+    @nbinclude(joinpath(@__DIR__, "..", "demo.ipynb"))
 end
