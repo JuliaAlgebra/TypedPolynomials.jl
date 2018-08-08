@@ -275,9 +275,9 @@ end
         @test x .+ x == 2 .* x
         @test x .- y == (x[1] - y, x[2] - y)
 
-        @test vecdot(x, x) == x[1]^2 + x[2]^2
-        @test vecdot(x, [y, z]) == x[1]*y + x[2]*z
-        @test vecdot([y, z], x) == x[1]*y + x[2]*z
+        @test dot(x, x) == x[1]^2 + x[2]^2
+        @test dot(x, [y, z]) == x[1]*y + x[2]*z
+        @test dot([y, z], x) == x[1]*y + x[2]*z
 
         xv = @inferred(vec(x))
         @test @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
