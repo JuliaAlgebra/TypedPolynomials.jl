@@ -50,7 +50,6 @@ const Mod = TypedPolynomials
 @testset "TypedPolynomials" begin
     # include("jump.jl")
     include("generators.jl")
-    include("show.jl")
     include("macros.jl")
     include("calculus.jl")
     include("promotion.jl")

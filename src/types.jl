@@ -3,6 +3,18 @@ end
 
 MP.name(::Type{Variable{N}}) where {N} = N
 MP.name(v::Variable) = name(typeof(v))
+MP.name_base_indices(v::Variable) = name_base_indices(typeof(v))
+function MP.name_base_indices(v::Type{Variable{N}}) where N
+    name = string(N)
+    splits = split(string(N), r"[\[,\]]\s*", keepempty=false)
+    if length(splits) == 1
+        return name, Int[]
+    else
+        return splits[1], parse.(Int, splits[2:end])
+    end
+end
+
+
 MP.variables(v::Variable) = (v,)
 MP.variables(::Type{V}) where {V <: Variable} = (V(),)
 Base.hash(v::Variable, u::UInt) = hash(name(v), u)
