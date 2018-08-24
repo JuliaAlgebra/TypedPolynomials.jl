@@ -8,7 +8,7 @@ end
 
 function _makevar(expr::Expr)
     var, lb, ub = _split(expr)
-    :($(esc(var)) = $(Expr(:tuple, [_varconstructor(Symbol(var, i)) for i in lb:ub]...)))
+    :($(esc(var)) = $(Expr(:tuple, [_varconstructor(Symbol("$var[$i]")) for i in lb:ub]...)))
 end
 
 _return_name(s::Symbol) = esc(s)
