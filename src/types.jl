@@ -93,7 +93,7 @@ Polynomial(term::TT) where TT<:Term = Polynomial(iszero(term) ? TT[] : [term])
 
 MP.terms(p::Polynomial) = p.terms
 MP.variables(::Union{Polynomial{C, T}, AbstractArray{<:Polynomial{C, T}}, Type{<:Polynomial{C, T}}}) where {C, T} = variables(T)
-MP.nvariables(::Polynomial{C, T}) where {V, N, C, M<:Monomial{V, N}, T<:Term{C, M}} = N
+MP.nvariables(::Union{Polynomial{C, T}, AbstractArray{<:Polynomial{C, T}}, Type{<:Polynomial{C, T}}}) where {V, N, C, M<:Monomial{V, N}, T<:Term{C, M}} = N
 const MonomialLike = Union{Variable, Monomial}
 const TermLike = Union{MonomialLike, Term}
 const PolynomialLike = Union{TermLike, Polynomial}
