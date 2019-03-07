@@ -6,7 +6,7 @@ const MP = MultivariatePolynomials
 using MacroTools
 import Base: *, +, -, /, ^, ==,
     promote_rule, show, isless, size, getindex,
-    one, zero, iszero, isapprox, @pure, copy, exponent, vec
+    one, zero, iszero, @pure, copy, exponent, vec
 
 using LinearAlgebra
 import LinearAlgebra: dot, adjoint
