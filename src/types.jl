@@ -100,6 +100,7 @@ const PolynomialLike = Union{TermLike, Polynomial}
 
 MP.variables(::Union{AbstractVector{T}, Type{<:AbstractVector{T}}}) where {T <: PolynomialLike} = variables(T)
 MP.nvariables(::Union{AbstractVector{T}, Type{<:AbstractVector{T}}}) where {T <: PolynomialLike} = nvariables(T)
+MP.variable_union_type(::Union{PolynomialLike, Type{<:PolynomialLike}}) = Variable
 MP.constantmonomial(p::PolynomialLike) = Monomial{variables(p), nvariables(p)}()
 MP.constantmonomial(::Type{TT}) where {TT<:PolynomialLike} = Monomial{variables(TT), nvariables(TT)}()
 

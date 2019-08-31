@@ -43,8 +43,25 @@ end
 
 @testset "conversion" begin
     @polyvar x y z
-    
+
     @test convert(Monomial{(x, y)}, x) == Monomial{(x, y)}((1, 0))
     @test_throws InexactError convert(Monomial{(x,)}, y)
     @test_throws InexactError convert(Monomial{(x,)}, x * y)
+end
+
+@testset "variable_union_type" begin
+    @polyvar x y z
+
+    function test(p)
+        @test MultivariatePolynomials.variable_union_type(p) == TypedPolynomials.Variable
+        @test MultivariatePolynomials.variable_union_type(typeof(p)) == TypedPolynomials.Variable
+    end
+    test(x)
+    test(y)
+    test(z)
+    test(x*y*z)
+    test(2x)
+    test(2y)
+    test(2z)
+    test(x + y + z)
 end
