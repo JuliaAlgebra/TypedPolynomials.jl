@@ -48,17 +48,19 @@ function MP.mapexponents(op, m1::M, m2::M) where M<:Monomial
 end
 MP.mapexponents(op, m1::Monomial, m2::Monomial) = mapexponents(op, promote(m1, m2)...)
 
-# TODO: this could be faster with an in-place summation
+function _mul(::Type{T}, p1::Polynomial, p2::Polynomial) where T<:Term
+    ts = T[]
+    for t1 in terms(p1)
+        for t2 in terms(p2)
+            push!(ts, t1 * t2)
+        end
+    end
+    ts
+end
 function (*)(p1::Polynomial{S}, p2::Polynomial{T}) where {S, T}
     C = Base.promote_op(*, S, T)
     M = promote_type(monomialtype(p1), monomialtype(p2))
-    result = Polynomial(termtype(M, C)[])
-    for t1 in terms(p1)
-        for t2 in terms(p2)
-            result += t1 * t2
-        end
-    end
-    result
+    MP.polynomial(_mul(termtype(M, C), p1, p2))
 end
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
