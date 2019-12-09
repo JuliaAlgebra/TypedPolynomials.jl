@@ -82,10 +82,7 @@ function shortest_common_supersequence(a::AbstractString, b::AbstractString)
     join(scs)
 end
 
-function mergesorted(v1::AbstractArray, v2::AbstractArray, isless=Base.isless,
-                     combine=Base.:+, filter=x -> !iszero(x))
-    T = Base.promote_op(combine, eltype(v1), eltype(v2))
-    result = Vector{T}(undef, length(v1) + length(v2))
+function mergesorted!(result, v1::AbstractArray, v2::AbstractArray, isless, combine, filter=x -> !iszero(x))
     i = 1
     i1 = 1
     i2 = 1
@@ -128,6 +125,13 @@ function mergesorted(v1::AbstractArray, v2::AbstractArray, isless=Base.isless,
     end
     resize!(result, i - 1)
     result
+end
+
+function mergesorted(v1::AbstractArray, v2::AbstractArray, isless=Base.isless,
+                     combine=Base.:+, filter=x -> !iszero(x))
+    T = Base.promote_op(combine, eltype(v1), eltype(v2))
+    result = Vector{T}(undef, length(v1) + length(v2))
+    mergesorted!(result, v1, v2, isless, combine, filter)
 end
 
 end
