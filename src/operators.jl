@@ -118,17 +118,6 @@ MP.multconstant(α, v::Variable) = Term(α, Monomial(v))
 (*)(v1::V, v2::V) where {V <: Variable} = Monomial{(V(),), 1}((2,))
 (*)(v1::Variable, v2::Variable) = (*)(promote(v1, v2)...)
 
-function MA.mutable_operate_to!(output::Term, ::typeof(*), t1::AbstractTermLike, t2::AbstractTermLike)
-    MA.mutable_operate_to!(output.coefficient, *, coefficient(t1), coefficient(t2))
-    MA.mutable_operate_to!(output.monomial, *, monomial(t1), monomial(t2))
-    return output
-end
-function MA.mutable_operate!(::typeof(*), t1::AbstractTermLike, t2::AbstractTermLike)
-    MA.mutable_operate!(*, coefficient(t1), coefficient(t2))
-    MA.mutable_operate!(*, monomial(t1), monomial(t2))
-    return t1
-end
-
 function MP.divides(m1::Monomial{V, N}, m2::Monomial{V, N}) where {V, N}
     reduce((d, exp) -> d && (exp[1] <= exp[2]), zip(m1.exponents, m2.exponents), init=true)
 end
@@ -186,7 +175,9 @@ MA.mutability(::Type{<:Term}) = MA.NotMutable()
 # a shallow copy.
 Base.copy(x::TermLike) = x
 
-Base.copy(p::Polynomial) = Polynomial(copy(terms(p)))
+# Terms are not mutable under the MutableArithmetics API
+MA.mutable_copy(p::Polynomial) = Polynomial(copy(terms(p)))
+Base.copy(p::Polynomial) = MA.mutable_copy(p)
 
 adjoint(v::Variable) = v
 adjoint(m::Monomial) = m
