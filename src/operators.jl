@@ -176,7 +176,7 @@ MA.mutability(::Type{<:Term}) = MA.NotMutable()
 Base.copy(x::TermLike) = x
 
 # Terms are not mutable under the MutableArithmetics API
-MA.mutable_copy(p::Polynomial) = Polynomial(copy(terms(p)))
+MA.mutable_copy(p::Polynomial) = Polynomial([Term(MA.copy_if_mutable(t.coefficient), t.monomial) for t in terms(p)])
 Base.copy(p::Polynomial) = MA.mutable_copy(p)
 
 adjoint(v::Variable) = v
