@@ -162,8 +162,11 @@ function MA.mutable_operate!(::typeof(one), p::Polynomial{T}) where T
 end
 
 # The exponents are stored in a tuple, this is not mutable.
+# We could remove these methods since it is the default.
 MA.mutability(::Type{<:Monomial}) = MA.NotMutable()
 MA.mutability(::Type{<:Term}) = MA.NotMutable()
+# The polynomials can be mutated.
+MA.mutability(::Type{<:Polynomial}) = MA.IsMutable()
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
 

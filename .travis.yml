@@ -15,7 +15,6 @@ matrix:
    - julia: nightly
 
 before_script:
-    - julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/JuliaOpt/MutableArithmetics.jl", rev="master"))'
     - julia -e 'using Pkg; Pkg.add(PackageSpec(url="https://github.com/JuliaAlgebra/MultivariatePolynomials.jl", rev="bl/mutable_arithmetics"))'
 
 notifications:
