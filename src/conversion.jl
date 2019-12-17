@@ -42,8 +42,8 @@ function Base.convert(::Type{Monomial{V1, N1}}, m::Monomial) where {V1, N1}
     Monomial{V1, N1}(exps)
 end
 
-Base.convert(::Type{Term{T1, M1}}, t::Term) where {T1, M1} = Term{T1, M1}(convert(T1, t.coefficient), convert(M1, t.monomial))
-MP.polynomial(v::AbstractVector{<:Term}, ::MP.SortedUniqState) = Polynomial(v)
+Base.convert(::Type{Term{T1, M1}}, t::Term) where {T1, M1} = Term{T1, M1}(MA.scaling_convert(T1, t.coefficient), convert(M1, t.monomial))
+MP.polynomial!(v::AbstractVector{<:Term}, ::MP.SortedUniqState) = Polynomial(v)
 function MP.polynomial(p::P, ::Type{C}) where {P<:PolynomialLike, C}
     convert(polynomialtype(P, C), p)
 end

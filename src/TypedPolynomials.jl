@@ -1,5 +1,8 @@
 module TypedPolynomials
 
+import MutableArithmetics
+const MA = MutableArithmetics
+
 using MultivariatePolynomials
 const MP = MultivariatePolynomials
 

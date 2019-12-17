@@ -21,11 +21,90 @@ function isless(m1::Monomial{V}, m2::Monomial{V}) where {V}
         return exponents(m1) < exponents(m2)
     end
 end
+function grlex(m1::Monomial{V}, m2::Monomial{V}) where {V}
+    d1 = degree(m1)
+    d2 = degree(m2)
+    if d1 != d2
+        return d1 - d2
+    else
+        if exponents(m1) == exponents(m2)
+            return 0
+        elseif exponents(m1) < exponents(m2)
+            return -1
+        else
+            return 1
+        end
+    end
+end
+grlex(m1::Monomial, m2::Monomial) = grlex(promote(m1, m2)...)
 
 jointerms(terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term}) = mergesorted(terms1, terms2, compare, combine)
+function jointerms!(output::AbstractArray{<:Term}, terms1::AbstractArray{<:Term}, terms2::AbstractArray{<:Term})
+    resize!(output, length(terms1) + length(terms2))
+    Sequences.mergesorted!(output, terms1, terms2, compare, combine)
+end
 
 (+)(p1::Polynomial, p2::Polynomial) = Polynomial(jointerms(terms(p1), terms(p2)))
+(+)(p1::Polynomial, p2::Polynomial{<:UniformScaling}) = p1 + MP.mapcoefficientsnz(J -> J.λ, p2)
+(+)(p1::Polynomial{<:UniformScaling}, p2::Polynomial) = MP.mapcoefficientsnz(J -> J.λ, p1) + p2
+(+)(p1::Polynomial{<:UniformScaling}, p2::Polynomial{<:UniformScaling}) = MP.mapcoefficientsnz(J -> J.λ, p1) + p2
+function MA.mutable_operate_to!(result::Polynomial, ::typeof(+), p1::Polynomial, p2::Polynomial)
+    if result === p1 || result === p2
+        error("Cannot call `mutable_operate_to!(output, +, p, q)` with `output` equal to `p` or `q`, call `mutable_operate!` instead.")
+    end
+    jointerms!(result.terms, terms(p1), terms(p2))
+    result
+end
+function MA.mutable_operate_to!(result::Polynomial, ::typeof(*), p::Polynomial, t::AbstractTermLike)
+    if iszero(t)
+        MA.mutable_operate!(zero, result)
+    else
+        resize!(result.terms, nterms(p))
+        for i in eachindex(p.terms)
+            # TODO could use MA.mul_to! for indices that were presents in `result` before the `resize!`.
+            result.terms[i] = p.terms[i] * t
+        end
+        return result
+    end
+end
+function MA.mutable_operate_to!(result::Polynomial, ::typeof(*), t::AbstractTermLike, p::Polynomial)
+    if iszero(t)
+        MA.mutable_operate!(zero, result)
+    else
+        resize!(result.terms, nterms(p))
+        for i in eachindex(p.terms)
+            # TODO could use MA.mul_to! for indices that were presents in `result` before the `resize!`.
+            result.terms[i] = t * p.terms[i]
+        end
+        return result
+    end
+end
 (-)(p1::Polynomial, p2::Polynomial) = Polynomial(jointerms(terms(p1), (-).(terms(p2))))
+(-)(p1::Polynomial, p2::Polynomial{<:UniformScaling}) = p1 - MP.mapcoefficientsnz(J -> J.λ, p2)
+(-)(p1::Polynomial{<:UniformScaling}, p2::Polynomial) = MP.mapcoefficientsnz(J -> J.λ, p1) - p2
+(-)(p1::Polynomial{<:UniformScaling}, p2::Polynomial{<:UniformScaling}) = MP.mapcoefficientsnz(J -> J.λ, p1) - p2
+function MA.mutable_operate!(op::Union{typeof(+), typeof(-)}, p::Polynomial{T}, q::Polynomial) where T
+    get1(i) = p.terms[i]
+    function get2(i)
+        t = q.terms[i]
+        Term(MA.scaling_convert(T, MA.copy_if_mutable(t.coefficient)), MA.copy_if_mutable(t.monomial))
+    end
+    set(i, t::Term) = p.terms[i] = t
+    push(t::Term) = push!(p.terms, t)
+    compare_monomials(t::Term, j::Int) = grlex(q.terms[j].monomial, t.monomial)
+    compare_monomials(i::Int, j::Int) = compare_monomials(get1(i), j)
+    combine(i::Int, j::Int) = p.terms[i] = Term(MA.operate!(op, p.terms[i].coefficient, q.terms[j].coefficient), p.terms[i].monomial)
+    combine(t::Term, j::Int) = Term(MA.operate!(op, t.coefficient, q.terms[j].coefficient), t.monomial)
+    resize(n) = resize!(p.terms, n)
+    # We can modify the coefficient since it's the result of `combine`.
+    keep(t::Term) = !MA.iszero!(t.coefficient)
+    keep(i::Int) = !MA.iszero!(p.terms[i].coefficient)
+    MP.polynomial_merge!(
+        nterms(p), nterms(q), get1, get2, set, push,
+        compare_monomials, combine, keep, resize
+    )
+    return p
+end
 
 (==)(::Variable{N}, ::Variable{N}) where {N} = true
 (==)(::Variable, ::Variable) = false
@@ -47,21 +126,47 @@ function MP.mapexponents(op, m1::M, m2::M) where M<:Monomial
     M(map(op, m1.exponents, m2.exponents))
 end
 MP.mapexponents(op, m1::Monomial, m2::Monomial) = mapexponents(op, promote(m1, m2)...)
+#function MP.mapexponents_to!(output::M, op, m1::M, m2::M) where M<:Monomial
+#    map!(op, output.exponents, m1.exponents, m2.exponents)
+#    return output
+#end
+#function MP.mapexponents!(op, m1::M, m2::M) where M<:Monomial
+#    map!(op, m1.exponents, m1.exponents, m2.exponents)
+#    return m1
+#end
 
-function _mul(::Type{T}, p1::Polynomial, p2::Polynomial) where T<:Term
-    ts = T[]
-    for t1 in terms(p1)
-        for t2 in terms(p2)
-            push!(ts, t1 * t2)
-        end
+function MA.mutable_operate_to!(output::Polynomial, ::typeof(*), p::Polynomial, q::Polynomial)
+    empty!(output.terms)
+    MP.mul_to_terms!(output.terms, p, q)
+    sort!(output.terms, lt=(>))
+    MP.uniqterms!(output.terms)
+    return output
+end
+function MA.mutable_operate!(::typeof(*), p::Polynomial, q::Polynomial)
+    return MA.mutable_operate_to!(p, *, MA.mutable_copy(p), q)
+end
+
+function MA.mutable_operate!(::typeof(zero), p::Polynomial)
+    empty!(p.terms)
+    return p
+end
+function MA.mutable_operate!(::typeof(one), p::Polynomial{T}) where T
+    if isempty(p.terms)
+        push!(p.terms, constantterm(one(T), p))
+    else
+        t = p.terms[1]
+        p.terms[1] = Term(MA.one!(coefficient(t)), constantmonomial(t))
+        resize!(p.terms, 1)
     end
-    ts
+    return p
 end
-function (*)(p1::Polynomial{S}, p2::Polynomial{T}) where {S, T}
-    C = Base.promote_op(*, S, T)
-    M = promote_type(monomialtype(p1), monomialtype(p2))
-    MP.polynomial(_mul(termtype(M, C), p1, p2))
-end
+
+# The exponents are stored in a tuple, this is not mutable.
+# We could remove these methods since it is the default.
+MA.mutability(::Type{<:Monomial}) = MA.NotMutable()
+MA.mutability(::Type{<:Term}) = MA.NotMutable()
+# The polynomials can be mutated.
+MA.mutability(::Type{<:Polynomial}) = MA.IsMutable()
 
 ^(v::V, x::Integer) where {V <: Variable} = Monomial{(V(),), 1}((x,))
 
@@ -73,9 +178,23 @@ end
 # a shallow copy.
 Base.copy(x::TermLike) = x
 
-Base.copy(p::Polynomial) = Polynomial(copy(terms(p)))
+# Terms are not mutable under the MutableArithmetics API
+MA.mutable_copy(p::Polynomial) = Polynomial([Term(MA.copy_if_mutable(t.coefficient), t.monomial) for t in terms(p)])
+Base.copy(p::Polynomial) = MA.mutable_copy(p)
 
 adjoint(v::Variable) = v
 adjoint(m::Monomial) = m
 adjoint(t::Term) = Term(adjoint(coefficient(t)), monomial(t))
 adjoint(x::Polynomial) = Polynomial(adjoint.(terms(x)))
+
+function MP.mapcoefficientsnz_to!(output::Polynomial, f::Function, p::Polynomial)
+    resize!(output.terms, nterms(p))
+    for i in eachindex(p.terms)
+        t = p.terms[i]
+        output.terms[i] = Term(f(coefficient(t)), monomial(t))
+    end
+    return output
+end
+function MP.mapcoefficientsnz_to!(output::Polynomial, f::Function, p::AbstractPolynomialLike)
+    return MP.mapcoefficientsnz_to!(output, f, polynomial(p))
+end
