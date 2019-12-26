@@ -83,11 +83,18 @@ end
 (-)(p1::Polynomial, p2::Polynomial{<:UniformScaling}) = p1 - MP.mapcoefficientsnz(J -> J.λ, p2)
 (-)(p1::Polynomial{<:UniformScaling}, p2::Polynomial) = MP.mapcoefficientsnz(J -> J.λ, p1) - p2
 (-)(p1::Polynomial{<:UniformScaling}, p2::Polynomial{<:UniformScaling}) = MP.mapcoefficientsnz(J -> J.λ, p1) - p2
+
+# TODO replace by MA.operate with MA v0.2
+# `+(::UniformScaling)` is not defined...
+_unary(::typeof(+), x) = MA.copy_if_mutable(x)
+_unary(::typeof(-), x) = -x
+
 function MA.mutable_operate!(op::Union{typeof(+), typeof(-)}, p::Polynomial{T}, q::Polynomial) where T
     get1(i) = p.terms[i]
     function get2(i)
         t = q.terms[i]
-        Term(MA.scaling_convert(T, MA.copy_if_mutable(t.coefficient)), MA.copy_if_mutable(t.monomial))
+        # TODO replace by MA.operate(op, t.coefficient)
+        Term(MA.scaling_convert(T, _unary(op, t.coefficient)), t.monomial)
     end
     set(i, t::Term) = p.terms[i] = t
     push(t::Term) = push!(p.terms, t)
