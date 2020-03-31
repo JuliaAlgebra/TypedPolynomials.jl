@@ -31,7 +31,7 @@ function _diff(m::Monomial{Vars},
     # vi = findfirst(var -> name(var) == name(v), Vars)
     exponents[vi] * Monomial{Vars, N}(ntuple(i -> begin
         if i == vi
-            exponents[i] - 1
+            (exponents[i] == 0) ? 0 : exponents[i] - 1
         else
             exponents[i]
         end
