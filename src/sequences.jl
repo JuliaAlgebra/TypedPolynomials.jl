@@ -1,6 +1,7 @@
 module Sequences
 
-
+import MutableArithmetics
+const MA = MutableArithmetics
 
 export shortest_common_supersequence
 
@@ -129,7 +130,7 @@ end
 
 function mergesorted(v1::AbstractArray, v2::AbstractArray, isless=Base.isless,
                      combine=Base.:+, filter=x -> !iszero(x))
-    T = Base.promote_op(combine, eltype(v1), eltype(v2))
+    T = MA.promote_operation(combine, eltype(v1), eltype(v2))
     result = Vector{T}(undef, length(v1) + length(v2))
     mergesorted!(result, v1, v2, isless, combine, filter)
 end
