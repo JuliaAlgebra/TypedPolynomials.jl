@@ -5,6 +5,9 @@ Base.zero(::Type{Polynomial{C, T, A}}) where {C, T, A} = Polynomial(A())
 Base.zero(t::PolynomialLike) = zero(typeof(t))
 
 combine(t1::Term, t2::Term) = combine(promote(t1, t2)...)
+function MA.promote_operation(::typeof(combine), ::Type{Term{S, M1}}, ::Type{Term{T, M2}}) where {S, T, M1, M2}
+    return Term{MA.promote_operation(+, S, T), promote_type(M1, M2)}
+end
 combine(t1::T, t2::T) where {T <: Term} = Term(t1.coefficient + t2.coefficient, t1.monomial)
 compare(t1::Term, t2::Term) = monomial(t1) > monomial(t2)
 
