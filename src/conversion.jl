@@ -47,3 +47,29 @@ MP.polynomial!(v::AbstractVector{<:Term}, ::MP.SortedUniqState) = Polynomial(v)
 function MP.polynomial(p::P, ::Type{C}) where {P<:PolynomialLike, C}
     convert(polynomialtype(P, C), p)
 end
+
+function Base.convert(::Type{Variable}, mono::Monomial)
+    var = _mono2var(mono, powers(mono)...)
+    var === nothing && throw(InexactError(:convert, Variable, mono))
+    return var
+end
+
+function _checknovar(mono) end
+function _checknovar(mono, ve, ves...)
+    if iszero(ve[2])
+        _checknovar(mono, ves...)
+    else
+        throw(InexactError(:convert, Variable, mono))
+    end
+end
+function _mono2var(mono, ve, ves...)
+    if iszero(ve[2])
+        _mono2var(mono, ves...)
+    elseif isone(ve[2])
+        _checknovar(mono, ves...)
+        ve[1]
+    else
+        throw(InexactError(:convert, Variable, mono))
+    end
+end
+_mono2var(mono) = throw(InexactError(:convert, Variable, mono))
