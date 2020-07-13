@@ -202,3 +202,8 @@ end
 function MP.mapcoefficientsnz_to!(output::Polynomial, f::Function, p::AbstractPolynomialLike)
     return MP.mapcoefficientsnz_to!(output, f, polynomial(p))
 end
+
+function MA.mutable_operate!(::typeof(MP.removeleadingterm), p::Polynomial)
+    deleteat!(p.terms, 1)
+    return p
+end
