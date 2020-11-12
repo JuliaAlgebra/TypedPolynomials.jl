@@ -1,6 +1,6 @@
 # TypedPolynomials
 
-[![Build Status](https://travis-ci.org/JuliaAlgebra/TypedPolynomials.jl.svg?branch=master)](https://travis-ci.org/JuliaAlgebra/TypedPolynomials.jl)
+[![Build Status](https://github.com/JuliaAlgebra/TypedPolynomials.jl/workflows/CI/badge.svg?branch=master)](https://github.com/JuliaAlgebra/TypedPolynomials.jl/actions?query=workflow%3ACI)
 [![codecov.io](http://codecov.io/github/JuliaAlgebra/TypedPolynomials.jl/coverage.svg?branch=master)](http://codecov.io/github/JuliaAlgebra/TypedPolynomials.jl?branch=master)
 
 TypedPolynomials.jl provides an implementation of the multivariate polynomial interface from [MultivariatePolynomials.jl](https://github.com/JuliaAlgebra/MultivariatePolynomials.jl) using *strongly typed* variables. That is, in this package, the identity of a variable is encoded by its type, so variables `x` and `y` are of different types. This allows us to use the type system to handle certain operations, like computing the intersection of two monomials' variables, at compile-time.
