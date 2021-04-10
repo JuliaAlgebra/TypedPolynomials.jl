@@ -62,6 +62,7 @@ end
 Term(v::Variable) = Term(Monomial(v))
 Term(x, v::Variable) = Term(x, Monomial(v))
 Term(m::Monomial) = Term(1, m)
+MP.term(coef, mono::Monomial) = Term(coef, mono)
 
 MP.coefficient(t::Term) = t.coefficient
 MP.monomial(t::Term) = t.monomial
