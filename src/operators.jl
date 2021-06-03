@@ -130,14 +130,13 @@ function MP.mapexponents(op, m1::M, m2::M) where M<:Monomial
     M(map(op, m1.exponents, m2.exponents))
 end
 MP.mapexponents(op, m1::Monomial, m2::Monomial) = mapexponents(op, promote(m1, m2)...)
-#function MP.mapexponents_to!(output::M, op, m1::M, m2::M) where M<:Monomial
-#    map!(op, output.exponents, m1.exponents, m2.exponents)
-#    return output
-#end
-#function MP.mapexponents!(op, m1::M, m2::M) where M<:Monomial
-#    map!(op, m1.exponents, m1.exponents, m2.exponents)
-#    return m1
-#end
+# We cannot mutate `m1` as tuples are immutables.
+function MP.mapexponents_to!(::Monomial, op::F, m1::Monomial, m2::Monomial) where {F<:Function}
+    return MP.mapexponents(op, m1, m2)
+end
+function MP.mapexponents!(op::F, m1::Monomial, m2::Monomial) where {F<:Function}
+    return MP.mapexponents(op, m1, m2)
+end
 
 function MA.mutable_operate_to!(output::Polynomial, ::typeof(*), p::Polynomial, q::Polynomial)
     empty!(output.terms)
