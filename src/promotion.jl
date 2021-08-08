@@ -55,7 +55,6 @@ MP.promote_rule(::Type{Term{C,M1} where {C}}, M2::Type{<:MonomialLike}) where {M
 MP.promote_rule(M1::Type{<:MonomialLike}, ::Type{Term{C,M2} where {C}}) where {M2} = (Term{C,promote_type(M1, M2)} where {C})
 MP.promote_rule(::Type{Term{C,M1} where {C}}, ::Type{Term{T,M2}}) where {T,M1,M2} = (Term{C,promote_type(M1, M2)} where {C})
 MP.promote_rule(::Type{Term{T,M2}}, ::Type{Term{C,M1} where {C}}) where {T,M1,M2} = (Term{C,promote_type(M1, M2)} where {C})
-MP.promote_rule(::Type{Term{C,M1} where {C}}, ::Type{Term{T,M2}}) where {T,M1,M2} = (Term{C,promote_type(M1, M2)} where {C})
 MP.promote_rule(::Type{<:Polynomial}, ::Type{Term{C,M} where {C}}) where {M} = Polynomial
 MP.promote_rule(::Type{Term{C,M} where {C}}, ::Type{<:Polynomial}) where {M} = Polynomial
 MP.promote_rule(::Type{Polynomial}, ::Type{<:PolynomialLike}) = Polynomial
