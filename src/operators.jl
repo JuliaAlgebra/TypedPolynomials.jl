@@ -51,32 +51,32 @@ end
 (+)(p1::Polynomial, p2::Polynomial{<:UniformScaling}) = p1 + MP.mapcoefficientsnz(J -> J.λ, p2)
 (+)(p1::Polynomial{<:UniformScaling}, p2::Polynomial) = MP.mapcoefficientsnz(J -> J.λ, p1) + p2
 (+)(p1::Polynomial{<:UniformScaling}, p2::Polynomial{<:UniformScaling}) = MP.mapcoefficientsnz(J -> J.λ, p1) + p2
-function MA.mutable_operate_to!(result::Polynomial, ::typeof(+), p1::Polynomial, p2::Polynomial)
+function MA.operate_to!(result::Polynomial, ::typeof(+), p1::Polynomial, p2::Polynomial)
     if result === p1 || result === p2
-        error("Cannot call `mutable_operate_to!(output, +, p, q)` with `output` equal to `p` or `q`, call `mutable_operate!` instead.")
+        error("Cannot call `operate_to!(output, +, p, q)` with `output` equal to `p` or `q`, call `operate!` instead.")
     end
     jointerms!(result.terms, terms(p1), terms(p2))
     result
 end
-function MA.mutable_operate_to!(result::Polynomial, ::typeof(*), p::Polynomial, t::AbstractTermLike)
+function MA.operate_to!(result::Polynomial, ::typeof(*), p::Polynomial, t::AbstractTermLike)
     if iszero(t)
-        MA.mutable_operate!(zero, result)
+        MA.operate!(zero, result)
     else
         resize!(result.terms, nterms(p))
         for i in eachindex(p.terms)
-            # TODO could use MA.mul_to! for indices that were presents in `result` before the `resize!`.
+            # TODO could use MA.mul_to!! for indices that were presents in `result` before the `resize!`.
             result.terms[i] = p.terms[i] * t
         end
         return result
     end
 end
-function MA.mutable_operate_to!(result::Polynomial, ::typeof(*), t::AbstractTermLike, p::Polynomial)
+function MA.operate_to!(result::Polynomial, ::typeof(*), t::AbstractTermLike, p::Polynomial)
     if iszero(t)
-        MA.mutable_operate!(zero, result)
+        MA.operate!(zero, result)
     else
         resize!(result.terms, nterms(p))
         for i in eachindex(p.terms)
-            # TODO could use MA.mul_to! for indices that were presents in `result` before the `resize!`.
+            # TODO could use MA.mul_to!! for indices that were presents in `result` before the `resize!`.
             result.terms[i] = t * p.terms[i]
         end
         return result
@@ -87,7 +87,7 @@ end
 (-)(p1::Polynomial{<:UniformScaling}, p2::Polynomial) = MP.mapcoefficientsnz(J -> J.λ, p1) - p2
 (-)(p1::Polynomial{<:UniformScaling}, p2::Polynomial{<:UniformScaling}) = MP.mapcoefficientsnz(J -> J.λ, p1) - p2
 
-function MA.mutable_operate!(op::Union{typeof(+), typeof(-)}, p::Polynomial{T}, q::Polynomial) where T
+function MA.operate!(op::Union{typeof(+), typeof(-)}, p::Polynomial{T}, q::Polynomial) where T
     get1(i) = p.terms[i]
     function get2(i)
         t = q.terms[i]
@@ -97,12 +97,12 @@ function MA.mutable_operate!(op::Union{typeof(+), typeof(-)}, p::Polynomial{T}, 
     push(t::Term) = push!(p.terms, t)
     compare_monomials(t::Term, j::Int) = grlex(q.terms[j].monomial, t.monomial)
     compare_monomials(i::Int, j::Int) = compare_monomials(get1(i), j)
-    combine(i::Int, j::Int) = p.terms[i] = Term(MA.operate!(op, p.terms[i].coefficient, q.terms[j].coefficient), p.terms[i].monomial)
-    combine(t::Term, j::Int) = Term(MA.operate!(op, t.coefficient, q.terms[j].coefficient), t.monomial)
+    combine(i::Int, j::Int) = p.terms[i] = Term(MA.operate!!(op, p.terms[i].coefficient, q.terms[j].coefficient), p.terms[i].monomial)
+    combine(t::Term, j::Int) = Term(MA.operate!!(op, t.coefficient, q.terms[j].coefficient), t.monomial)
     resize(n) = resize!(p.terms, n)
     # We can modify the coefficient since it's the result of `combine`.
-    keep(t::Term) = !MA.iszero!(t.coefficient)
-    keep(i::Int) = !MA.iszero!(p.terms[i].coefficient)
+    keep(t::Term) = !MA.iszero!!(t.coefficient)
+    keep(i::Int) = !MA.iszero!!(p.terms[i].coefficient)
     MP.polynomial_merge!(
         nterms(p), nterms(q), get1, get2, set, push,
         compare_monomials, combine, keep, resize
@@ -138,27 +138,27 @@ function MP.mapexponents!(op::F, m1::Monomial, m2::Monomial) where {F<:Function}
     return MP.mapexponents(op, m1, m2)
 end
 
-function MA.mutable_operate_to!(output::Polynomial, ::typeof(*), p::Polynomial, q::Polynomial)
+function MA.operate_to!(output::Polynomial, ::typeof(*), p::Polynomial, q::Polynomial)
     empty!(output.terms)
     MP.mul_to_terms!(output.terms, p, q)
     sort!(output.terms, lt=(>))
     MP.uniqterms!(output.terms)
     return output
 end
-function MA.mutable_operate!(::typeof(*), p::Polynomial, q::Polynomial)
-    return MA.mutable_operate_to!(p, *, MA.mutable_copy(p), q)
+function MA.operate!(::typeof(*), p::Polynomial, q::Polynomial)
+    return MA.operate_to!(p, *, MA.mutable_copy(p), q)
 end
 
-function MA.mutable_operate!(::typeof(zero), p::Polynomial)
+function MA.operate!(::typeof(zero), p::Polynomial)
     empty!(p.terms)
     return p
 end
-function MA.mutable_operate!(::typeof(one), p::Polynomial{T}) where T
+function MA.operate!(::typeof(one), p::Polynomial{T}) where T
     if isempty(p.terms)
         push!(p.terms, constantterm(one(T), p))
     else
         t = p.terms[1]
-        p.terms[1] = Term(MA.one!(coefficient(t)), constantmonomial(t))
+        p.terms[1] = Term(MA.one!!(coefficient(t)), constantmonomial(t))
         resize!(p.terms, 1)
     end
     return p
@@ -166,8 +166,8 @@ end
 
 # The exponents are stored in a tuple, this is not mutable.
 # We could remove these methods since it is the default.
-MA.mutability(::Type{<:Monomial}) = MA.NotMutable()
-MA.mutability(::Type{<:Term}) = MA.NotMutable()
+MA.mutability(::Type{<:Monomial}) = MA.IsNotMutable()
+MA.mutability(::Type{<:Term}) = MA.IsNotMutable()
 # The polynomials can be mutated.
 MA.mutability(::Type{<:Polynomial}) = MA.IsMutable()
 
@@ -202,7 +202,7 @@ function MP.mapcoefficientsnz_to!(output::Polynomial, f::Function, p::AbstractPo
     return MP.mapcoefficientsnz_to!(output, f, polynomial(p))
 end
 
-function MA.mutable_operate!(::typeof(MP.removeleadingterm), p::Polynomial)
+function MA.operate!(::typeof(MP.removeleadingterm), p::Polynomial)
     deleteat!(p.terms, 1)
     return p
 end
