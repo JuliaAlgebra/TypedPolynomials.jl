@@ -190,16 +190,39 @@ adjoint(m::Monomial) = m
 adjoint(t::Term) = Term(adjoint(coefficient(t)), monomial(t))
 adjoint(x::Polynomial) = Polynomial(adjoint.(terms(x)))
 
-function MP.mapcoefficientsnz_to!(output::Polynomial, f::Function, p::Polynomial)
+function MP.mapcoefficients(f::Function, p::Polynomial; nonzero = false)
+    terms = map(p.terms) do term
+        MP.mapcoefficients(f, term)
+    end
+    if !nonzero
+        filter!(!iszero, terms)
+    end
+    return Polynomial(terms)
+end
+function MP.mapcoefficients!(f::Function, p::Polynomial; nonzero = false)
+    for i in eachindex(p.terms)
+        t = p.terms[i]
+        p.terms[i] = Term(f(coefficient(t)), monomial(t))
+    end
+    if !nonzero
+        filter!(!iszero, p.terms)
+    end
+    return p
+end
+
+function MP.mapcoefficients_to!(output::Polynomial, f::Function, p::Polynomial; nonzero = false)
     resize!(output.terms, nterms(p))
     for i in eachindex(p.terms)
         t = p.terms[i]
         output.terms[i] = Term(f(coefficient(t)), monomial(t))
     end
+    if !nonzero
+        filter!(!iszero, output.terms)
+    end
     return output
 end
-function MP.mapcoefficientsnz_to!(output::Polynomial, f::Function, p::AbstractPolynomialLike)
-    return MP.mapcoefficientsnz_to!(output, f, polynomial(p))
+function MP.mapcoefficients_to!(output::Polynomial, f::Function, p::AbstractPolynomialLike; nonzero = false)
+    return MP.mapcoefficients_to!(output, f, polynomial(p); nonzero = false)
 end
 
 function MA.operate!(::typeof(MP.removeleadingterm), p::Polynomial)
