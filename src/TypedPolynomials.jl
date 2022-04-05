@@ -24,9 +24,6 @@ export @polyvar,
        differentiate,
        subs
 
-include("sequences.jl")
-import .Sequences: shortest_common_supersequence, mergesorted
-
 include("types.jl")
 include("operators.jl")
 include("substitution.jl")
