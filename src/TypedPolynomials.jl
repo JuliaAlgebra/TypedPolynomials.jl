@@ -6,6 +6,9 @@ const MA = MutableArithmetics
 using Reexport
 @reexport using MultivariatePolynomials
 const MP = MultivariatePolynomials
+const Term = MP.Term
+const Polynomial = MP.Polynomial
+export Term, Polynomial
 
 using MacroTools
 import Base: *, +, -, /, ^, ==,
