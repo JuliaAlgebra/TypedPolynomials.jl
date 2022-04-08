@@ -62,9 +62,12 @@ MP.termtype(::Union{Type{M}}, ::Type{T}) where {M<:Monomial,T} = MP.Term{T,M}
 
 # Use default `MP.Polynomial` with `Vector`
 MP.polynomialtype(::Type{MP.Term{C,M}}) where {C,M<:Monomial} = Polynomial{C,MP.Term{C,M},Vector{MP.Term{C, M}}}
+MP.polynomialtype(::Type{MP.Term{C,M} where C}) where {M<:Monomial} = Polynomial
 
-MP.variables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:Polynomial{C,Term{C,M}}}}) where {C,M} = MP.variables(M)
-MP.nvariables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:Polynomial{C,Term{C,M}}}}) where {C,M} = MP.nvariables(M)
+MP.variables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:Polynomial{C,Term{C,M}}}}) where {C,M<:Monomial} = MP.variables(M)
+MP.nvariables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:Polynomial{C,Term{C,M}}}}) where {C,M<:Monomial} = MP.nvariables(M)
+MP.variables(::Union{AbstractVector{PT},Type{<:AbstractVector{PT}}}) where {C,M<:Monomial,PT<:Union{MonomialLike,Term{C,M},Polynomial{C,Term{C,M}}}} = variables(PT)
+MP.nvariables(::Union{AbstractVector{PT},Type{<:AbstractVector{PT}}}) where {C,M<:Monomial,PT<:Union{MonomialLike,Term{C,M},Polynomial{C,Term{C,M}}}} = nvariables(PT)
 
 # Based on fillZfordeg!() from MultivariatePolynomials.jl by Benoit Legat
 # https://github.com/blegat/MultivariatePolynomials.jl/blob/d85ad85de413afa20fc8f5354c980387218ced2c/src/mono.jl#L186-L259
