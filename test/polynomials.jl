@@ -139,7 +139,7 @@ end
     @testset "polynomials" begin
         p = @inferred x + 1
         @test isa(p, Polynomial)
-        @test p.terms[1] == term(x)
+        @test p.terms[2] == term(x)
         @test variables(p) == (x,)
 
         @test @inferred(zero(p)) == @inferred(zero(typeof(p)))
@@ -163,13 +163,14 @@ end
         @test nvariables(p) == 1
 
         p = @inferred (1 + x) + (y + 2)
-        @test coefficient(terms(p)[3]) == 3
-        @test exponents(terms(p)[3]) == (0, 0)
+        @show terms(p)
+        @test coefficient(terms(p)[1]) == 3
+        @test exponents(terms(p)[1]) == (0, 0)
         @test variables(p) == (x, y)
         @test coefficient(terms(p)[2]) == 1
         @test exponents(terms(p)[2]) == (0, 1)
-        @test coefficient(terms(p)[1]) == 1
-        @test exponents(terms(p)[1]) == (1, 0)
+        @test coefficient(terms(p)[3]) == 1
+        @test exponents(terms(p)[3]) == (1, 0)
 
         @test mindegree(p) == 0
         @test maxdegree(p) == 1
@@ -178,8 +179,8 @@ end
 
         p = @inferred x^2 + y + x * x + 3 * x * y + x * y^2
         @test length(terms(p)) == 4
-        @test coefficient.(terms(p)) == [1, 2, 3, 1]
-        @test exponents.(terms(p)) == [(1, 2), (2, 0), (1, 1), (0, 1)]
+        @test coefficient.(terms(p)) == [1, 3, 2, 1]
+        @test exponents.(terms(p)) == [(0, 1), (1, 1), (2, 0), (1, 2)]
 
         @test mindegree(p) == 1
         @test maxdegree(p) == 3
