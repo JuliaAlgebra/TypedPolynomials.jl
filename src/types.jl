@@ -49,7 +49,7 @@ MP.exponent(m::Monomial, i::Integer) = m.exponents[i]
 _exponent(v::V, p1::Tuple{V, Integer}, p2...) where {V <: Variable} = p1[2]
 _exponent(v::Variable, p1::Tuple{Variable, Integer}, p2...) = _exponent(v, p2...)
 _exponent(v::Variable) = 0
-MP.exponent(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
+MP.degree(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
 
 const MonomialLike = Union{Variable, Monomial}
 
