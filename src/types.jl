@@ -74,21 +74,21 @@ MP.nvariables(::Union{AbstractVector{PT},Type{<:AbstractVector{PT}}}) where {C,M
 function monomial_powers(::Val{N}, degree) where N
     result = Vector{NTuple{N, Int}}()
     powers = zeros(Int, N)
-    powers[1] = degree
+    powers[end] = degree
     while true
         push!(result, NTuple{N, Int}(powers))
-        if powers[end] == degree
+        if powers[1] == degree
             break
         end
         total = 1
-        for j in (N - 1):-1:1
+        for j in 2:N
             if powers[j] != 0
                 powers[j] -= 1
-                powers[j+1] += total
+                powers[j-1] += total
                 break
             else
-                total += powers[j+1]
-                powers[j+1] = 0
+                total += powers[j-1]
+                powers[j-1] = 0
             end
         end
     end
@@ -106,7 +106,7 @@ function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray, f
         # Otherwise, the following error is thrown: "ArgumentError: argument to Flatten must contain at least one iterator"
         Monomial{vars, length(vars)}[]
     else
-        Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees, rev=true)
+        Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees)
             for p in monomial_powers(Val{length(vars)}(), d) if filter(Monomial{vars}(p))]
     end
 end
