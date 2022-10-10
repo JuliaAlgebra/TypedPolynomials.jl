@@ -35,7 +35,7 @@ end
         @test x != y
         @test x != Monomial(y)
         @test x != 1y
-        @test x != nothing
+        @test x !== nothing
         @test x != 0
 
         @test x > y

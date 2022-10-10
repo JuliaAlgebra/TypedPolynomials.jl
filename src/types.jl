@@ -80,17 +80,12 @@ function monomial_powers(::Val{N}, degree) where N
         if powers[1] == degree
             break
         end
-        total = 1
-        for j in 2:N
-            if powers[j] != 0
-                powers[j] -= 1
-                powers[j-1] += total
-                break
-            else
-                total += powers[j-1]
-                powers[j-1] = 0
-            end
-        end
+        i = findfirst(i -> !iszero(powers[i]), N:-1:2)
+        j = (N:-1:2)[i]
+        p = powers[j]
+        powers[j] = 0
+        powers[end] = p - 1
+        powers[j-1] += 1
     end
     result
 end
