@@ -55,7 +55,7 @@ const Mod = TypedPolynomials
     include("promotion.jl")
     include("polynomials.jl")
     include("substitution.jl")
-    include("sequences.jl")
+    # include("sequences.jl")
 end
 
 #@testset "MultivariatePolynomials interface tests" begin
