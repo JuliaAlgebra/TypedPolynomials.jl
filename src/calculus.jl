@@ -37,3 +37,35 @@ function _diff(m::Monomial{Vars},
         end
     end, Val{N}()))
 end
+
+MP.antidifferentiate(v1::V, v2::V) where {V <: Variable} = v1*v2/2
+MP.antidifferentiate(v1::Variable, v2::Variable) = v1 * v2
+
+function MP.antidifferentiate(m::Monomial{Vars}, v::V) where {Vars, V <: Variable}
+    if inmonomial(v, Vars...)
+        return _antidiff(m, v)
+    else
+        # Insert `v` in the monomial
+        return m * v
+    end
+end
+
+_antidiff(m::Monomial, v::Variable) = _antidiff(m, exponents(m), v)
+
+function _antidiff(m::Monomial{Vars},
+               exponents::NTuple{N, Integer},
+               v::Variable) where {Vars, N}
+    vi = find_variable_index(v, Vars)
+    new_m = Monomial{Vars,N}(
+        ntuple(i -> begin
+                if i == vi
+                    (exponents[i] == 0) ? 1 : exponents[i] + 1
+                else
+                    exponents[i]
+                end
+            end,
+            Val{N}()
+        )
+    )
+    return 1 / (exponents[vi] + 1) * new_m
+end

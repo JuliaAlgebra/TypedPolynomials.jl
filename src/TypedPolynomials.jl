@@ -21,6 +21,7 @@ export @polyvar,
        variables,
        terms,
        differentiate,
+       antidifferentiate,
        subs
 
 include("sequences.jl")
