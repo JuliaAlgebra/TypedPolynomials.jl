@@ -29,13 +29,13 @@ end
 @testset "antiderivatives" begin
     @polyvar x y z
 
-    @test @inferred(antidifferentiate(x, x)) == x^2/2
+    @test @inferred(antidifferentiate(x, x)) == 1//2*x^2
     @test @inferred(antidifferentiate(x, y)) == x*y
     @test @inferred(antidifferentiate(y, x)) == x*y
-    @test @inferred(antidifferentiate(x^2, x)) == x^3/3
+    @test @inferred(antidifferentiate(x^2, x)) == 1//3*x^3
     @test @inferred(antidifferentiate(x^2, y)) == x^2*y
-    @test @inferred(antidifferentiate(x^2 * y^3, y)) == x^2 * y^4/4
-    @test @inferred(antidifferentiate(x^2 * y^3, x)) == x^3 * y^3/3
+    @test @inferred(antidifferentiate(x^2 * y^3, y)) == x^2 * 1//4*y^4
+    @test @inferred(antidifferentiate(x^2 * y^3, x)) == x^3 * 1//3*y^3
     @test @inferred(antidifferentiate(x^2 * y^3, z)) == x^2 * y^3 * z
     @test @inferred(antidifferentiate(3x^2, x)) == x^3
     @test @inferred(antidifferentiate(3x^2 * y^0, y)) == 3x^2 * y

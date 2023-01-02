@@ -52,7 +52,7 @@ end
 
 _antidiff(m::Monomial, v::Variable) = _antidiff(m, exponents(m), v)
 
-function _antidiff(m::Monomial{Vars},
+function _antidiff(::Monomial{Vars},
                exponents::NTuple{N, Integer},
                v::Variable) where {Vars, N}
     vi = find_variable_index(v, Vars)
@@ -67,5 +67,8 @@ function _antidiff(m::Monomial{Vars},
             Val{N}()
         )
     )
-    return 1 / (exponents[vi] + 1) * new_m
+    # Remark : as `exponents` are imposed to be `Integer` according to
+    # the method signature, we can use the Rational{Int} type here for the
+    # coefficient
+    return (1 // (exponents[vi] + 1)) * new_m
 end
