@@ -90,7 +90,7 @@ function monomial_powers(::Val{N}, degree) where N
     result
 end
 
-function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degree::Integer, filter::Function=m->true)
+function MP.monomials(vars::Tuple{Vararg{Variable}}, degree::Integer, filter::Function=m->true)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     Monomial{vars, length(vars)}[Monomial{vars}(p) for p in monomial_powers(Val{length(vars)}(), degree) if filter(Monomial{vars}(p))]
 end
