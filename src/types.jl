@@ -95,7 +95,7 @@ function MP.monomials(vars::Tuple{Vararg{Variable}}, degree::Integer, filter::Fu
     Monomial{vars, length(vars)}[Monomial{vars}(p) for p in monomial_powers(Val{length(vars)}(), degree) if filter(Monomial{vars}(p))]
 end
 
-function MP.monomials(vars::Tuple{Vararg{<:Variable}}, degrees::AbstractArray, filter::Function=m->true)
+function MP.monomials(vars::Tuple{Vararg{Variable}}, degrees::AbstractArray, filter::Function=m->true)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     if isempty(degrees)
         # Otherwise, the following error is thrown: "ArgumentError: argument to Flatten must contain at least one iterator"
