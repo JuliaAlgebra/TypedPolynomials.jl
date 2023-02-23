@@ -163,7 +163,6 @@ end
         @test nvariables(p) == 1
 
         p = @inferred (1 + x) + (y + 2)
-        @show terms(p)
         @test coefficient(terms(p)[1]) == 3
         @test exponents(terms(p)[1]) == (0, 0)
         @test variables(p) == (x, y)
