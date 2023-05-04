@@ -35,7 +35,7 @@ end
         @test x != y
         @test x != Monomial(y)
         @test x != 1y
-        @test x != nothing
+        @test x !== nothing
         @test x != 0
 
         @test x > y
@@ -139,7 +139,7 @@ end
     @testset "polynomials" begin
         p = @inferred x + 1
         @test isa(p, Polynomial)
-        @test p.terms[1] == Term(x)
+        @test p.terms[2] == term(x)
         @test variables(p) == (x,)
 
         @test @inferred(zero(p)) == @inferred(zero(typeof(p)))
@@ -163,13 +163,13 @@ end
         @test nvariables(p) == 1
 
         p = @inferred (1 + x) + (y + 2)
-        @test coefficient(terms(p)[3]) == 3
-        @test exponents(terms(p)[3]) == (0, 0)
+        @test coefficient(terms(p)[1]) == 3
+        @test exponents(terms(p)[1]) == (0, 0)
         @test variables(p) == (x, y)
         @test coefficient(terms(p)[2]) == 1
         @test exponents(terms(p)[2]) == (0, 1)
-        @test coefficient(terms(p)[1]) == 1
-        @test exponents(terms(p)[1]) == (1, 0)
+        @test coefficient(terms(p)[3]) == 1
+        @test exponents(terms(p)[3]) == (1, 0)
 
         @test mindegree(p) == 0
         @test maxdegree(p) == 1
@@ -178,8 +178,8 @@ end
 
         p = @inferred x^2 + y + x * x + 3 * x * y + x * y^2
         @test length(terms(p)) == 4
-        @test coefficient.(terms(p)) == [1, 2, 3, 1]
-        @test exponents.(terms(p)) == [(1, 2), (2, 0), (1, 1), (0, 1)]
+        @test coefficient.(terms(p)) == [1, 3, 2, 1]
+        @test exponents.(terms(p)) == [(0, 1), (1, 1), (2, 0), (1, 2)]
 
         @test mindegree(p) == 1
         @test maxdegree(p) == 3
@@ -193,10 +193,10 @@ end
         @test (2.0 + x) * (y + 1) == 2 + 2y + x + x * y
         @test (x + 1) - 1 == x
 
-        @test @inferred(Polynomial(x) * x^2) == x^3
+        @test @inferred(polynomial(x) * x^2) == x^3
         @test @inferred((x + y) * x^2) == @inferred(x^3 + x^2 * y)
 
-        @test @inferred(Polynomial([x, y])) == y + x
+        @test @inferred(polynomial([x, y])) == y + x
     end
 
     @testset "equality" begin
@@ -216,10 +216,10 @@ end
         @test nothing != 3x
         @test nothing != x + 1
 
-        @test Polynomial([1, 0 * x, y]) == Polynomial([1, y])
-        @test Polynomial([1, 1 * x, y]) != Polynomial([1, y])
-        @test Polynomial([1, y]) == Polynomial([1, 0 * x, y])
-        @test Polynomial([1, y]) != Polynomial([1, 1 * x, y])
+        @test polynomial([1, 0 * x, y]) == polynomial([1, y])
+        @test polynomial([1, 1 * x, y]) != polynomial([1, y])
+        @test polynomial([1, y]) == polynomial([1, 0 * x, y])
+        @test polynomial([1, y]) != polynomial([1, 1 * x, y])
     end
 
     @testset "ordering" begin
@@ -262,11 +262,11 @@ end
 
         @test (x)' == x
         @test (x^2)' == x^2
-        @test (Term([1 2; 3 4], x))' == Term([1 2; 3 4]', x)
+        @test (term([1 2; 3 4], x))' == term([1 2; 3 4]', x)
 
         @test @inferred(dot(1, x)) == 1x
         @test @inferred(dot(x, 5)) == 5x
-        @test @inferred(dot(Term([1, 2], x), Term([3, 4], y))) == [1, 2]' * [3, 4] * x * y
+        @test @inferred(dot(term([1, 2], x), term([3, 4], y))) == [1, 2]' * [3, 4] * x * y
     end
 
     @testset "linear algebra with tuples" begin

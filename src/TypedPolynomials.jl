@@ -3,8 +3,12 @@ module TypedPolynomials
 import MutableArithmetics
 const MA = MutableArithmetics
 
-using MultivariatePolynomials
+using Reexport
+@reexport using MultivariatePolynomials
 const MP = MultivariatePolynomials
+const Term = MP.Term
+const Polynomial = MP.Polynomial
+export Term, Polynomial
 
 using MacroTools
 import Base: *, +, -, /, ^, ==,
@@ -23,9 +27,6 @@ export @polyvar,
        differentiate,
        antidifferentiate,
        subs
-
-include("sequences.jl")
-import .Sequences: shortest_common_supersequence, mergesorted
 
 include("types.jl")
 include("operators.jl")
