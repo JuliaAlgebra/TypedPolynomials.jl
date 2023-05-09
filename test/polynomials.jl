@@ -133,7 +133,7 @@ end
 
         @test -(2x^2 * y ) == -1 * (2y * x^2)
 
-        @test TypedPolynomials.monomialtype(5 * x * y) == Monomial{(x, y), 2}
+        @test TypedPolynomials.monomial_type(5 * x * y) == Monomial{(x, y), 2}
     end
 
     @testset "polynomials" begin

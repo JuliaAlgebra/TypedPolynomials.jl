@@ -42,16 +42,16 @@ function MP.divides(m1::Monomial{V, N}, m2::Monomial{V, N}) where {V, N}
     reduce((d, exp) -> d && (exp[1] <= exp[2]), zip(m1.exponents, m2.exponents), init=true)
 end
 MP.divides(m1::Monomial, m2::Monomial) = divides(promote(m1, m2)...)
-function MP.mapexponents(op, m1::M, m2::M) where M<:Monomial
+function MP.map_exponents(op, m1::M, m2::M) where M<:Monomial
     M(map(op, m1.exponents, m2.exponents))
 end
-MP.mapexponents(op, m1::Monomial, m2::Monomial) = mapexponents(op, promote(m1, m2)...)
+MP.map_exponents(op, m1::Monomial, m2::Monomial) = map_exponents(op, promote(m1, m2)...)
 # We cannot mutate `m1` as tuples are immutables.
-function MP.mapexponents_to!(::Monomial, op::F, m1::Monomial, m2::Monomial) where {F<:Function}
-    return MP.mapexponents(op, m1, m2)
+function MP.map_exponents_to!(::Monomial, op::F, m1::Monomial, m2::Monomial) where {F<:Function}
+    return MP.map_exponents(op, m1, m2)
 end
-function MP.mapexponents!(op::F, m1::Monomial, m2::Monomial) where {F<:Function}
-    return MP.mapexponents(op, m1, m2)
+function MP.map_exponents!(op::F, m1::Monomial, m2::Monomial) where {F<:Function}
+    return MP.map_exponents(op, m1, m2)
 end
 
 # The exponents are stored in a tuple, this is not mutable.

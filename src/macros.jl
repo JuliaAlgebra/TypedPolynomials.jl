@@ -1,14 +1,14 @@
-_varconstructor(name::Symbol) = :(Variable{$(esc(Expr(:quote, name)))}())
-_makevar(name::Symbol) = :($(esc(name)) = $(_varconstructor(name)))
+_new_variable(name::Symbol) = :(Variable{$(esc(Expr(:quote, name)))}())
+_assign_new_variable(name::Symbol) = :($(esc(name)) = $(_new_variable(name)))
 
 function _split(expr::Expr)
     @capture(expr, var_Symbol[lb_Int:ub_Int]) || error("Unsupported syntax. Expected x[a:b] for literal integers a and b")
     var, lb, ub
 end
 
-function _makevar(expr::Expr)
+function _assign_new_variable(expr::Expr)
     var, lb, ub = _split(expr)
-    :($(esc(var)) = $(Expr(:tuple, [_varconstructor(Symbol("$var[$i]")) for i in lb:ub]...)))
+    :($(esc(var)) = $(Expr(:tuple, [_new_variable(Symbol("$var[$i]")) for i in lb:ub]...)))
 end
 
 _return_name(s::Symbol) = esc(s)
@@ -45,9 +45,9 @@ You can also assign the results of the macro to a tuple:
 
 """
 macro polyvar(names...)
-    Expr(:block, _makevar.(names)..., Expr(:tuple, _return_name.(names)...))
+    Expr(:block, _assign_new_variable.(names)..., Expr(:tuple, _return_name.(names)...))
 end
 
 macro polyvar(name)
-    Expr(:block, _makevar(name), _return_name(name))
+    Expr(:block, _assign_new_variable(name), _return_name(name))
 end
