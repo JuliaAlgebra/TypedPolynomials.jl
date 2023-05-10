@@ -34,15 +34,15 @@ struct Monomial{V, N} <: AbstractMonomial
     Monomial{V}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V}(NTuple{length(V), Int}(exponents))
 end
 
-Monomial(v::Variable) = monomialtype(v)((1,))
+Monomial(v::Variable) = monomial_type(v)((1,))
 MP.monomial(v::Variable) = Monomial(v)
 
 MP.variables(::Type{<:Monomial{V}}) where {V} = V
 MP.variables(m::Monomial) = variables(typeof(m))
 MP.nvariables(::Type{<:Monomial{V}}) where {V} = length(V)
 MP.nvariables(m::Monomial) = nvariables(typeof(m))
-MP.monomialtype(::Type{V}) where V<:Variable = monomialtype(V())
-MP.monomialtype(v::Variable) = Monomial{(v,), 1}
+MP.monomial_type(::Type{V}) where V<:Variable = monomial_type(V())
+MP.monomial_type(v::Variable) = Monomial{(v,), 1}
 
 MP.exponents(m::Monomial) = m.exponents
 MP.exponent(m::Monomial, i::Integer) = m.exponents[i]
@@ -53,16 +53,16 @@ MP.degree(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
 
 const MonomialLike = Union{Variable, Monomial}
 
-MP.constantmonomial(M::Union{<:MonomialLike,Type{<:MonomialLike}}) = Monomial{variables(M), nvariables(M)}()
+MP.constant_monomial(M::Union{<:MonomialLike,Type{<:MonomialLike}}) = Monomial{variables(M), nvariables(M)}()
 MP.variable_union_type(::Type{<:MonomialLike}) = Variable
-MP.similarvariable(::Type{Variable}, ::Type{Val{N}}) where N = Variable{N}()
+MP.similar_variable(::Type{Variable}, ::Type{Val{N}}) where N = Variable{N}()
 
 # Use default `MP.Term`
-MP.termtype(::Union{Type{M}}, ::Type{T}) where {M<:Monomial,T} = MP.Term{T,M}
+MP.term_type(::Union{Type{M}}, ::Type{T}) where {M<:Monomial,T} = MP.Term{T,M}
 
 # Use default `MP.Polynomial` with `Vector`
-MP.polynomialtype(::Type{MP.Term{C,M}}) where {C,M<:Monomial} = Polynomial{C,MP.Term{C,M},Vector{MP.Term{C, M}}}
-MP.polynomialtype(::Type{MP.Term{C,M} where C}) where {M<:Monomial} = Polynomial
+MP.polynomial_type(::Type{MP.Term{C,M}}) where {C,M<:Monomial} = Polynomial{C,MP.Term{C,M},Vector{MP.Term{C, M}}}
+MP.polynomial_type(::Type{MP.Term{C,M} where C}) where {M<:Monomial} = Polynomial
 
 MP.variables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:Polynomial{C,Term{C,M}}}}) where {C,M<:Monomial} = MP.variables(M)
 MP.nvariables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:Polynomial{C,Term{C,M}}}}) where {C,M<:Monomial} = MP.nvariables(M)
