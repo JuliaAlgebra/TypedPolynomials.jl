@@ -7,7 +7,7 @@
 end
 
 # We should be able to get rid of this method as the fallback just
-# redirects to `promote_rule(monomialtype(V1), monomialtype(V2))`
+# redirects to `promote_rule(monomial_type(V1), monomial_type(V2))`
 # but we should check first the implications with this `@pure` thing.
 function promote_rule(::Type{V1}, ::Type{V2}) where {V1 <: Variable, V2 <: Variable}
     if V1 < V2
