@@ -11,22 +11,23 @@ function Base.isless(m1::Monomial{V}, m2::Monomial{V}) where {V}
         return exponents(m1) < exponents(m2)
     end
 end
-function MP.grlex(m1::Monomial{V}, m2::Monomial{V}) where {V}
-    d1 = degree(m1)
-    d2 = degree(m2)
-    if d1 != d2
-        return d1 - d2
+
+function MP.compare(m1::Monomial{V}, m2::Monomial{V}, ::Type{MP.LexOrder}) where {V}
+    if exponents(m1) == exponents(m2)
+        return 0
+    elseif exponents(m1) < exponents(m2)
+        return -1
     else
-        if exponents(m1) == exponents(m2)
-            return 0
-        elseif exponents(m1) < exponents(m2)
-            return -1
-        else
-            return 1
-        end
+        return 1
     end
 end
-MP.grlex(m1::Monomial, m2::Monomial) = MP.grlex(promote(m1, m2)...)
+
+MP.compare(m1::Monomial, m2::Monomial, ::Type{MP.LexOrder}) = MP.compare(promote(m1, m2)..., MP.LexOrder)
+
+function MP.compare(m1::Monomial, m2::Monomial)
+    return MP.compare(m1, m2, MP.Graded{MP.LexOrder})
+end
+
 
 (==)(::Variable{N}, ::Variable{N}) where {N} = true
 (==)(::Variable, ::Variable) = false
