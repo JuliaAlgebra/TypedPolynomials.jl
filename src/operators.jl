@@ -11,22 +11,32 @@ function Base.isless(m1::Monomial{V}, m2::Monomial{V}) where {V}
         return exponents(m1) < exponents(m2)
     end
 end
-function MP.grlex(m1::Monomial{V}, m2::Monomial{V}) where {V}
-    d1 = degree(m1)
-    d2 = degree(m2)
-    if d1 != d2
-        return d1 - d2
+
+function _compare(a::Tuple, b::Tuple, ::Type{MP.LexOrder})
+    if a == b
+        return 0
+    elseif a < b
+        return -1
     else
-        if exponents(m1) == exponents(m2)
-            return 0
-        elseif exponents(m1) < exponents(m2)
-            return -1
-        else
-            return 1
-        end
+        return 1
     end
 end
-MP.grlex(m1::Monomial, m2::Monomial) = MP.grlex(promote(m1, m2)...)
+function _compare(a::Tuple, b::Tuple, ::Type{MP.InverseLexOrder})
+    return _compare(reverse(a), reverse(b), MP.LexOrder)
+end
+
+function MP.compare(m1::Monomial{V}, m2::Monomial{V}, ::Type{O}) where {V,O<:Union{MP.LexOrder,MP.InverseLexOrder}}
+    return _compare(MP.exponents(m1), MP.exponents(m2), O)
+end
+
+function MP.compare(m1::Monomial, m2::Monomial, ::Type{O}) where {O<:Union{MP.LexOrder,MP.InverseLexOrder}}
+    return MP.compare(promote(m1, m2)..., O)
+end
+
+function MP.compare(m1::Monomial, m2::Monomial)
+    return MP.compare(m1, m2, MP.Graded{MP.LexOrder})
+end
+
 
 (==)(::Variable{N}, ::Variable{N}) where {N} = true
 (==)(::Variable, ::Variable) = false
