@@ -12,17 +12,26 @@ function Base.isless(m1::Monomial{V}, m2::Monomial{V}) where {V}
     end
 end
 
-function MP.compare(m1::Monomial{V}, m2::Monomial{V}, ::Type{MP.LexOrder}) where {V}
-    if exponents(m1) == exponents(m2)
+function _compare(a::Tuple, b::Tuple, ::Type{MP.LexOrder})
+    if a == b
         return 0
-    elseif exponents(m1) < exponents(m2)
+    elseif a < b
         return -1
     else
         return 1
     end
 end
+function _compare(a::Tuple, b::Tuple, ::Type{MP.InverseLexOrder})
+    return _compare(reverse(a), reverse(b), MP.LexOrder)
+end
 
-MP.compare(m1::Monomial, m2::Monomial, ::Type{MP.LexOrder}) = MP.compare(promote(m1, m2)..., MP.LexOrder)
+function MP.compare(m1::Monomial{V}, m2::Monomial{V}, ::Type{O}) where {V,O<:Union{MP.LexOrder,MP.InverseLexOrder}}
+    return _compare(MP.exponents(m1), MP.exponents(m2), O)
+end
+
+function MP.compare(m1::Monomial, m2::Monomial, ::Type{O}) where {O<:Union{MP.LexOrder,MP.InverseLexOrder}}
+    return MP.compare(promote(m1, m2)..., O)
+end
 
 function MP.compare(m1::Monomial, m2::Monomial)
     return MP.compare(m1, m2, MP.Graded{MP.LexOrder})
