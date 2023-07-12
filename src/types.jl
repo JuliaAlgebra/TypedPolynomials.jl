@@ -69,9 +69,17 @@ MP.nvariables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:P
 MP.variables(::Union{AbstractVector{PT},Type{<:AbstractVector{PT}}}) where {C,M<:Monomial,PT<:Union{MonomialLike,Term{C,M},Polynomial{C,Term{C,M}}}} = variables(PT)
 MP.nvariables(::Union{AbstractVector{PT},Type{<:AbstractVector{PT}}}) where {C,M<:Monomial,PT<:Union{MonomialLike,Term{C,M},Polynomial{C,Term{C,M}}}} = nvariables(PT)
 
+# TODO replace by MP function
+function _error_for_negative_degree(deg)
+    if deg < 0
+        throw(ArgumentError("The degree should be a nonnegative number but the provided degree `$deg` is negative."))
+    end
+end
+
 # Based on fillZfordeg!() from MultivariatePolynomials.jl by Benoit Legat
 # https://github.com/blegat/MultivariatePolynomials.jl/blob/d85ad85de413afa20fc8f5354c980387218ced2c/src/mono.jl#L186-L259
 function monomial_powers(::Val{N}, degree) where N
+    _error_for_negative_degree(degree)
     result = Vector{NTuple{N, Int}}()
     powers = zeros(Int, N)
     powers[end] = degree
