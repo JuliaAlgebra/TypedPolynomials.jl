@@ -1,10 +1,15 @@
-struct Variable{Name} <: AbstractVariable
+"""
+    Variable{Name,M} <: AbstractVariable
+
+Variable of name `Name` and monomial order `M`.
+"""
+struct Variable{Name,M} <: AbstractVariable
 end
 
-MP.name(::Type{Variable{N}}) where {N} = N
+MP.name(::Type{<:Variable{N}}) where {N} = N
 MP.name(v::Variable) = name(typeof(v))
 MP.name_base_indices(v::Variable) = name_base_indices(typeof(v))
-function MP.name_base_indices(v::Type{Variable{N}}) where N
+function MP.name_base_indices(::Type{<:Variable{N}}) where N
     name = string(N)
     splits = split(string(N), r"[\[,\]]\s*", keepempty=false)
     if length(splits) == 1
@@ -23,15 +28,15 @@ checksorted(x::Tuple{Any}, cmp) = true
 checksorted(x::Tuple{}, cmp) = true
 checksorted(x::Tuple, cmp) = cmp(x[1], x[2]) && checksorted(Base.tail(x), cmp)
 
-struct Monomial{V, N} <: AbstractMonomial
+struct Monomial{V, M, N} <: AbstractMonomial
     exponents::NTuple{N, Int}
 
-    function Monomial{V, N}(exponents::NTuple{N, Int}=ntuple(_ -> 0, Val{N}())) where {V, N}
+    function Monomial{V, M, N}(exponents::NTuple{N, Int}=ntuple(_ -> 0, Val{N}())) where {V, M, N}
         @assert checksorted(V, >)
-        new{V, N}(exponents)
+        new{V, M, N}(exponents)
     end
-    Monomial{V}(exponents::NTuple{N, Integer}=()) where {V, N} = Monomial{V, N}(exponents)
-    Monomial{V}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V}(NTuple{length(V), Int}(exponents))
+    Monomial{V, M}(exponents::NTuple{N, Integer}=()) where {V, N} = Monomial{V, M, N}(exponents)
+    Monomial{V, M}(exponents::AbstractVector{<:Integer}) where {V} = Monomial{V, M}(NTuple{length(V), Int}(exponents))
 end
 
 Monomial(v::Variable) = monomial_type(v)((1,))
@@ -46,8 +51,8 @@ MP.monomial_type(v::Variable) = Monomial{(v,), 1}
 
 MP.exponents(m::Monomial) = m.exponents
 MP.exponent(m::Monomial, i::Integer) = m.exponents[i]
-_exponent(v::V, p1::Tuple{V, Integer}, p2...) where {V <: Variable} = p1[2]
-_exponent(v::Variable, p1::Tuple{Variable, Integer}, p2...) = _exponent(v, p2...)
+_exponent(::V, p1::Tuple{V, Integer}, p2...) where {V <: Variable} = p1[2]
+_exponent(v::Variable, ::Tuple{Variable, Integer}, p2...) = _exponent(v, p2...)
 _exponent(v::Variable) = 0
 MP.degree(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
 
