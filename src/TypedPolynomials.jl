@@ -25,6 +25,7 @@ export @polyvar,
        variables,
        terms,
        differentiate,
+       antidifferentiate,
        subs
 
 include("types.jl")
