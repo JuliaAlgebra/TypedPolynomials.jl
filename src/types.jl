@@ -113,3 +113,5 @@ function MP.monomials(vars::Tuple{Vararg{Variable}}, degrees::AbstractArray, fil
             for p in monomial_powers(Val{length(vars)}(), d) if filter(Monomial{vars}(p))]
     end
 end
+
+MP.promote_variables(a::MonomialLike, b::MonomialLike) = promote(a, b)
