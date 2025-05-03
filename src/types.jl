@@ -114,5 +114,4 @@ function MP.monomials(vars::Tuple{Vararg{Variable}}, degrees::AbstractArray, fil
     end
 end
 
-MP.ordering(::Type{<:MonomialLike}) = MP.Graded{MP.LexOrder}
 MP.promote_variables(a::MonomialLike, b::MonomialLike) = promote(a, b)
