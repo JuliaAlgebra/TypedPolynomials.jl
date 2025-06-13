@@ -76,42 +76,26 @@ function _error_for_negative_degree(deg)
     end
 end
 
-# Based on fillZfordeg!() from MultivariatePolynomials.jl by Benoit Legat
-# https://github.com/blegat/MultivariatePolynomials.jl/blob/d85ad85de413afa20fc8f5354c980387218ced2c/src/mono.jl#L186-L259
-function monomial_powers(::Val{N}, degree) where N
-    _error_for_negative_degree(degree)
-    result = Vector{NTuple{N, Int}}()
-    powers = zeros(Int, N)
-    powers[end] = degree
-    while true
-        push!(result, NTuple{N, Int}(powers))
-        if powers[1] == degree
-            break
-        end
-        i = findfirst(i -> !iszero(powers[i]), N:-1:2)
-        j = (N:-1:2)[i]
-        p = powers[j]
-        powers[j] = 0
-        powers[end] = p - 1
-        powers[j-1] += 1
-    end
-    result
-end
-
 function MP.monomials(vars::Tuple{Vararg{Variable}}, degree::Integer, filter::Function=m->true)
-    checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
-    Monomial{vars, length(vars)}[Monomial{vars}(p) for p in monomial_powers(Val{length(vars)}(), degree) if filter(Monomial{vars}(p))]
+    return MP.monomials(vars, [degree], filter)
 end
 
 function MP.monomials(vars::Tuple{Vararg{Variable}}, degrees::AbstractArray, filter::Function=m->true)
     checksorted(vars, >) || throw(ArgumentError("Variables must be in order"))
     if isempty(degrees)
         # Otherwise, the following error is thrown: "ArgumentError: argument to Flatten must contain at least one iterator"
-        Monomial{vars, length(vars)}[]
-    else
-        Monomial{vars, length(vars)}[Monomial{vars}(p) for d in sort(degrees)
-            for p in monomial_powers(Val{length(vars)}(), d) if filter(Monomial{vars}(p))]
+        return Monomial{vars, length(vars)}[]
     end
+    d = sort(degrees)
+    it = Iterators.Filter(MP.ExponentsIterator{MP.Graded{MP.LexOrder}}(
+        zeros(Int, length(vars));
+        mindegree = minimum(degrees),
+        maxdegree = maximum(degrees),
+    )) do p
+        mono = Monomial{vars}(p)
+        MP.degree(mono) in degs && filter(mono)
+    end
+    return Monomial{vars, length(vars)}[Monomial{vars}(p) for p in it]
 end
 
 MP.promote_variables(a::MonomialLike, b::MonomialLike) = promote(a, b)
