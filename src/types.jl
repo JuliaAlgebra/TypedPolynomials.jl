@@ -86,7 +86,7 @@ function MP.monomials(vars::Tuple{Vararg{Variable}}, degrees::AbstractArray, fil
         # Otherwise, the following error is thrown: "ArgumentError: argument to Flatten must contain at least one iterator"
         return Monomial{vars, length(vars)}[]
     end
-    d = sort(degrees)
+    degs = sort(degrees)
     it = Iterators.Filter(MP.ExponentsIterator{MP.Graded{MP.LexOrder}}(
         zeros(Int, length(vars));
         mindegree = minimum(degrees),
