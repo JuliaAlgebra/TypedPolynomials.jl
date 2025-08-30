@@ -69,13 +69,6 @@ MP.nvariables(::Union{Term{C,M},Type{Term{C,M}},Polynomial{C,Term{C,M}},Type{<:P
 MP.variables(::Union{AbstractVector{PT},Type{<:AbstractVector{PT}}}) where {C,M<:Monomial,PT<:Union{MonomialLike,Term{C,M},Polynomial{C,Term{C,M}}}} = variables(PT)
 MP.nvariables(::Union{AbstractVector{PT},Type{<:AbstractVector{PT}}}) where {C,M<:Monomial,PT<:Union{MonomialLike,Term{C,M},Polynomial{C,Term{C,M}}}} = nvariables(PT)
 
-# TODO replace by MP function
-function _error_for_negative_degree(deg)
-    if deg < 0
-        throw(ArgumentError("The degree should be a nonnegative number but the provided degree `$deg` is negative."))
-    end
-end
-
 function MP.monomials(vars::Tuple{Vararg{Variable}}, degree::Integer, filter::Function=m->true)
     return MP.monomials(vars, [degree], filter)
 end
