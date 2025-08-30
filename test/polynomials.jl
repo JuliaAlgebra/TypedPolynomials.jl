@@ -97,6 +97,10 @@ end
         @test @inferred(Monomial{tuple(), 0}()) == @inferred(x^0)
 
         @test @inferred(Monomial{(x, y)}([1, 2])) == Monomial{(x, y)}((1, 2))
+        @test @inferred(monomial((x, y), (1, 2))) == Monomial{(x, y)}((1, 2))
+        @test_throws AssertionError monomial((x,), (1, 2))
+        @test_throws AssertionError monomial((y, x), (1, 2))
+        @test_throws AssertionError monomial((x, x), (1, 2))
     end
 
     @testset "terms" begin

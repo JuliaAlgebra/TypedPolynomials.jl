@@ -43,6 +43,10 @@ MP.nvariables(::Type{<:Monomial{V}}) where {V} = length(V)
 MP.nvariables(m::Monomial) = nvariables(typeof(m))
 MP.monomial_type(::Type{V}) where V<:Variable = monomial_type(V())
 MP.monomial_type(v::Variable) = Monomial{(v,), 1}
+function MP.monomial(vars::Tuple, exps::NTuple{N,Int}) where {N}
+    @assert length(vars) == length(exps)
+    return Monomial{vars,N}(exps)
+end
 
 MP.exponents(m::Monomial) = m.exponents
 MP.exponent(m::Monomial, i::Integer) = m.exponents[i]
