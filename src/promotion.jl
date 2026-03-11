@@ -50,3 +50,12 @@ end
     vars = merge(V1, V2...)
     Monomial{vars, length(vars)}
 end
+
+function MP.monomial_type(vars::Tuple{V,Vararg{Variable}}) where {V<:Variable}
+    sorted = merge((first(vars),), Base.tail(vars)...)
+    return Monomial{sorted, length(sorted)}
+end
+
+function MP.monomial_type(::Type{T}) where {T<:Tuple{Variable,Vararg{Variable}}}
+    return monomial_type(tuple((V() for V in fieldtypes(T))...))
+end
