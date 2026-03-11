@@ -41,6 +41,23 @@
     @test typeof(@inferred(promote(x, Monomial{tuple(), 0}()))) == NTuple{2, Monomial{(x,), 1}}
 end
 
+@testset "monomial_type for variable tuples" begin
+    @polyvar x y z
+
+    @test @inferred(monomial_type((x,))) == Monomial{(x,), 1}
+    @test @inferred(monomial_type((x,))) == monomial_type(x)
+    @test @inferred(monomial_type((x, y))) == Monomial{(x, y), 2}
+    @test @inferred(monomial_type((x, y))) == typeof(x * y)
+    @test @inferred(monomial_type((y, x))) == Monomial{(x, y), 2}
+    @test @inferred(monomial_type((x, y, z))) == Monomial{(x, y, z), 3}
+    @test @inferred(monomial_type((x, y, z))) == typeof(x * y * z)
+    @test @inferred(monomial_type((z, x, y))) == Monomial{(x, y, z), 3}
+
+    @test @inferred(monomial_type(typeof((x,)))) == Monomial{(x,), 1}
+    @test @inferred(monomial_type(typeof((x, y)))) == Monomial{(x, y), 2}
+    @test @inferred(monomial_type(typeof((x, y, z)))) == Monomial{(x, y, z), 3}
+end
+
 @testset "conversion" begin
     @polyvar x y z
 
