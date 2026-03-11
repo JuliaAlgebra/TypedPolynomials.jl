@@ -4,11 +4,10 @@
     p = x^2 * y + y^2 + x
     @test (@inferred p(x=>1, y=>2)) == 7
     @test (@inferred p(x=>5)(y=>3)) == p(x=>5, y=>3)
-    @test @wrappedallocs(p(x=>1, y=>2)) == 0 # Works on Julia v0.6 but fails on Julia v0.7
+    @test 0 == @allocated p(x=>1, y=>2)
     @test (@inferred x(x=>5)) == 5
     @test (@inferred x(y=>2)) == x
     @test (@inferred x(x=>y)) == y
-
 end
 
 @testset "partial substitution" begin
@@ -94,5 +93,3 @@ end
     @test @inferred(subs(5, x=>2)) == 5
     @test @inferred(subs(11, (x, y)=>(y, x))) == 11
 end
-
-
