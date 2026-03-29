@@ -19,23 +19,3 @@ function SA.promote_with_map(
     return SA.promote_with_map(Monomial(v), all_vars, map)
 end
 
-function SA.promote_with_map(
-    t::MP.Term{C,<:Monomial},
-    all_vars::Tuple{Vararg{Variable}},
-    map::MP.ExponentMap,
-) where {C}
-    new_mono, _ = SA.promote_with_map(monomial(t), all_vars, map)
-    return MP.Term(coefficient(t), new_mono), map
-end
-
-function SA.promote_with_map(
-    p::MP.Polynomial{C,<:MP.Term{C,<:Monomial}},
-    all_vars::Tuple{Vararg{Variable}},
-    map::MP.ExponentMap,
-) where {C}
-    new_terms = [begin
-        new_mono, _ = SA.promote_with_map(monomial(t), all_vars, map)
-        MP.Term(coefficient(t), new_mono)
-    end for t in terms(p)]
-    return polynomial(new_terms), map
-end
