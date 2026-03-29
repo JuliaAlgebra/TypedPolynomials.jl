@@ -36,5 +36,6 @@ include("conversion.jl")
 include("promotion.jl")
 include("call.jl")
 include("macros.jl")
+include("sa.jl")
 
 end # module
