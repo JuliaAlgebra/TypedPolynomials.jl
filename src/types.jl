@@ -57,6 +57,7 @@ MP.degree(m::Monomial, v::Variable) = _exponent(v, powers(m)...)
 
 const MonomialLike = Union{Variable, Monomial}
 
+MP.is_commutative(M::Type{<:MonomialLike}) = true
 MP.constant_monomial(M::Union{<:MonomialLike,Type{<:MonomialLike}}) = Monomial{variables(M), nvariables(M)}()
 MP.variable_union_type(::Type{<:MonomialLike}) = Variable
 MP.similar_variable(::Type{Variable}, ::Type{Val{N}}) where N = Variable{N}()
