@@ -2,6 +2,7 @@ struct Variable{Name} <: AbstractVariable
 end
 
 MP.name(::Type{Variable{N}}) where {N} = N
+MP.is_commutative(::Type{<:Variable}) = true
 MP.name(v::Variable) = name(typeof(v))
 MP.name_base_indices(v::Variable) = name_base_indices(typeof(v))
 function MP.name_base_indices(v::Type{Variable{N}}) where N
