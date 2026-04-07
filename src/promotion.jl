@@ -56,6 +56,10 @@ function MP.monomial_type(vars::Tuple{V,Vararg{Variable}}) where {V<:Variable}
     return Monomial{sorted, length(sorted)}
 end
 
+_instantiate(::Type{Tuple{}}) = ()
+_instantiate(::Type{T}) where {T<:Tuple} =
+    (Base.tuple_type_head(T)(), _instantiate(Base.tuple_type_tail(T))...)
+
 function MP.monomial_type(::Type{T}) where {T<:Tuple{Variable,Vararg{Variable}}}
-    return monomial_type(tuple((V() for V in fieldtypes(T))...))
+    return monomial_type(_instantiate(T))
 end

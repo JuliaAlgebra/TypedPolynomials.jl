@@ -56,6 +56,12 @@ end
     @test @inferred(monomial_type(typeof((x,)))) == Monomial{(x,), 1}
     @test @inferred(monomial_type(typeof((x, y)))) == Monomial{(x, y), 2}
     @test @inferred(monomial_type(typeof((x, y, z)))) == Monomial{(x, y, z), 3}
+
+    # Test that `monomial_type` on Tuple types is constant-folded,
+    # so that branches on it are eliminated at compile time.
+    _mt_branch(::Type{V}) where {V} =
+        monomial_type(V) === Monomial{(x, y), 2} ? Int : String
+    @test @inferred(_mt_branch(typeof((x, y)))) === Int
 end
 
 @testset "conversion" begin
