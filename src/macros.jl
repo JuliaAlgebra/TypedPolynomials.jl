@@ -2,13 +2,14 @@ _new_variable(name::Symbol) = :(Variable{$(esc(Expr(:quote, name)))}())
 _assign_new_variable(name::Symbol) = :($(esc(name)) = $(_new_variable(name)))
 
 function _split(expr::Expr)
-    @capture(expr, var_Symbol[lb_Int:ub_Int]) || error("Unsupported syntax. Expected x[a:b] for literal integers a and b")
+    @capture(expr, var_Symbol[lb_Int:ub_Int]) ||
+        error("Unsupported syntax. Expected x[a:b] for literal integers a and b")
     var, lb, ub
 end
 
 function _assign_new_variable(expr::Expr)
     var, lb, ub = _split(expr)
-    :($(esc(var)) = $(Expr(:tuple, [_new_variable(Symbol("$var[$i]")) for i in lb:ub]...)))
+    :($(esc(var)) = $(Expr(:tuple, [_new_variable(Symbol("$var[$i]")) for i = lb:ub]...)))
 end
 
 _return_name(s::Symbol) = esc(s)

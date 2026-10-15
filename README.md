@@ -30,30 +30,32 @@ julia> typeof(y)
 TypedPolynomials.Variable{:y}
 ```
 
-Multiplying variables creates a `Monomial{V}` where `V` is the vector of variables contained in the monomial:
+Multiplying variables creates a `Monomial{V}` where `V` is the tuple type of the
+variables contained in the monomial. Monomials share MP's implementation, while
+terms and polynomials use StarAlgebras:
 
 ```julia
 julia> x * y
 xy
 
-julia> typeof(x * y)
-TypedPolynomials.Monomial{(x, y),2}
+julia> typeof(x * y) === Monomial{typeof((x, y)),2}
+true
 
-julia> typeof(x^2)
-TypedPolynomials.Monomial{(x,),1}
+julia> typeof(x^2) === Monomial{typeof((x,)),1}
+true
 ```
 
-Multiplying a monomial (or variable) by anything other than another `Variable` or `Monomial` creates a `Term`:
+Multiplying a monomial (or variable) by a number creates a `Term`:
 
 ```julia
 julia> 3 * x
 3x
 
-julia> typeof(3 * x)
-TypedPolynomials.Term{Int64,TypedPolynomials.Monomial{(x,),1}}
+julia> 3 * x isa Term{Int}
+true
 
-julia> typeof(3.0 * x^2 * y)
-TypedPolynomials.Term{Float64,TypedPolynomials.Monomial{(x, y),2}}
+julia> 3.0 * x^2 * y isa Term{Float64}
+true
 ```
 
 Addition or subtraction of terms, monomials, and/or variables creates a `Polynomial`:
@@ -73,6 +75,9 @@ x^3 + 3.0y^2 + x + 0.5z
 
 ### Differentiation and Substitution
 
+Use `p(...)` to provide values for every variable, and `subs(p, ...)` for
+partial substitution.
+
 ```julia
 using TypedPolynomials
 using Test
@@ -81,7 +86,7 @@ p = 2x + 3.0x*y^2 + y
 @test differentiate(p, x) == 3y^2 + 2 # compute the derivative of p with respect to x
 @test differentiate.(p, (x, y)) == (3y^2 + 2, 6*x*y + 1) # compute the gradient of p
 @test p((x, y)=>(y, x)) == 2y + 3y*x^2 + x  # replace any x by y and y by x
-@test p(y=>x^2) == 2x + 3x*(x^4) + x^2 # replace any occurence of y by x^2
+@test subs(p, y=>x^2) == 2x + 3x*(x^4) + x^2 # replace any occurrence of y by x^2
 @test p(x=>1, y=>2) == 2 * 1 + 3 * 1 * 2^2 + 2 # evaluate p at [1, 2]
 ```
 
@@ -94,6 +99,6 @@ using TypedPolynomials
 A = rand(3, 3)
 @polyvar x[1:3] # assign x to a tuple of variables x1, x2, x3
 p = sum(x .* x) # x_1^2 + x_2^2 + x_3^2
-p(x[1]=>2, x[3]=>3) # x_2^2 + 13
+subs(p, x[1]=>2, x[3]=>3) # x_2^2 + 13
 p(x=>A*vec(x)) # corresponds to dot(A*x, A*x), need vec to convert the tuple to a vector
 ```

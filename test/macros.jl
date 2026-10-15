@@ -1,3 +1,7 @@
+if !@isdefined(TypedPolynomials)
+    include("utils.jl")
+end
+
 module M
 
 using Test
@@ -14,11 +18,15 @@ using TypedPolynomials: @polyvar, Variable
         @test typeof(z) == Variable{:z}
 
         @polyvar a[1:3]
-        @test typeof(a) == Tuple{Variable{Symbol("a[1]")}, Variable{Symbol("a[2]")}, Variable{Symbol("a[3]")}}
+        @test typeof(a) == Tuple{
+            Variable{Symbol("a[1]")},
+            Variable{Symbol("a[2]")},
+            Variable{Symbol("a[3]")},
+        }
 
         @polyvar b c[1:2]
         @test typeof(b) == Variable{:b}
-        @test typeof(c) == Tuple{Variable{Symbol("c[1]")}, Variable{Symbol("c[2]")}}
+        @test typeof(c) == Tuple{Variable{Symbol("c[1]")},Variable{Symbol("c[2]")}}
     end
 
     @testset "macro assignments" begin

@@ -1,12 +1,17 @@
+if !@isdefined(TypedPolynomials)
+    include("utils.jl")
+end
+
 @testset "complete substitution" begin
     @polyvar x y z
 
     p = x^2 * y + y^2 + x
     @test (@inferred p(x=>1, y=>2)) == 7
-    @test (@inferred p(x=>5)(y=>3)) == p(x=>5, y=>3)
+    @test (@inferred subs(p, x=>5)(y=>3)) == p(x=>5, y=>3)
     @test 0 == @allocated p(x=>1, y=>2)
     @test (@inferred x(x=>5)) == 5
-    @test (@inferred x(y=>2)) == x
+    @test (@inferred subs(x, y=>2)) == x
+    @test_throws ArgumentError x(y=>2)
     @test (@inferred x(x=>y)) == y
 end
 
@@ -14,16 +19,17 @@ end
     @polyvar x y z
 
     p = x^2 * y + y^2 + x
-    p2 = @inferred p(x=>4)
+    p2 = @inferred subs(p, x=>4)
+    @test_throws ArgumentError p(x=>4)
     @test length(terms(p2)) == 3
     @test terms(p2)[3].coefficient == 1
-    @test degree(terms(p2)[3].monomial) == 2
+    @test degree(monomial(terms(p2)[3])) == 2
     @test exponents(monomial(terms(p2)[3])) == (2,)
     @test terms(p2)[2].coefficient == 16
-    @test degree(terms(p2)[2].monomial) == 1
+    @test degree(monomial(terms(p2)[2])) == 1
     @test exponents(monomial(terms(p2)[2])) == (1,)
     @test terms(p2)[1].coefficient == 4
-    @test degree(terms(p2)[1].monomial) == 0
+    @test degree(monomial(terms(p2)[1])) == 0
 end
 
 @testset "more inference" begin
@@ -43,9 +49,9 @@ end
 @testset "more call overloads" begin
     @polyvar x y z
     t = 5x^2 * z * 3 * y * z
-    @test @inferred(t(x=>2, y=>2)) == @inferred(15 * 2^2 * z^2 * 2)
+    @test @inferred(subs(t, x=>2, y=>2)) == @inferred(15 * 2^2 * z^2 * 2)
     m = z * z * z
-    @test @inferred(m(x=>5)) == z^3
+    @test @inferred(subs(m, x=>5)) == z^3
     @test @inferred(m(z=>2)) == 8
 end
 
