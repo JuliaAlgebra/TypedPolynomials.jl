@@ -23,6 +23,12 @@ struct FakeScalar end
     end
 
     @testset "orderings" begin
+        order = Graded(LexOrder())
+        for p in (x, x * y, 2x, x + y, (x, y), ())
+            @test (@inferred ordering(p)) === order
+            @test (@inferred ordering(typeof(p))) === order
+            @test (@wrappedallocs ordering(p)) == 0
+        end
         @test Monomial(y) < Monomial(x)
         @test Monomial(x) > Monomial(y)
         @test Monomial(y) < x
