@@ -1,5 +1,8 @@
-struct FakeScalar
+if !@isdefined(TypedPolynomials)
+    include("utils.jl")
 end
+
+struct FakeScalar end
 
 @testset "polynomials" begin
     @polyvar x y z
@@ -94,10 +97,11 @@ end
         @test @inferred(zero(m)) == @inferred(zero(typeof(m)))
         @test zero(m) == 0 * m
 
-        @test @inferred(Monomial{tuple(), 0}()) == @inferred(x^0)
+        @test @inferred(Monomial{Tuple{},0}()) == @inferred(x^0)
 
-        @test @inferred(Monomial{(x, y)}([1, 2])) == Monomial{(x, y)}((1, 2))
-        @test @inferred(monomial((x, y), (1, 2))) == Monomial{(x, y)}((1, 2))
+        @test @inferred(Monomial{typeof((x, y))}([1, 2])) ==
+              Monomial{typeof((x, y))}((1, 2))
+        @test @inferred(monomial((x, y), (1, 2))) == Monomial{typeof((x, y))}((1, 2))
         @test_throws AssertionError monomial((x,), (1, 2))
         @test_throws AssertionError monomial((y, x), (1, 2))
         @test_throws AssertionError monomial((x, x), (1, 2))
@@ -135,15 +139,15 @@ end
         t2 = 2m2
         @test (@wrappedallocs t1 < t2) == 0
 
-        @test -(2x^2 * y ) == -1 * (2y * x^2)
+        @test -(2x^2 * y) == -1 * (2y * x^2)
 
-        @test TypedPolynomials.monomial_type(5 * x * y) == Monomial{(x, y), 2}
+        @test TypedPolynomials.monomial_type(5 * x * y) == Monomial{typeof((x, y)),2}
     end
 
     @testset "polynomials" begin
         p = @inferred x + 1
         @test isa(p, Polynomial)
-        @test p.terms[2] == term(x)
+        @test terms(p)[2] == term(x)
         @test variables(p) == (x,)
 
         @test @inferred(zero(p)) == @inferred(zero(typeof(p)))
@@ -190,8 +194,12 @@ end
         @test extdegree(p) == (1, 3)
         @test nvariables(p) == 2
 
-        @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 1376
-        @test (@wrappedallocs x^2 + 1) <= 384
+        # Terms enter shared accumulation without temporary polynomials.
+        @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 1776
+        @test (@wrappedallocs x^2 + 1) <= 208
+        t, q = 2x, x^2 + 1
+        @test (@wrappedallocs t * q) <= 208
+        @test (@wrappedallocs q * t) <= 208
 
         @test (1 + x) * (x + 3) == 3 + 4x + x^2
         @test (2.0 + x) * (y + 1) == 2 + 2y + x + x * y
@@ -248,12 +256,12 @@ end
 
 
     function testmonomials(var, degree)
-        [var^i for i in 0:degree]
+        [var^i for i = 0:degree]
     end
 
     @testset "monomial vector" begin
         ms = @inferred testmonomials(x, 3)
-        @test eltype(ms) == Monomial{(x,), 1}
+        @test eltype(ms) == Monomial{typeof((x,)),1}
     end
 
     @testset "operators" begin
@@ -292,13 +300,13 @@ end
         @test @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
     end
 
-    @testset "Term construction shortcut" begin
+    @testset "Explicit term construction for arbitrary coefficients" begin
         @polyvar x y z
 
-        # Verify that our shortcut that (*)(x, m::MonomialLike) = Term(x, m) works
-        @test typeof(@inferred(FakeScalar() * x)) == Term{FakeScalar, Monomial{(x,), 1}}
-        @test typeof(@inferred(FakeScalar() * x^2)) == Term{FakeScalar, Monomial{(x,), 1}}
-        @test typeof(@inferred(x * FakeScalar())) == Term{FakeScalar, Monomial{(x,), 1}}
-        @test typeof(@inferred(x^2 * FakeScalar())) == Term{FakeScalar, Monomial{(x,), 1}}
+        for m in (x, x^2)
+            @test typeof(@inferred term(FakeScalar(), m)) === term_type(m, FakeScalar)
+            @test_throws MethodError FakeScalar() * m
+            @test_throws MethodError m * FakeScalar()
+        end
     end
 end

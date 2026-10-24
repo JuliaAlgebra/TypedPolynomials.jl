@@ -13,5 +13,6 @@ using JuMP: @variable, Model
 
     m = Model()
     @variable(m, Q[1:2, 1:2])
-    @test @inferred([x, y]' * Q * [x, y]) == Q[1, 1] * x^2 + Q[2, 1] * x * y + Q[1, 2] * x * y + Q[2, 2] * y^2
+    @test @inferred([x, y]' * Q * [x, y]) ==
+          Q[1, 1] * x^2 + Q[2, 1] * x * y + Q[1, 2] * x * y + Q[2, 2] * y^2
 end

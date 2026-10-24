@@ -1,3 +1,7 @@
+if !@isdefined(TypedPolynomials)
+    include("utils.jl")
+end
+
 @testset "monomial generation" begin
     @polyvar x y z
 
@@ -7,7 +11,7 @@
 
     Random.seed!(1)
     for vars in ((x,), (x, y), (x, y, z), (x, z))
-        for degree in 0:5
+        for degree = 0:5
             @test issorted(@inferred(monomials(vars, degree)))
             @test issorted(@inferred(monomials(vars, 0:degree)))
         end
