@@ -2,6 +2,8 @@ if !@isdefined(TypedPolynomials)
     include("utils.jl")
 end
 
+using SparseArrays
+
 struct FakeScalar end
 
 @testset "polynomials" begin
@@ -200,9 +202,11 @@ struct FakeScalar end
         @test extdegree(p) == (1, 3)
         @test nvariables(p) == 2
 
-        # Terms enter shared accumulation without temporary polynomials.
-        @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= 1776
-        @test (@wrappedallocs x^2 + 1) <= 208
+        # Older Julia releases allocate more in shared accumulation.
+        sum_limit = VERSION < v"1.13" ? 1824 : 1776
+        constant_limit = VERSION < v"1.13" ? 288 : 208
+        @test (@wrappedallocs x^2 + y + x * x + 3 * x * y + x * y) <= sum_limit
+        @test (@wrappedallocs x^2 + 1) <= constant_limit
         t, q = 2x, x^2 + 1
         @test (@wrappedallocs t * q) <= 208
         @test (@wrappedallocs q * t) <= 208
@@ -299,11 +303,27 @@ struct FakeScalar end
 
         xv = @inferred(vec(x))
         @test @inferred(dot(xv, xv)) == x[1]^2 + x[2]^2
-        @test @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
-        @test @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
+        # Julia 1.10 cannot infer these different-variable vector products.
+        if VERSION < v"1.13"
+            @test dot(xv, [y, z]) == x[1]*y + x[2]*z
+            @test dot([y, z], xv) == x[1]*y + x[2]*z
+        else
+            @test @inferred(dot(xv, [y, z])) == x[1]*y + x[2]*z
+            @test @inferred(dot([y, z], xv)) == x[1]*y + x[2]*z
+        end
 
         @test @inferred([1 2; 3 4] * xv) == [x[1] + 2x[2], 3x[1] + 4x[2]]
         @test @inferred(dot(xv, [1 2; 3 4] * xv)) == x[1]^2 + 5x[1]*x[2] + 4x[2]^2
+    end
+
+    @testset "sparse and dense matrix addition" begin
+        @polyvar x y
+        p = x + y
+        A = fill(p, 3, 3)
+        B = sparse([1, 2], [1, 3], [p, p], 3, 3)
+        expected = [2p p p; p p 2p; p p p]
+        @test B + A == expected
+        @test A + B == expected
     end
 
     @testset "Explicit term construction for arbitrary coefficients" begin

@@ -1,8 +1,6 @@
-include("utils.jl")
-using Pkg, NBInclude
+module TestTypedPolynomials
 
-const mvp_test = joinpath(dirname(pathof(MultivariatePolynomials)), "..", "test")
-const Mod = TypedPolynomials
+include("utils.jl")
 
 @testset "TypedPolynomials" begin
     # include("jump.jl")
@@ -15,11 +13,7 @@ const Mod = TypedPolynomials
     # include("sequences.jl")
 end
 
-#@testset "MultivariatePolynomials interface tests" begin
-include(joinpath(mvp_test, "utils.jl"))
-include(joinpath(mvp_test, "commutativetests.jl"))
-#end
-
-@testset "Demo" begin
-    @nbinclude(joinpath(@__DIR__, "..", "demo.ipynb"))
 end
+
+include("mvp.jl")
+include("demo.jl")
