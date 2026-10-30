@@ -53,9 +53,9 @@ function Monomial{V}(exps::Union{Tuple,AbstractVector} = ()) where {V}
 end
 
 MP.is_commutative(::Type{<:Variable}) = true
-MP.ordering(::Type{<:Variable}) = MP.Graded{MP.LexOrder}
-MP.ordering(::Type{<:Tuple{Vararg{Variable}}}) = MP.Graded{MP.LexOrder}
-MP.ordering(::Tuple{Vararg{Variable}}) = MP.Graded{MP.LexOrder}
+MP.ordering(::Type{<:Variable}) = MP.Graded(MP.LexOrder())
+MP.ordering(::Type{<:Tuple{Vararg{Variable}}}) = MP.Graded(MP.LexOrder())
+MP.ordering(::Tuple{Vararg{Variable}}) = MP.Graded(MP.LexOrder())
 MP.constant_monomial(::Type{M}) where {M<:Monomial} = M()
 MP.variable_union_type(::Type{<:MonomialLike}) = Variable
 MP.similar_variable(::Type{Variable}, ::Type{Val{N}}) where {N} = Variable{N}()
