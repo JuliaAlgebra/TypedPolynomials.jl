@@ -23,7 +23,7 @@ checksorted(x::Tuple{}, cmp) = true
 checksorted(x::Tuple, cmp) = cmp(x[1], x[2]) && checksorted(Base.tail(x), cmp)
 
 # Variable names remain encoded in the tuple type; arithmetic is shared with MP.
-const Monomial{V<:Tuple{Vararg{Variable}},N} = MP.Polynomial{MP.Monomial,V,NTuple{N,Int}}
+const Monomial{V<:Tuple{Vararg{Variable}},N} = MP.BasisElement{MP.Monomial,V,NTuple{N,Int}}
 const MonomialLike = Union{Variable,Monomial}
 const _Algebra = SA.StarAlgebra{<:MP.Variables{MP.Monomial,<:Tuple{Vararg{Variable}}}}
 const Term{T} = SA.Term{T,<:_Algebra}
@@ -41,9 +41,9 @@ MP.monomial_type(v::Variable) = monomial_type(typeof(v))
 function MP.monomial(vars::Tuple{Vararg{Variable}}, exps::NTuple{N,Int}) where {N}
     @assert length(vars) == N
     @assert checksorted(vars, >)
-    return MP.Polynomial(MP.Variables{MP.Monomial}(vars), exps)
+    return MP.BasisElement(MP.Variables{MP.Monomial}(vars), exps)
 end
-MP.monomial(v::Variable) = MP.Polynomial{MP.Monomial}(v)
+MP.monomial(v::Variable) = MP.BasisElement{MP.Monomial}(v)
 Monomial(v::Variable) = monomial(v)
 function Monomial{V,N}(exps::NTuple{N,Int} = ntuple(_ -> 0, Val(N))) where {V,N}
     return monomial(_instantiate(V), exps)
