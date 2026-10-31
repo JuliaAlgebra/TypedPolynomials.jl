@@ -30,6 +30,15 @@ julia> typeof(y)
 TypedPolynomials.Variable{:y}
 ```
 
+To declare the created bindings as constants at global scope, use:
+
+```julia
+@polyvar x y a[1:3] constant = true
+```
+
+`constant` must be a literal `true` or `false` and defaults to `false`. A single
+declaration returns its binding; multiple declarations return a tuple of bindings.
+
 Multiplying variables creates a `Monomial{V}` where `V` is the tuple type of the
 variables contained in the monomial. Monomials share MP's implementation, while
 terms and polynomials use StarAlgebras:
