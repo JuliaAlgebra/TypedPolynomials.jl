@@ -1,5 +1,9 @@
-_new_variable(name::Symbol) = :(Variable{$(esc(Expr(:quote, name)))}())
-_assign_new_variable(name::Symbol) = :($(esc(name)) = $(_new_variable(name)))
+function _new_variable(name::Symbol, order)
+    return :(Variable{$(esc(Expr(:quote, name))),$order}())
+end
+function _assign_new_variable(name::Symbol, order)
+    return :($(esc(name)) = $(_new_variable(name, order)))
+end
 
 function _split(expr::Expr)
     @capture(expr, var_Symbol[lb_Int:ub_Int]) ||
@@ -7,9 +11,12 @@ function _split(expr::Expr)
     var, lb, ub
 end
 
-function _assign_new_variable(expr::Expr)
+function _assign_new_variable(expr::Expr, order)
     var, lb, ub = _split(expr)
-    :($(esc(var)) = $(Expr(:tuple, [_new_variable(Symbol("$var[$i]")) for i = lb:ub]...)))
+    :(
+        $(esc(var)) =
+            $(Expr(:tuple, [_new_variable(Symbol("$var[$i]"), order) for i = lb:ub]...))
+    )
 end
 
 _return_name(s::Symbol) = esc(s)
@@ -46,28 +53,38 @@ At global scope, declare every created binding constant with `constant = true`:
 A single declaration still returns its binding; multiple declarations return
 a tuple of the bindings.
 
+Choose the monomial ordering with `monomial_order`, it defaults to
+`MP.Graded{MP.LexOrder}`:
+
+    @polyvar x y monomial_order = MP.LexOrder
+
 You can also assign the results of the macro to a tuple:
 
     vars = @polyvar(x[1:5])
-    @assert typeof(vars[1]) == Variable{:x1}
+    @assert typeof(vars[1]) == Variable{Symbol("x[1]"),MP.Graded{MP.LexOrder}}
 
 
 """
 macro polyvar(args...)
     names = Any[]
     constant = false
+    order = MP.Graded{MP.LexOrder}
     for arg in args
         if Base.Meta.isexpr(arg, :(=))
-            arg.args[1] == :constant ||
+            if arg.args[1] == :constant
+                constant = arg.args[2]
+                constant isa Bool ||
+                    error("Keyword argument `constant` must be a literal `true` or `false`")
+            elseif arg.args[1] == :monomial_order
+                order = esc(arg.args[2])
+            else
                 error("Unrecognized keyword argument `$(arg.args[1])`")
-            constant = arg.args[2]
-            constant isa Bool ||
-                error("Keyword argument `constant` must be a literal `true` or `false`")
+            end
         else
             push!(names, arg)
         end
     end
-    assignments = _assign_new_variable.(names)
+    assignments = [_assign_new_variable(name, order) for name in names]
     if constant
         assignments = [Expr(:const, expr) for expr in assignments]
     end
