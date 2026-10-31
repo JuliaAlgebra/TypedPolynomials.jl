@@ -7,7 +7,7 @@ using Reexport
 @reexport using MultivariatePolynomials
 const MP = MultivariatePolynomials
 import StarAlgebras as SA
-export Term, Polynomial
+export Term, Polynomial, SingleTermPolynomial
 
 using MacroTools
 import Base:

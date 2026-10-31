@@ -9,6 +9,7 @@ include("utils.jl")
     include("calculus.jl")
     include("promotion.jl")
     include("polynomials.jl")
+    include("type_display.jl")
     include("substitution.jl")
     # include("sequences.jl")
 end

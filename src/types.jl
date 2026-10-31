@@ -25,9 +25,7 @@ checksorted(x::Tuple, cmp) = cmp(x[1], x[2]) && checksorted(Base.tail(x), cmp)
 # Variable names remain encoded in the tuple type; arithmetic is shared with MP.
 const Monomial{V<:Tuple{Vararg{Variable}},N} = MP.BasisElement{MP.Monomial,V,NTuple{N,Int}}
 const MonomialLike = Union{Variable,Monomial}
-const _Algebra = SA.StarAlgebra{<:MP.Variables{MP.Monomial,<:Tuple{Vararg{Variable}}}}
-const Term{T} = SA.Term{T,<:_Algebra}
-const Polynomial{T} = SA.AlgebraElement{T,<:_Algebra}
+include("type_display.jl")
 
 _instantiate(::Type{Tuple{}}) = ()
 function _instantiate(::Type{T}) where {T<:Tuple}
