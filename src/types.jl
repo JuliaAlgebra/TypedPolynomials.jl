@@ -1,9 +1,17 @@
-struct Variable{Name} <: AbstractVariable end
+"""
+    Variable{Name,M<:MP.AbstractMonomialOrdering} <: AbstractVariable
 
-MP.name(::Type{Variable{N}}) where {N} = N
+Variable of name `Name` whose monomials are sorted by the monomial ordering
+`M()`. `Variable{Name}()` uses the default ordering `MP.Graded{MP.LexOrder}`.
+"""
+struct Variable{Name,M<:MP.AbstractMonomialOrdering} <: AbstractVariable end
+
+Variable{N}() where {N} = Variable{N,MP.Graded{MP.LexOrder}}()
+
+MP.name(::Type{<:Variable{N}}) where {N} = N
 MP.name(v::Variable) = name(typeof(v))
 MP.name_base_indices(v::Variable) = name_base_indices(typeof(v))
-function MP.name_base_indices(v::Type{Variable{N}}) where {N}
+function MP.name_base_indices(::Type{<:Variable{N}}) where {N}
     name = string(N)
     splits = split(string(N), r"[\[,\]]\s*", keepempty = false)
     if length(splits) == 1
@@ -51,14 +59,24 @@ function Monomial{V}(exps::Union{Tuple,AbstractVector} = ()) where {V}
 end
 
 MP.is_commutative(::Type{<:Variable}) = true
-MP.ordering(::Type{<:Variable}) = MP.Graded(MP.LexOrder())
-MP.ordering(::Type{<:Tuple{Vararg{Variable}}}) = MP.Graded(MP.LexOrder())
-MP.ordering(::Tuple{Vararg{Variable}}) = MP.Graded(MP.LexOrder())
+MP.ordering(::Type{<:Variable{N,M}}) where {N,M} = M()
+MP.ordering(::Type{Tuple{}}) = MP.Graded(MP.LexOrder())
+function MP.ordering(::Type{V}) where {V<:Tuple{Variable,Vararg{Variable}}}
+    return _ordering(MP.ordering(Base.tuple_type_head(V)), V)
+end
+_ordering(o, ::Type{Tuple{}}) = o
+function _ordering(o, ::Type{V}) where {V<:Tuple}
+    if MP.ordering(Base.tuple_type_head(V)) != o
+        throw(ArgumentError("Variables of `$V` have different monomial orderings"))
+    end
+    return _ordering(o, Base.tuple_type_tail(V))
+end
+MP.ordering(vars::Tuple{Vararg{Variable}}) = MP.ordering(typeof(vars))
 MP.constant_monomial(::Type{M}) where {M<:Monomial} = M()
 MP.variable_union_type(::Type{<:MonomialLike}) = Variable
 MP.similar_variable(::Type{Variable}, ::Type{Val{N}}) where {N} = Variable{N}()
 
-Base.:(==)(::Variable{N}, ::Variable{N}) where {N} = true
+Base.:(==)(::V, ::V) where {V<:Variable} = true
 Base.:(==)(::Variable, ::Variable) = false
 Base.:^(v::Variable, n::Integer) = monomial((v,), (Int(n),))
 MA.mutability(::Type{<:Monomial}) = MA.IsNotMutable()

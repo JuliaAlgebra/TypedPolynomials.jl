@@ -12,7 +12,7 @@ TypedPolynomials.jl provides an implementation of the multivariate polynomial in
 
 ### Caveats
 
-* There is no distinction in this package between a variable's *name* and its identity. That is, two variables named `x` are exactly the same object, regardless of how they were created.
+* There is no distinction in this package between a variable's *name* and its identity. That is, two variables named `x` with the same monomial ordering are exactly the same object, regardless of how they were created.
 * For problems with large numbers of variables, or for which the set of variables is not known at compile-time, you may see better performance overall with DynamicPolynomials.jl, e.g. [#32](https://github.com/JuliaAlgebra/TypedPolynomials.jl/issues/32). This may change in the future.
 
 # Usage
@@ -24,11 +24,21 @@ julia> @polyvar x y z  # Declare three `Variable`s named x, y, and z and assign 
 (x, y, z)
 
 julia> typeof(x)
-TypedPolynomials.Variable{:x}
+Variable{:x, Graded{LexOrder}}
 
 julia> typeof(y)
-TypedPolynomials.Variable{:y}
+Variable{:y, Graded{LexOrder}}
 ```
+
+The second parameter of `Variable` is the monomial ordering used to sort the
+terms of polynomials. It defaults to the graded lexicographic order and can be
+changed with the `monomial_order` keyword:
+
+```julia
+@polyvar x y monomial_order = MultivariatePolynomials.LexOrder
+```
+
+All the variables of a monomial must have the same monomial ordering.
 
 To declare the created bindings as constants at global scope, use:
 
