@@ -66,6 +66,17 @@ end
           NTuple{2,Monomial{typeof((x,)),1}}
 end
 
+@testset "promotion of polynomials over nested variables" begin
+    @polyvar x y z w
+
+    p = 1.0x + y + z + w
+    q = big(1) // 2 * z - 1
+    P = polynomial_type(monomial_type((x, y, z, w)), BigFloat)
+    @test promote_type(typeof(p), typeof(q)) == P
+    @test promote_type(typeof(q), typeof(p)) == P
+    @test eltype([[p]; [q]]) == P
+end
+
 @testset "monomial_type for variable tuples" begin
     @polyvar x y z
 

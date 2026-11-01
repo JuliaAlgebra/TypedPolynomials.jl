@@ -15,6 +15,17 @@ end
     merge(merge(v1, v2), vars...)
 end
 
+# The generic method merges the variables with comparisons that are not
+# constant-folded on Julia v1.10, so `promote_type` of polynomials over
+# different variables would be `Any`.
+function MP.promote_variables_with_maps(
+    a::Tuple{Vararg{Variable}},
+    b::Tuple{Vararg{Variable}},
+)
+    vars = merge(a, b...)
+    return (vars, MP._map(a, vars)), (vars, MP._map(b, vars))
+end
+
 function Base.promote_rule(::Type{M1}, ::Type{M2}) where {M1<:Monomial,M2<:Monomial}
     vars = merge(variables(M1), variables(M2)...)
     return Monomial{typeof(vars),length(vars)}
